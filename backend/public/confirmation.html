@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation d'envoi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f7f7f7;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: green;
+        }
+        .info {
+            margin-bottom: 1rem;
+        }
+        code {
+            background-color: #eee;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Lien créé avec succès</h1>
+
+        <div class="info"><strong>ID du lien :</strong> <code id="link_id"></code></div>
+        <div class="info"><strong>Date d'expiration :</strong> <span id="expires_at"></span></div>
+
+        <p>
+            Transmets ce <strong>lien</strong> à la personne :
+        </p>
+        <p>
+            <code id="full_link"></code>
+        </p>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const linkId = params.get("link_id");
+        const expiresAt = params.get("expires_at");
+
+        document.getElementById("link_id").textContent = linkId;
+        document.getElementById("expires_at").textContent = expiresAt;
+
+        const fullUrl = `${window.location.origin}/public/claim.html?link_id=${linkId}`;
+        document.getElementById("full_link").textContent = fullUrl;
+    </script>
+</body>
+</html>

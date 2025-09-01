@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Réclamer mes cryptos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --primary:#1e88e5;
+      --ok:#2e7d32;
+      --err:#c62828;
+      --bg:#f6f6f6;
+      --card:#fff;
+    }
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0}
+    .wrap{max-width:760px;margin:24px auto;padding:0 14px}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 6px 24px #0001;padding:24px 22px}
+    h1{text-align:center;margin:0 0 6px}
+    .link-id{color:#666;text-align:center;margin-bottom:18px}
+    label{display:block;margin:.9em 0 .35em;font-weight:bold}
+    input{width:100%;font-size:1.05rem;padding:.7em .8em;border-radius:9px;border:1.1px solid #cfcfcf;box-sizing:border-box}
+    .row{display:flex;gap:16px;align-items:flex-end}
+    .row > *{flex:1}
+    .hint{color:#777;font-size:.92rem;margin-top:.3em}
+    .msg{font-size:.95rem;margin-top:.45em;font-style:italic;display:none}
+    .msg.ok{color:var(--ok)}
+    .msg.err{color:var(--err)}
+    .btn{display:inline-block;width:100%;padding:14px;border:0;border-radius:10px;background:var(--primary);color:#fff;font-weight:bold;font-size:1.06rem;cursor:pointer;margin-top:16px}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn.secondary{background:#7e57c2}
+    .banner{margin-top:14px;padding:14px;border-radius:10px;display:none}
+    .banner.ok{background:#e9f7ec;border:1.5px solid var(--ok);color:#144d1b}
+    .banner.err{background:#fde8e8;border:1.5px solid var(--err);color:#7a1d1d}
+    @media (max-width:640px){.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <!-- CONFIG CENTRALE -->
+  <script src="config.js"></script>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>Réclamer mes cryptos</h1>
+      <div class="link-id" id="linkId">Identifiant du lien : <span id="sidLabel">—</span></div>
+
+      <!-- Téléphone -->
+      <label for="phone">Ton numéro de téléphone :</label>
+      <input type="text" id="phone" placeholder="+33..." autocomplete="tel" inputmode="tel" />
+      <div id="phoneMsg" class="msg"></div>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:16px 0">
+
+      <!-- Wallet -->
+      <label for="wallet">Ton wallet (réception) :</label>
+      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
+      <div class="row">
+        <button id="btnMM" class="btn secondary" style="max-width:300px">Connecter MetaMask</button>
+        <button id="btnOther" class="btn secondary" style="max-width:300px;opacity:.65;cursor:not-allowed" title="Bientôt">TBA: Autres wallets</button>
+      </div>
+      <div class="hint">Connecte MetaMask ou colle ton adresse manuellement (EVM, 0x...).</div>
+
+      <button id="btnClaim" class="btn" disabled>Recevoir mes cryptos</button>
+
+      <div id="ok" class="banner ok"></div>
+      <div id="err" class="banner err"></div>
+    </div>
+  </div>
+
+<script>
+  // -------- Config backend --------
+  const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+    ? window.LINKISEND_CONFIG.BACKEND_BASE
+    : `${location.protocol}//${location.hostname}:8000`;
+
+  // -------- Utilitaires --------
+  const $ = s => document.querySelector(s);
+  const sid = new URLSearchParams(location.search).get('sid') || new URLSearchParams(location.search).get('id');
+  $('#sidLabel').textContent = sid || '—';
+
+  function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
+  function phoneLooksOk(phone){
+    if(!phone) return false;
+    const digits = digitsOnly(phone);
+    return digits.length >= 6;
+  }
+  const EVM_RE = /^0x[a-fA-F0-9]{40}$/;
+  function evmOk(addr){ return EVM_RE.test((addr||'').trim()); }
+
+  function showMsg(ok, text){
+    const el = $('#phoneMsg');
+    el.style.display = 'block';
+    el.className = 'msg ' + (ok ? 'ok' : 'err');
+    el.textContent = text;
+  }
+  function hideMsg(){ const el = $('#phoneMsg'); el.style.display = 'none'; }
+
+  // Affichage retardé du message (après "dernier chiffre")
+  let phoneTimer = null;
+  $('#phone').addEventListener('input', () => {
+    $('#btnClaim').disabled = true; // on resserre tant que pas validé
+    hideMsg();
+    clearTimeout(phoneTimer);
+    phoneTimer = setTimeout(() => {
+      const val = $('#phone').value.trim();
+      if(!val){ hideMsg(); return; }
+      if(phoneLooksOk(val)) showMsg(true, 'Numéro vérifié');
+      else showMsg(false, 'Numéro invalide');
+      updateClaimState();
+    }, 450); // message après petite pause de frappe
+  });
+  $('#phone').addEventListener('blur', () => {
+    const val = $('#phone').value.trim();
+    if(!val){ hideMsg(); return; }
+    if(phoneLooksOk(val)) showMsg(true, 'Numéro vérifié');
+    else showMsg(false, 'Numéro invalide');
+    updateClaimState();
+  });
+
+  // Connexion MetaMask
+  $('#btnMM').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if(!window.ethereum){ alert('MetaMask non détecté.'); return; }
+    try{
+      const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+      if(accounts && accounts[0]){
+        $('#wallet').value = accounts[0];
+        updateClaimState();
+      }
+    }catch{ /* refus */ }
+  });
+
+  // Validation globale pour activer le bouton
+  function updateClaimState(){
+    const phoneOk = phoneLooksOk($('#phone').value.trim());
+    const w = $('#wallet').value.trim();
+    const walletOk = evmOk(w);
+    const enable = !!sid && phoneOk && walletOk;
+    $('#btnClaim').disabled = !enable;
+  }
+  $('#wallet').addEventListener('input', updateClaimState);
+
+  // Soumission (réclamation)
+  $('#btnClaim').addEventListener('click', async () => {
+    $('#ok').style.display='none';
+    $('#err').style.display='none';
+
+    const payload = {
+      short_id: sid,
+      recipient_phone: $('#phone').value.trim(),
+      recipient_wallet: $('#wallet').value.trim()
+    };
+
+    try{
+      const res = await fetch(`${BACKEND}/claim`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || 'Erreur lors de la réclamation');
+
+      $('#btnClaim').disabled = true;
+      $('#ok').textContent = 'Réclamation réussie. Les fonds ont été envoyés vers ton wallet.';
+      $('#ok').style.display = 'block';
+    }catch(err){
+      $('#err').textContent = err.message || 'Erreur réseau';
+      $('#err').style.display = 'block';
+    }
+  });
+
+  // Protection : si pas d’identifiant dans l’URL
+  if(!sid){
+    $('#ok').style.display='none';
+    $('#err').style.display='block';
+    $('#err').textContent = 'Lien invalide : identifiant manquant.';
+    $('#btnClaim').disabled = true;
+  }
+</script>
+</body>
+</html>

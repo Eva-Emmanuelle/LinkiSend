@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test de génération de lien</title>
+</head>
+<body>
+    <h1>🔗 Test de génération de lien</h1>
+
+    <form id="linkForm">
+        <label for="amount">💰 Montant :</label><br>
+        <input type="text" id="amount" name="amount"><br><br>
+
+        <label for="currency">🪙 Token :</label><br>
+        <input type="text" id="currency" name="currency" value="USDT"><br><br>
+
+        <label for="sender_wallet">📤 Wallet :</label><br>
+        <input type="text" id="sender_wallet" name="sender_wallet" value="0xABC123..."><br><br>
+
+        <label for="recipient_phone">📱 Téléphone :</label><br>
+        <input type="text" id="recipient_phone" name="recipient_phone" value="+33612345678"><br><br>
+
+        <label for="network">🌐 Réseau :</label><br>
+        <input type="text" id="network" name="network" value="Ethereum"><br><br>
+
+        <input type="submit" value="Générer le lien">
+    </form>
+
+    <pre id="response"></pre>
+
+    <script>
+        const form = document.getElementById("linkForm");
+        const responseEl = document.getElementById("response");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const data = {
+                amount: parseFloat(form.amount.value),
+                currency: form.currency.value,
+                sender_wallet: form.sender_wallet.value,
+                recipient_phone: form.recipient_phone.value,
+                network: form.network.value
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/create-link", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Redirection vers la page de confirmation
+                    const url = `confirmation.html?link_id=${result.link_id}&expires_at=${encodeURIComponent(result.expires_at)}`;
+                    window.location.href = url;
+                } else {
+                    responseEl.textContent = "Erreur : " + JSON.stringify(result, null, 2);
+                }
+
+            } catch (error) {
+                responseEl.textContent = "Erreur inattendue : " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

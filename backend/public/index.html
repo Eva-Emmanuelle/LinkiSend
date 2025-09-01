@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Envoyer des cryptos avec LinkiSend</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <style>
+    body{font-family:Arial,sans-serif;background:#f6f6f6;margin:0}
+    .container{max-width:380px;width:95vw;margin:18px auto 0;background:#fff;padding:2em 1.1em 1.7em;border-radius:16px;box-shadow:0 4px 20px #0001}
+    h1{text-align:center;color:#222;font-size:1.42em;margin-bottom:1.2em}
+    label{display:block;margin-top:1.18em;font-weight:bold;font-size:1.07em}
+    input,select{width:100%;max-width:340px;font-size:1.08em;padding:.65em;margin-top:.32em;border-radius:7px;border:1.1px solid #bbb;box-sizing:border-box}
+    input[readonly]{background:#eee;color:#666}
+    .wallet-link{color:#3498db;text-decoration:underline;font-size:.98em;margin-top:.2em;display:block}
+    button{width:100%;margin-top:2em;padding:1.1em;background:#27ae60;color:#fff;font-size:1.14em;border:none;border-radius:7px;cursor:pointer;font-weight:bold}
+    button:hover{background:#219653;transform:translateY(-1px);box-shadow:0 6px 18px #27ae6040}
+    button:active{transform:translateY(0);box-shadow:none}
+    #result,#error{margin-top:1.6em;padding:1em;border-radius:8px;text-align:center;font-size:1.07em;word-break:break-all}
+    #result{background:#e6ffe6;border:1.5px solid #27ae60;color:#165121;display:none}
+    #error{background:#ffdede;border:1.5px solid #e74c3c;color:#c0392b;display:none}
+    .help{font-size:.94em;color:#777;margin:.13em 0 .8em;font-style:italic}
+    #lang-switch{display:flex;justify-content:flex-end;gap:6px;margin-bottom:6px}
+    #lang-switch button{border:1px solid #ddd;padding:.25em .6em;border-radius:6px;cursor:pointer;background:#fff}
+    .history-btn{background:#5a2ca0;margin-top:1em}
+    .history-btn:hover{background:#4b2385}
+    @media (max-width:500px){.container{padding:1.1em .4em 1.3em}label,input,select,button{font-size:1em}}
+    @media (max-width:370px){.container{padding:.5em .1em 1em}}
+  </style>
+</head>
+<body>
+  <!-- CONFIG CENTRALE -->
+  <script src="config.js"></script>
+
+  <div class="container">
+
+    <!-- Switch de langue -->
+    <div id="lang-switch">
+      <button type="button" onclick="switchLang('fr')" id="btn-fr">FR</button>
+      <button type="button" onclick="switchLang('en')" id="btn-en">EN</button>
+    </div>
+
+    <h1 data-i18n="title">Envoyer des cryptos<br>avec LinkiSend</h1>
+
+    <label for="currency" data-i18n="label.token">Token :</label>
+    <select id="currency">
+      <option>USDT</option><option>USDC</option><option>ETH</option><option>BTC</option>
+      <option>SOL</option><option>BNB</option><option>AVAX</option><option>DAI</option>
+      <option>LINK</option><option>WBTC</option>
+    </select>
+
+    <label for="amount" data-i18n="label.amount_crypto">Montant (crypto) :</label>
+    <input type="number" id="amount" placeholder="Ex: 0.01" data-i18n="ph.amount" data-i18n-attr="placeholder" min="0" step="0.00001" />
+    <div class="help" data-i18n="help.usd_line">(Montant en $ selon CoinGecko – à venir)</div>
+
+    <label for="wallet" data-i18n="label.wallet">Ton wallet :</label>
+    <input type="text" id="wallet" placeholder="0xABCDEF..." data-i18n="ph.wallet" data-i18n-attr="placeholder" />
+
+    <a href="#" class="wallet-link" id="metamaskLink" data-i18n="link.mm">Connecter mon wallet Metamask</a>
+    <a href="#" class="wallet-link" id="otherWalletLink" data-i18n="link.other">Connecter un autre wallet</a>
+
+    <label for="phone" data-i18n="label.phone">Numéro du destinataire :</label>
+    <input type="text" id="phone" placeholder="+33..." data-i18n="ph.phone" data-i18n-attr="placeholder" />
+
+    <label for="network" data-i18n="label.network">Réseau :</label>
+    <select id="network">
+      <option>Ethereum</option><option>BNB Chain</option><option>Polygon</option>
+      <option>Solana</option><option>Avalanche</option>
+    </select>
+
+    <button id="generateBtn" data-i18n="btn.generate">Cliquer ici pour générer le lien</button>
+    <button id="historyBtn" class="history-btn">Voir l’historique des envois</button>
+
+    <div id="result"></div>
+    <div id="error"></div>
+  </div>
+
+<script>
+  // --- i18n core (FR/EN) ---
+  const I18N = {
+    fr: {
+      "title": "Envoyer des cryptos avec LinkiSend",
+      "btn.generate": "Cliquer ici pour générer le lien",
+      "msg.fill_required": "Merci de remplir tous les champs obligatoires.",
+      "result.link_generated": "Lien généré :",
+      "label.token": "Token :",
+      "label.amount_crypto": "Montant (crypto) :",
+      "label.wallet": "Ton wallet :",
+      "label.phone": "Numéro du destinataire :",
+      "label.network": "Réseau :",
+      "help.usd_line": "(Montant en $ selon CoinGecko – à venir)",
+      "link.mm": "Connecter mon wallet Metamask",
+      "link.other": "Connecter un autre wallet",
+      "ph.amount": "Ex: 0.01",
+      "ph.wallet": "0xABCDEF...",
+      "ph.phone": "+33..."
+    },
+    en: {
+      "title": "Send crypto with LinkiSend",
+      "btn.generate": "Click here to generate the link",
+      "msg.fill_required": "Please fill in all required fields.",
+      "result.link_generated": "Link generated:",
+      "label.token": "Token:",
+      "label.amount_crypto": "Amount (crypto):",
+      "label.wallet": "Your wallet:",
+      "label.phone": "Recipient’s phone number:",
+      "label.network": "Network:",
+      "help.usd_line": "(USD amount via CoinGecko – coming soon)",
+      "link.mm": "Connect my MetaMask wallet",
+      "link.other": "Connect another wallet",
+      "ph.amount": "Ex: 0.01",
+      "ph.wallet": "0xABCDEF...",
+      "ph.phone": "+1..."
+    }
+  };
+
+  function detectLang() {
+    const forced = new URLSearchParams(location.search).get('lang');
+    if (forced && I18N[forced]) return forced;
+    const nav = (navigator.language || 'en').slice(0,2).toLowerCase();
+    return I18N[nav] ? nav : 'en';
+  }
+
+  let CURRENT_LANG = detectLang();
+  function t(key) {
+    return (I18N[CURRENT_LANG] && I18N[CURRENT_LANG][key])
+        || (I18N.en && I18N.en[key])
+        || key;
+  }
+
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const attr = el.getAttribute('data-i18n-attr');
+      const text = t(key);
+      if (attr) el.setAttribute(attr, text); else el.innerHTML = text;
+    });
+    document.documentElement.lang = CURRENT_LANG;
+  }
+
+  window.setLanguage = function(lang) {
+    if (I18N[lang]) { CURRENT_LANG = lang; applyI18n(); }
+  };
+
+  function switchLang(lang){
+    setLanguage(lang);
+    const url = new URL(location.href);
+    url.searchParams.set('lang', lang);
+    history.replaceState({}, '', url);
+    const fr = document.getElementById('btn-fr');
+    const en = document.getElementById('btn-en');
+    if (fr && en) {
+      fr.style.opacity = (lang === 'fr') ? '1' : '.55';
+      en.style.opacity = (lang === 'en') ? '1' : '.55';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => switchLang(CURRENT_LANG));
+  applyI18n();
+</script>
+
+<script>
+  // Utilisation de la config centrale
+  const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+    ? window.LINKISEND_CONFIG.BACKEND_BASE
+    : `${location.protocol}//${location.hostname}:8000`;
+
+  (function hideMetamaskOnMobile(){
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) document.getElementById('metamaskLink').style.display = 'none';
+  })();
+
+  document.getElementById('metamaskLink').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!window.ethereum) { alert("Metamask non détecté."); return; }
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (accounts && accounts[0]) document.getElementById('wallet').value = accounts[0];
+    } catch { alert("Connexion refusée."); }
+  });
+
+  document.getElementById('otherWalletLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    alert("Connexion à d'autres wallets (WalletConnect, etc.) bientôt disponible.");
+  });
+
+  document.getElementById('generateBtn').addEventListener('click', async () => {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const currency = document.getElementById('currency').value;
+    const sender_wallet = document.getElementById('wallet').value.trim();
+    const recipient_phone = document.getElementById('phone').value.trim();
+    const network = document.getElementById('network').value;
+
+    const resultDiv = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+    resultDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+
+    if (!amount || !currency || !sender_wallet || !recipient_phone || !network) {
+      errorDiv.innerText = t("msg.fill_required");
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BACKEND}/create-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+
+      const lien = `${BACKEND}/s/${data.short_id}`;
+      resultDiv.innerHTML = `<b>${t("result.link_generated")}</b><br><a href="${lien}" target="_blank">${lien}</a>`;
+      resultDiv.style.display = 'block';
+    } catch (err) {
+      errorDiv.innerText = err.message || 'Erreur réseau';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  // Bouton historique
+  document.getElementById('historyBtn').addEventListener('click', () => {
+    window.location.href = `${location.protocol}//${location.hostname}:8001/history.html`;
+  });
+</script>
+</body>
+</html>
