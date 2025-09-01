@@ -11,3 +11,6 @@ services:
       name: data
       mountPath: /opt/render/project/src/backend/data
       sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
