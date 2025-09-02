@@ -276,3 +276,9 @@ def get_link(link_id: str):
             raise HTTPException(status_code=400, detail="Lien invalide, expiré ou déjà utilisé")
         return links[link_id]
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
+    # --- Static files (serve /backend/public) ---
+from fastapi.staticfiles import StaticFiles
+
+# IMPORTANT : laissez ce mount à la fin, pour ne pas masquer les routes API
+app.mount("/", StaticFiles(directory="backend/public", html=True), name="static")
+
