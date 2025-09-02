@@ -3,16 +3,16 @@ import os
 import re
 import secrets
 from datetime import datetime, timedelta
-
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import shortuuid
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# CORS large (simple pour le POC)
+# CORS pour autoriser le frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------- Chemins de données (fixés dans backend/data) ----------
+# ---------- Chemins ----------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -73,13 +73,6 @@ def is_expired(link: dict) -> bool:
     return created_at <= datetime.utcnow() - timedelta(hours=24)
 
 def clean_links():
-    """
-    GARDE :
-      - tous les liens réclamés (claimed=True)
-      - les liens non réclamés encore valides (<24h)
-    SUPPRIME :
-      - uniquement les liens non réclamés ET expirés (>24h)
-    """
     links = load_links()
     now = datetime.utcnow()
     updated = {}
@@ -88,11 +81,11 @@ def clean_links():
         claimed = data.get("claimed", False)
         expired = created_at <= now - timedelta(hours=24)
         if (not claimed) and expired:
-            continue  # supprime seulement les non réclamés expirés
+            continue
         updated[link_id] = data
     save_links(updated)
 
-# ---------- Validations simples ----------
+# ---------- Validations ----------
 EVM_ADDR_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
 
 def phone_ok(phone: str) -> bool:
@@ -125,7 +118,7 @@ def create_link(data: LinkData):
         "network": data.network,
         "created_at": now_str,
         "claimed": False,
-        "short_id": short_id,
+        "short_id": short_id
     }
     save_links(links)
 
@@ -138,19 +131,17 @@ def create_link(data: LinkData):
         "sender_wallet": data.sender_wallet,
         "recipient_phone": data.recipient_phone,
         "network": data.network,
-        "created_at": now_str,
+        "created_at": now_str
     })
 
     return {"link_id": link_id, "short_id": short_id}
 
 @app.post("/claim")
 def claim_link(data: ClaimData):
-    """Réclamer via short_id + vérification téléphone + wallet receveur (obligatoire)."""
     links = load_links()
 
-    # Retrouver le lien par short_id
-    link_id = None
-    link = None
+    # Retrouver par short_id
+    link_id, link = None, None
     for k, v in links.items():
         if v.get("short_id") == data.short_id:
             link_id, link = k, v
@@ -159,32 +150,26 @@ def claim_link(data: ClaimData):
     if not link:
         raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
-    # Statut/expiration
     if link.get("claimed", False) or is_expired(link):
         raise HTTPException(status_code=400, detail="Lien invalide, expiré ou déjà utilisé")
 
-    # Vérifs côté serveur
     if not phone_ok(data.recipient_phone):
         raise HTTPException(status_code=400, detail="Numéro invalide.")
     if (data.recipient_phone or "").strip() != (link.get("recipient_phone") or "").strip():
-        raise HTTPException(status_code=400, detail="Le numéro ne correspond pas à ce lien.")
+        raise HTTPException(status_code=400, detail="Le numéro ne correspond pas.")
     if not evm_ok(data.recipient_wallet):
-        raise HTTPException(status_code=400, detail="Wallet invalide (format EVM 0x...).")
+        raise HTTPException(status_code=400, detail="Wallet invalide (format 0x...).")
 
-    # Marquer comme réclamé + enregistrer le wallet receveur
     link["claimed"] = True
     link["claimed_at"] = datetime.utcnow().isoformat()
     link["recipient_wallet"] = data.recipient_wallet
     links[link_id] = link
     save_links(links)
 
-    # --- SIMULATION D'ENVOI ON-CHAIN (log + faux tx hash) ---
     fake_tx_hash = "0x" + secrets.token_hex(32)
-    print(
-        f"[SIMULATION] Sending {link['amount']} {link['currency']} "
-        f"from {link['sender_wallet']} to {data.recipient_wallet} "
-        f"on {link['network']} (short_id={link.get('short_id')})"
-    )
+    print(f"[SIMULATION] Sending {link['amount']} {link['currency']} "
+          f"from {link['sender_wallet']} to {data.recipient_wallet} "
+          f"on {link['network']} (short_id={link.get('short_id')})")
     print(f"[SIMULATION] Fake tx hash: {fake_tx_hash}")
 
     add_transaction({
@@ -199,7 +184,7 @@ def claim_link(data: ClaimData):
         "network": link["network"],
         "created_at": link["created_at"],
         "claimed_at": link["claimed_at"],
-        "sim_tx_hash": fake_tx_hash,
+        "sim_tx_hash": fake_tx_hash
     })
 
     clean_links()
@@ -207,17 +192,15 @@ def claim_link(data: ClaimData):
 
 @app.get("/s/{short_id}")
 def redirect_short_link(short_id: str):
-    """Lien court -> redirection vers le frontend avec ?sid=..."""
     links = load_links()
     for link in links.values():
         if link.get("short_id") == short_id:
-            frontend = os.getenv("FRONTEND_URL", "https://linkisend.onrender.com")
+            frontend = os.getenv("FRONTEND_URL", "https://linkisend-frontend.onrender.com")
             return RedirectResponse(url=f"{frontend}/claim.html?sid={short_id}")
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
 @app.get("/api/short-link/{short_id}")
 def get_link_by_short_id(short_id: str):
-    """Détails non sensibles pour le front (si besoin)."""
     links = load_links()
     for link in links.values():
         if link.get("short_id") == short_id:
@@ -228,20 +211,16 @@ def get_link_by_short_id(short_id: str):
                 "currency": link["currency"],
                 "network": link["network"],
                 "created_at": link["created_at"],
-                "claimed": link.get("claimed", False),
+                "claimed": link.get("claimed", False)
             }
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
-# ---------- Historique (vue expéditeur) ----------
 @app.get("/api/history")
 def api_history():
     links = load_links()
     txs = load_transactions()
 
-    claims_by_link = {}
-    for tx in txs:
-        if tx.get("event") == "claim":
-            claims_by_link[tx["link_id"]] = tx
+    claims_by_link = {tx["link_id"]: tx for tx in txs if tx.get("event") == "claim"}
 
     items = []
     for link_id, lk in links.items():
@@ -257,7 +236,7 @@ def api_history():
             "recipient_phone": lk.get("recipient_phone"),
             "recipient_wallet": lk.get("recipient_wallet"),
             "sender_wallet": lk.get("sender_wallet"),
-            "sim_tx_hash": (claim_tx or {}).get("sim_tx_hash"),
+            "sim_tx_hash": (claim_tx or {}).get("sim_tx_hash")
         })
 
     def parse_iso(ts):
@@ -278,9 +257,6 @@ def get_link(link_id: str):
         return links[link_id]
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
-
-# --- Static files (serve /backend/public) ---
-from fastapi.staticfiles import StaticFiles
-
-# IMPORTANT : laisser ce mount à la fin pour ne pas masquer les routes API
-app.mount("/", StaticFiles(directory="backend/public", html=True), name="static")
+# ---------- Static (serve frontend depuis backend/public) ----------
+STATIC_DIR = os.path.join(BASE_DIR, "public")
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
