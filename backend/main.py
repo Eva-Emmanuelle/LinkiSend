@@ -210,7 +210,8 @@ def redirect_short_link(short_id: str):
     links = load_links()
     for link in links.values():
         if link.get("short_id") == short_id:
-            return RedirectResponse(url=f"http://127.0.0.1:8001/claim.html?sid={short_id}")
+            frontend = os.getenv("FRONTEND_URL", "https://linkisend.onrender.com")
+            return RedirectResponse(url=f"{frontend}/claim.html?sid={short_id}")
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
 @app.get("/api/short-link/{short_id}")
