@@ -210,7 +210,8 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
 
-      const lien = `${BACKEND}/s/${data.short_id}`;
+      // 🔥 Correction ici : on force l’URL backend
+      const lien = `https://linkisend.onrender.com/s/${data.short_id}`;
       resultDiv.innerHTML = `<b>${t("result.link_generated")}</b><br><a href="${lien}" target="_blank">${lien}</a>`;
       resultDiv.style.display = 'block';
     } catch (err) {
