@@ -1,4 +1,6 @@
 // config.js — production
+
 window.LINKISEND_CONFIG = {
-  BACKEND_BASE: "https://linkisend.onrender.com"
+    // Domaine du backend (là où FastAPI tourne)
+    BACKEND_BASE: "https://linkisend.onrender.com"
 };
