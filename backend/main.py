@@ -3,6 +3,7 @@ import os
 import re
 import secrets
 from datetime import datetime, timedelta
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +12,7 @@ import shortuuid
 
 app = FastAPI()
 
-# CORS pour autoriser le frontend (port 8001)
+# CORS large (simple pour le POC)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -87,7 +88,7 @@ def clean_links():
         claimed = data.get("claimed", False)
         expired = created_at <= now - timedelta(hours=24)
         if (not claimed) and expired:
-            continue  # on supprime seulement les non réclamés expirés
+            continue  # supprime seulement les non réclamés expirés
         updated[link_id] = data
     save_links(updated)
 
@@ -124,7 +125,7 @@ def create_link(data: LinkData):
         "network": data.network,
         "created_at": now_str,
         "claimed": False,
-        "short_id": short_id
+        "short_id": short_id,
     }
     save_links(links)
 
@@ -137,7 +138,7 @@ def create_link(data: LinkData):
         "sender_wallet": data.sender_wallet,
         "recipient_phone": data.recipient_phone,
         "network": data.network,
-        "created_at": now_str
+        "created_at": now_str,
     })
 
     return {"link_id": link_id, "short_id": short_id}
@@ -198,7 +199,7 @@ def claim_link(data: ClaimData):
         "network": link["network"],
         "created_at": link["created_at"],
         "claimed_at": link["claimed_at"],
-        "sim_tx_hash": fake_tx_hash
+        "sim_tx_hash": fake_tx_hash,
     })
 
     clean_links()
@@ -216,7 +217,7 @@ def redirect_short_link(short_id: str):
 
 @app.get("/api/short-link/{short_id}")
 def get_link_by_short_id(short_id: str):
-    """Détails non sensibles pour le front (utiles si besoin)."""
+    """Détails non sensibles pour le front (si besoin)."""
     links = load_links()
     for link in links.values():
         if link.get("short_id") == short_id:
@@ -227,7 +228,7 @@ def get_link_by_short_id(short_id: str):
                 "currency": link["currency"],
                 "network": link["network"],
                 "created_at": link["created_at"],
-                "claimed": link.get("claimed", False)
+                "claimed": link.get("claimed", False),
             }
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
 
@@ -256,7 +257,7 @@ def api_history():
             "recipient_phone": lk.get("recipient_phone"),
             "recipient_wallet": lk.get("recipient_wallet"),
             "sender_wallet": lk.get("sender_wallet"),
-            "sim_tx_hash": (claim_tx or {}).get("sim_tx_hash")
+            "sim_tx_hash": (claim_tx or {}).get("sim_tx_hash"),
         })
 
     def parse_iso(ts):
@@ -276,9 +277,10 @@ def get_link(link_id: str):
             raise HTTPException(status_code=400, detail="Lien invalide, expiré ou déjà utilisé")
         return links[link_id]
     raise HTTPException(status_code=404, detail="Lien invalide, expiré ou déjà utilisé")
-    # --- Static files (serve /backend/public) ---
+
+
+# --- Static files (serve /backend/public) ---
 from fastapi.staticfiles import StaticFiles
 
-# IMPORTANT : laissez ce mount à la fin, pour ne pas masquer les routes API
+# IMPORTANT : laisser ce mount à la fin pour ne pas masquer les routes API
 app.mount("/", StaticFiles(directory="backend/public", html=True), name="static")
-
