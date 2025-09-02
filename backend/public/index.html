@@ -32,7 +32,6 @@
   <script src="config.js"></script>
 
   <div class="container">
-
     <!-- Switch de langue -->
     <div id="lang-switch">
       <button type="button" onclick="switchLang('fr')" id="btn-fr">FR</button>
@@ -159,14 +158,17 @@
 </script>
 
 <script>
-  // Utilisation de la config centrale
+  // ---- BACKEND: via config.js ou fallback local ----
+  // Préférence: définir window.LINKISEND_CONFIG.BACKEND_BASE = "https://linkisend.onrender.com" dans config.js
   const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
     ? window.LINKISEND_CONFIG.BACKEND_BASE
     : `${location.protocol}//${location.hostname}:8000`;
 
+  // Masquer Metamask sur mobile (app mobile non compatible d'emblée)
   (function hideMetamaskOnMobile(){
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) document.getElementById('metamaskLink').style.display = 'none';
+    const mm = document.getElementById('metamaskLink');
+    if (isMobile && mm) mm.style.display = 'none';
   })();
 
   document.getElementById('metamaskLink').addEventListener('click', async (e) => {
@@ -202,6 +204,7 @@
     }
 
     try {
+      // Appel backend Render
       const res = await fetch(`${BACKEND}/create-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -210,8 +213,9 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
 
-      const lien = `${BACKEND}/s/${data.short_id}`;
-      resultDiv.innerHTML = `<b>${t("result.link_generated")}</b><br><a href="${lien}" target="_blank">${lien}</a>`;
+      // ⚠️ On affiche le lien court PUBLIC sur le domaine frontend (linkisend.io)
+      const publicLink = `${location.origin}/s/${data.short_id}`;
+      resultDiv.innerHTML = `<b>${t("result.link_generated")}</b><br><a href="${publicLink}" target="_blank">${publicLink}</a>`;
       resultDiv.style.display = 'block';
     } catch (err) {
       errorDiv.innerText = err.message || 'Erreur réseau';
@@ -219,9 +223,9 @@
     }
   });
 
-  // Bouton historique
+  // Historique: chemin relatif, compatible prod (pas de :8001)
   document.getElementById('historyBtn').addEventListener('click', () => {
-    window.location.href = `${location.protocol}//${location.hostname}:8001/history.html`;
+    window.location.href = '/history.html';
   });
 </script>
 </body>
