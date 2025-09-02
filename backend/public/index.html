@@ -32,6 +32,8 @@
   <script src="config.js"></script>
 
   <div class="container">
+
+    <!-- Switch de langue -->
     <div id="lang-switch">
       <button type="button" onclick="switchLang('fr')" id="btn-fr">FR</button>
       <button type="button" onclick="switchLang('en')" id="btn-en">EN</button>
@@ -157,15 +159,14 @@
 </script>
 
 <script>
-  // ---- BACKEND: via config.js (Render) ou fallback local ----
+  // Utilisation de la config centrale (backend)
   const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
     ? window.LINKISEND_CONFIG.BACKEND_BASE
     : `${location.protocol}//${location.hostname}:8000`;
 
   (function hideMetamaskOnMobile(){
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const mm = document.getElementById('metamaskLink');
-    if (isMobile && mm) mm.style.display = 'none';
+    if (isMobile) document.getElementById('metamaskLink').style.display = 'none';
   })();
 
   document.getElementById('metamaskLink').addEventListener('click', async (e) => {
@@ -204,4 +205,24 @@
       const res = await fetch(`${BACKEND}/create-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount
+        body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+
+      const lien = `${BACKEND}/s/${data.short_id}`;
+      resultDiv.innerHTML = `<b>${t("result.link_generated")}</b><br><a href="${lien}" target="_blank">${lien}</a>`;
+      resultDiv.style.display = 'block';
+    } catch (err) {
+      errorDiv.innerText = err.message || 'Erreur réseau';
+      errorDiv.style.display = 'block';
+    }
+  });
+
+  // Bouton historique (à ajuster si nécessaire côté backend)
+  document.getElementById('historyBtn').addEventListener('click', () => {
+    window.location.href = `${location.protocol}//${location.hostname}:8001/history.html`;
+  });
+</script>
+</body>
+</html>
