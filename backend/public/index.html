@@ -43,9 +43,18 @@
       padding:0 16px;
     }
 
-    /* Logo seul au-dessus du formulaire */
+    /* Logo horizontal au-dessus du formulaire */
     .logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
-    .logo{width:120px;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
+    .logo{filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
+
+    /* ---- Override taille logo horizontal ---- */
+    .logo { 
+      width: clamp(200px, 62%, 260px);
+      height: auto;
+    }
+    @media (max-width: 420px) {
+      .logo { width: clamp(180px, 75vw, 220px); }
+    }
 
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
@@ -148,7 +157,7 @@
   <script src="config.js"></script>
 
   <div class="wrap">
-    <!-- LOGO SEUL -->
+    <!-- LOGO HORIZONTAL -->
     <div class="logo-wrap">
       <img class="logo" src="assets/branding/logo.svg" alt="LinkiSend" />
     </div>
@@ -248,7 +257,7 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // Choix provider (comportement inchangé vs version validée)
+    // Choix provider
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -265,7 +274,7 @@
       });
     });
 
-    // Génération du lien (identique à la version validée)
+    // Génération du lien
     document.getElementById('generateBtn').addEventListener('click', async ()=>{
       const amount = parseFloat(document.getElementById('amount').value);
       const currency = document.getElementById('currency').value;
