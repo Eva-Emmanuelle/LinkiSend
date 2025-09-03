@@ -169,6 +169,12 @@
       <h2>Envoyer des cryptos</h2>
       <p class="sub">Génère un lien de virement en 10&nbsp;secondes.</p>
 
+      <!-- 1) WALLET EN PREMIER -->
+      <label for="wallet">Ton wallet (expéditeur)</label>
+      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
+      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
+
+      <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
           <label for="currency">Token</label>
@@ -184,18 +190,16 @@
         </div>
       </div>
 
-      <label for="wallet">Ton wallet (expéditeur)</label>
-      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
-
-      <label for="phone">Numéro du destinataire</label>
-      <input type="text" id="phone" placeholder="+33..." inputmode="tel" />
-
+      <!-- 3) RÉSEAU -->
       <label for="network">Réseau</label>
       <select id="network">
         <option>Ethereum</option><option>BNB Chain</option>
         <option>Polygon</option><option>Solana</option><option>Avalanche</option>
       </select>
+
+      <!-- 4) TÉLÉPHONE EN DERNIER -->
+      <label for="phone">Numéro du destinataire</label>
+      <input type="text" id="phone" placeholder="+33..." inputmode="tel" />
 
       <button id="generateBtn" class="btn">Générer le lien</button>
 
