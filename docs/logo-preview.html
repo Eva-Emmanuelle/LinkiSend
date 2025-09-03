@@ -2,50 +2,94 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Preview bouton dégradé</title>
+  <title>Preview — Bouton dégradé</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
+    :root{
+      --bg: #0b0f14;
+      --card:#121821;
+      --stroke:#1f2a37;
+      --text:#e6edf3;
+      --text-dim:#9fb0c0;
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --radius:14px;
+      --radius-sm:10px;
+      --gap:12px;
+    }
     body{
       margin:0;
-      font-family: Inter, sans-serif;
-      background:#0b0f14;
-      color:#e6edf3;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;justify-content:center;align-items:flex-start;
+      padding:40px;
+    }
+    .wrap{
+      max-width:420px;width:100%;
     }
     .card{
-      background:#121821;
-      padding:20px;
-      border-radius:12px;
-      width:320px;
+      background:linear-gradient(180deg,var(--card),#0f1620);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px 16px;
+    }
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
+    select,input{
+      width:100%;height:44px;padding:10px 12px;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--stroke);
+      background:#0e141c;color:var(--text);
+    }
+    .wallet-link{
+      display:inline-flex;align-items:center;gap:8px;
+      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
+      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
+      background:#0a1220;margin:8px 2px 4px;width:max-content;
     }
     .btn{
-      width:100%;
-      height:46px;
-      border:0;
-      border-radius:12px;
-      font-weight:700;
-      font-size:15px;
-      cursor:pointer;
-      color:white;
+      width:100%;height:46px;border:0;border-radius:12px;
+      font-weight:700;font-size:15px;cursor:pointer;
+      background: linear-gradient(90deg,#8b5cf6,#22c55e);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
       margin-top:14px;
-      background: linear-gradient(90deg, #9333ea, #22c55e);
-      box-shadow:0 10px 24px rgba(0,0,0,.3);
-      transition: transform .06s ease, box-shadow .2s ease;
     }
-    .btn:hover{
-      box-shadow:0 12px 32px rgba(0,0,0,.45);
-    }
-    .btn:active{
-      transform:translateY(1px);
-    }
+    .btn:hover{opacity:0.9}
+    .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
   </style>
 </head>
 <body>
-  <div class="card">
-    <button class="btn">Générer le lien</button>
+  <div class="wrap">
+    <div class="card">
+      <h2>Envoyer des cryptos</h2>
+      <p class="sub">Génère un lien de virement en 10&nbsp;secondes.</p>
+
+      <label>Ton wallet (expéditeur)</label>
+      <input type="text" placeholder="0xABCDEF..." />
+      <a href="#" class="wallet-link">Connecter un wallet</a>
+
+      <div>
+        <label>Token</label>
+        <select><option>USDT</option></select>
+      </div>
+      <div>
+        <label>Montant (crypto)</label>
+        <input type="number" placeholder="0.01" />
+      </div>
+
+      <label>Réseau</label>
+      <select><option>Ethereum</option></select>
+
+      <label>Numéro du destinataire</label>
+      <input type="text" placeholder="+33..." />
+
+      <button class="btn">Générer le lien</button>
+
+      <p class="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
+    </div>
   </div>
 </body>
 </html>
