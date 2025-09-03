@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Preview — Bouton dégradé harmonisé</title>
+  <title>Preview — Logo combiné</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
     :root{
@@ -38,9 +38,25 @@
       padding:0 16px;
     }
     .brand{
-      display:flex;align-items:center;gap:10px;margin-bottom:18px;justify-content:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:18px;
+      position: relative;
     }
-    .brand img {display:block;}
+    .brand img.word{
+      max-width: 240px;
+      height: auto;
+      display: block;
+    }
+    .brand img.arrow{
+      position:absolute;
+      left:0;
+      top:50%;
+      transform: translateY(-50%);
+      max-width: 60px;
+      height:auto;
+    }
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);
@@ -84,16 +100,15 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;
       font-weight:700;font-size:15px;cursor:pointer;
-      background: linear-gradient(90deg,#9333ea,#3b82f6,#22c55e);
-      background-size: 200% auto;
+      background: radial-gradient(circle at 20% 50%, #a855f7, #3b82f6, #22c55e);
       color:#fff;
       box-shadow:0 10px 24px rgba(34,197,94,.2);
-      transition:transform .06s ease, box-shadow .2s ease, background-position .4s ease;
+      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
       margin-top:14px;
     }
     .btn:hover{
       box-shadow:0 12px 32px rgba(34,197,94,.28);
-      background-position: right center; /* déplacement du dégradé */
+      filter: brightness(1.05);
     }
     .btn:active{transform:translateY(1px)}
     .wallet-link{
@@ -112,8 +127,8 @@
 <body>
   <div class="wrap">
     <div class="brand">
-      <img src="logo-arrow.svg" alt="Arrow" />
-      <img src="logo-word.svg" alt="LinkiSend" />
+      <img src="logo-arrow.svg" alt="Flèche" class="arrow" />
+      <img src="logo-word.svg" alt="LinkiSend" class="word" />
     </div>
 
     <div class="card">
