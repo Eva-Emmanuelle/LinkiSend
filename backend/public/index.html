@@ -13,7 +13,6 @@
       --text:#e6edf3;
       --text-dim:#9fb0c0;
       --stroke:#1f2a37;
-      --focus:#334155;
       --shadow: 0 12px 40px rgba(0,0,0,.45);
       --radius:14px;
       --radius-sm:10px;
@@ -29,22 +28,19 @@
         radial-gradient(900px 500px at 110% 0%, #1a2334 0%, transparent 60%),
         var(--bg);
       color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
     }
-    .wrap{
-      max-width:420px;
-      margin:28px auto 64px;
-      padding:0 16px;
-    }
-    .brand{
-      display:flex;flex-direction:column;align-items:center;margin-bottom:8px;
-    }
+    .wrap{max-width:420px;margin:28px auto 64px;padding:0 16px;}
+
+    /* Logo horizontal */
+    .brand{display:flex;justify-content:center;margin-bottom:8px}
     .brand img.logo{
-      width: clamp(200px, 92%, 360px);
+      width:100%;               /* prend toute la largeur du formulaire */
       height:auto;
       display:block;
+      padding-left:12%;         /* décale pour centrer le mot LinkiSend */
+      box-sizing:border-box;
     }
+
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);
@@ -52,100 +48,22 @@
       box-shadow:var(--shadow);
       padding:18px 16px;
     }
-    .card h2{
-      margin:4px 2px 2px;
-      font-size:22px;font-weight:800;
-      letter-spacing:-0.3px;
-    }
-    .sub{
-      color:var(--text-dim);
-      margin:0 2px 14px;
-      font-size:13px;
-    }
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:800;letter-spacing:-0.3px;}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px;}
     .row{display:flex;gap:var(--gap)}
     .col{flex:1}
-    label{
-      display:block;
-      margin:10px 2px 6px;
-      font-size:13px;
-      color:var(--text-dim);
-    }
-    select,input{
-      width:100%;
-      height:44px;
-      padding:10px 12px;
-      border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);
-      background:#0e141c;
-      color:var(--text);
-      outline:none;
-      transition:.15s border,.15s box-shadow,.15s background;
-    }
-    select:focus,input:focus{
-      border-color:#1FD6C2;
-      box-shadow:0 0 0 3px rgba(31,214,194,.20);
-    }
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
+    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);
+                 background:#0e141c;color:var(--text);outline:none;transition:.15s border,.15s box-shadow,.15s background;}
+    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
+         background: linear-gradient(90deg, #7C3AED 0%, #22C55E 100%); color:#fff;
+         box-shadow:0 10px 24px rgba(31,214,194,.22); transition:transform .06s ease, box-shadow .2s ease, opacity .12s ease; margin-top:14px;}
+    .btn:hover{opacity:.92;box-shadow:0 12px 32px rgba(31,214,194,.28)}
+    .btn:active{transform:translateY(1px);opacity:.85}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{
-      width:100%;height:46px;border:0;border-radius:12px;
-      font-weight:700;font-size:15px;cursor:pointer;
-      background: linear-gradient(90deg, #7C3AED 0%, #22C55E 100%);
-      color:#fff;
-      box-shadow:0 10px 24px rgba(31,214,194,.22);
-      transition:transform .06s ease, box-shadow .2s ease, opacity .12s ease;
-      margin-top:14px;
-    }
-    .btn:hover{opacity:0.92;box-shadow:0 12px 32px rgba(31,214,194,.28)}
-    .btn:active{transform:translateY(1px);opacity:0.85}
-    .wallet-link{
-      display:inline-flex;align-items:center;gap:8px;
-      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
-      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
-      background:#0a1220; margin:8px 2px 4px; width:max-content;
-    }
-    .wallet-link:hover{background:#0d1729}
-    .result,.error{
-      margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;
-      border:1px solid var(--stroke);
-    }
-    .result{background:#0a1b13;color:#a7f3d0;border-color:#134e32}
-    .error{background:#1b0e10;color:#fecaca;border-color:#6b1d24}
-
-    /* Modal */
-    .modal {
-      position:fixed;inset:0;display:none;place-items:center;
-      background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;
-      padding:20px;
-    }
-    .modal.open{display:grid;}
-    .modal-card{
-      width:min(420px,95vw);
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .modal-head h3{margin:0;font-size:18px}
-    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{
-      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
-    }
-    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:#132a1f;color:#77e2a2;border:1px solid #1f5137}
-    .pv:hover{background:#101924}
-
-    @media (max-width:420px){
-      .wrap{margin:20px auto 54px}
-      .brand img.logo{width: clamp(180px, 85%, 280px);}
-      .card h2{font-size:20px}
-    }
   </style>
 </head>
 <body>
-  <!-- CONFIG (URL backend) -->
-  <script src="config.js"></script>
-
   <div class="wrap">
     <div class="brand">
       <img src="assets/branding/logo.svg" alt="LinkiSend" class="logo" />
@@ -186,112 +104,7 @@
       <button id="generateBtn" class="btn">Générer le lien</button>
 
       <p class="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
-
-      <div id="result" class="result" style="display:none"></div>
-      <div id="error"  class="error"  style="display:none"></div>
     </div>
   </div>
-
-  <!-- Modal choix wallet -->
-  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="walletModalTitle">Connecter un wallet</h3>
-        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
-      </div>
-      <div class="providers">
-        <button class="pv" data-wallet="metamask">
-          <img src="assets/wallets/metamask.svg" alt="" width="22" height="22" />
-          MetaMask <span class="tag">EVM</span>
-        </button>
-        <button class="pv" data-wallet="walletconnect">
-          <img src="assets/wallets/walletconnect.svg" alt="" width="22" height="22" />
-          WalletConnect <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="coinbase">
-          <img src="assets/wallets/coinbase.svg" alt="" width="22" height="22" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="phantom">
-          <img src="assets/wallets/phantom.svg" alt="" width="22" height="22" />
-          Phantom <span class="tag">Solana</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Config backend (fallback localhost)
-    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
-      ? window.LINKISEND_CONFIG.BACKEND_BASE
-      : `${location.protocol}//${location.hostname}:8000`;
-
-    const resultDiv = document.getElementById('result');
-    const errorDiv  = document.getElementById('error');
-    const walletInput = document.getElementById('wallet');
-
-    // Modal helpers
-    const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{
-      e.preventDefault(); openModal();
-    });
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
-
-    // Choix provider
-    modal.querySelectorAll('.pv').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const provider = btn.getAttribute('data-wallet');
-        if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-          try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            closeModal();
-          }catch(e){ alert("Connexion refusée."); }
-        }else{
-          alert("Connexion via " + provider + " arrive bientôt.");
-        }
-      });
-    });
-
-    // Génération du lien
-    document.getElementById('generateBtn').addEventListener('click', async ()=>{
-      const amount = parseFloat(document.getElementById('amount').value);
-      const currency = document.getElementById('currency').value;
-      const sender_wallet = walletInput.value.trim();
-      const recipient_phone = document.getElementById('phone').value.trim();
-      const network = document.getElementById('network').value;
-
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if (!amount || !currency || !sender_wallet || !recipient_phone || !network){
-        errorDiv.textContent = "Merci de remplir tous les champs obligatoires.";
-        errorDiv.style.display='block';
-        return;
-      }
-
-      try{
-        const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
-        });
-        const data = await res.json();
-        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
-
-        const lien = `${BACKEND}/s/${data.short_id}`;
-        resultDiv.innerHTML = `<b>Lien généré :</b><br><a href="${lien}" target="_blank" rel="noopener">${lien}</a>`;
-        resultDiv.style.display='block';
-      }catch(err){
-        errorDiv.textContent = err.message || 'Erreur réseau';
-        errorDiv.style.display='block';
-      }
-    });
-  </script>
 </body>
 </html>
