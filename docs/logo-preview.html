@@ -3,23 +3,137 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview Logo - LinkiSend</title>
+  <title>Logo Preview - LinkiSend</title>
   <style>
     body {
+      margin: 0;
+      font-family: Arial, sans-serif;
       background: #0f172a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px 0;
+    }
+
+    /* Logo */
+    .logo {
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      margin-bottom: 20px;
     }
-    img {
+    .logo img {
       max-width: 90%;
       height: auto;
+    }
+
+    /* Formulaire */
+    .card {
+      background: #111827;
+      padding: 25px;
+      border-radius: 12px;
+      width: 380px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+    }
+    .card p {
+      margin: 0 0 15px;
+      color: #9ca3af;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    /* Bouton wallet */
+    .btn-wallet {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #fff;
+      background: #2563eb; /* BLEU d’origine */
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+    }
+    .btn-wallet:hover {
+      background: #1d4ed8;
+    }
+
+    /* Bouton générer lien */
+    .btn-generate {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #fff;
+      background: linear-gradient(to right, #8b5cf6, #10b981);
+      cursor: pointer;
+      transition: opacity 0.2s ease-in-out;
+    }
+    .btn-generate:hover {
+      opacity: 0.9;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <img src="logo.svg" alt="LinkiSend Logo">
+
+  <!-- Logo centré -->
+  <div class="logo">
+    <img src="logo.svg" alt="LinkiSend Logo">
+  </div>
+
+  <!-- Formulaire -->
+  <div class="card">
+    <h2>Envoyer des cryptos</h2>
+    <p>Génère un lien en 10 secondes.</p>
+
+    <input type="text" placeholder="Ton wallet (expéditeur)" disabled>
+
+    <button class="btn-wallet">Connecter un wallet</button>
+
+    <select>
+      <option>USDT</option>
+      <option>ETH</option>
+      <option>BTC</option>
+    </select>
+
+    <input type="number" value="0.01">
+
+    <select>
+      <option>Ethereum</option>
+      <option>Polygon</option>
+      <option>BNB Chain</option>
+    </select>
+
+    <input type="text" placeholder="+33...">
+
+    <button class="btn-generate">Générer le lien</button>
+
+    <p class="note">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
+  </div>
+
 </body>
 </html>
