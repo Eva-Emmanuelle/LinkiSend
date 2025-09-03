@@ -38,9 +38,9 @@
       padding:0 16px;
     }
     .brand{
-      display:flex;align-items:center;gap:10px;margin-bottom:18px;
+      display:flex;align-items:center;gap:10px;margin-bottom:18px;justify-content:center;
     }
-    .brand img{max-height:46px}
+    .brand img {display:block;}
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);
@@ -84,13 +84,17 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;
       font-weight:700;font-size:15px;cursor:pointer;
-      background: linear-gradient(90deg,#9333ea,#3b82f6,#22c55e); /* VIOLET → BLEU → VERT */
+      background: linear-gradient(90deg,#9333ea,#3b82f6,#22c55e);
+      background-size: 200% auto;
       color:#fff;
       box-shadow:0 10px 24px rgba(34,197,94,.2);
-      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
+      transition:transform .06s ease, box-shadow .2s ease, background-position .4s ease;
       margin-top:14px;
     }
-    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
+    .btn:hover{
+      box-shadow:0 12px 32px rgba(34,197,94,.28);
+      background-position: right center; /* déplacement du dégradé */
+    }
     .btn:active{transform:translateY(1px)}
     .wallet-link{
       display:inline-flex;align-items:center;gap:8px;
