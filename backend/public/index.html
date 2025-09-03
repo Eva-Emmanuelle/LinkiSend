@@ -6,307 +6,505 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
     :root{
-      /* Thème sombre */
-      --bg: #0b0f14;
-      --bg-soft:#0f141b;
-      --card:#121821;
-      --card-2:#0f1620;
-      --text:#e6edf3;
-      --text-dim:#9fb0c0;
-      --stroke:#1f2a37;
-      --focus:#334155;
-      --brand:#22c55e; /* bouton vert */
-      --brand-press:#16a34a;
-      --brand-soft:#173b2a;
-      --badge:#7dd3fc;
-      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --bg:#0c0c12;
+      --card:#12121b;
+      --muted:#8a8aa0;
+      --text:#e9e9f1;
+      --primary:#7c3aed;           /* violet */
+      --accent:#22c55e;            /* vert */
+      --danger:#ef4444;
+      --border:#222231;
+      --input:#1a1a25;
+      --shadow:0 10px 30px #00000040;
       --radius:14px;
-      --radius-sm:10px;
-      --gap:12px;
     }
-    *,*:before,*:after{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      background:
-        radial-gradient(1200px 600px at 20% -10%, #132034 0%, transparent 60%),
-        radial-gradient(900px 500px at 110% 0%, #1a2334 0%, transparent 60%),
-        var(--bg);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-    .wrap{
-      max-width:420px;
-      margin:40px auto 64px;
-      padding:0 16px;
-    }
-    .brand{
-      display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px;
-    }
-    .brand-badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
-      background:linear-gradient(180deg,#0e1621,#0a121a);
-      border:1px solid var(--stroke);color:#8ec4ff;font-weight:600;font-size:12px;
-      letter-spacing:.2px;
-    }
-    .brand h1{
-      margin:0;
-      font-size:30px; /* plus grand que le titre écran */
-      line-height:1.05;
-      font-weight:800;
-      letter-spacing:.2px;
-      text-shadow:0 2px 24px rgba(0,0,0,.35);
-    }
-    .card{
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px 16px;
-    }
-    .card h2{
-      margin:4px 2px 2px;
-      font-size:22px;font-weight:750;
-    }
-    .sub{
-      color:var(--text-dim);
-      margin:0 2px 14px;
-      font-size:13px;
-    }
-    .row{display:flex;gap:var(--gap)}
-    .col{flex:1}
-    label{
-      display:block;
-      margin:10px 2px 6px;
-      font-size:13px;
-      color:var(--text-dim);
-    }
-    select,input{
-      width:100%;
-      height:44px;
-      padding:10px 12px;
-      border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);
-      background:#0e141c;
-      color:var(--text);
-      outline:none;
-      transition:.15s border,.15s box-shadow,.15s background;
-    }
-    select:focus,input:focus{
-      border-color:var(--focus);
-      box-shadow:0 0 0 3px rgba(51,65,85,.35);
-    }
-    .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{
-      width:100%;height:46px;border:0;border-radius:12px;
-      font-weight:700;font-size:15px;cursor:pointer;
-      background:var(--brand);color:#05210f;
-      box-shadow:0 10px 24px rgba(34,197,94,.2);
-      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
-      margin-top:14px;
-    }
-    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
-    .btn:active{transform:translateY(1px);background:var(--brand-press)}
-    .wallet-link{
-      display:inline-flex;align-items:center;gap:8px;
-      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
-      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
-      background:#0a1220; margin:8px 2px 4px; width:max-content;
-    }
-    .wallet-link:hover{background:#0d1729}
-    .result,.error{
-      margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;
-      border:1px solid var(--stroke);
-    }
-    .result{background:#0a1b13;color:#a7f3d0;border-color:#134e32}
-    .error{background:#1b0e10;color:#fecaca;border-color:#6b1d24}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    .wrap{max-width:480px;margin:24px auto;padding:0 14px}
+    .brand{display:flex;align-items:center;gap:10px;margin:6px 0 14px}
+    .brand-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+    .brand h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;box-shadow:var(--shadow)}
+    .title{font-size:16px;margin:2px 0 14px;color:#fff;font-weight:700}
+    .row{display:flex;gap:10px}
+    label{display:block;font-weight:700;font-size:13px;margin:10px 0 6px;color:#cfd0ff}
+    select,input{width:100%;padding:12px 12px;border-radius:10px;border:1px solid var(--border);background:var(--input);color:var(--text);font-size:14px;outline:none}
+    select:disabled,input:disabled{opacity:.6}
+    .helper{font-size:12px;color:var(--muted);margin-top:6px}
+    .btn{width:100%;padding:12px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-weight:800;cursor:pointer;box-shadow:var(--shadow);transition:transform .05s}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:#1b1b27;color:#dcdcf5;border:1px solid var(--border);font-weight:700}
+    .btn.ghost{background:transparent;border:1px dashed var(--border);color:#cfcfed}
+    .inline{display:flex;align-items:center;gap:10px}
+    .pill{background:#171724;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;color:#cfcfed}
+    .status{margin:10px 0 0;font-size:13px;color:var(--muted)}
+    .error{background:#220f10;border:1px solid #4d1e22;color:#ffb4b8;padding:10px;border-radius:10px;margin-top:12px;display:none}
+    .success{background:#0f2216;border:1px solid #214d30;color:#b4ffd0;padding:10px;border-radius:10px;margin-top:12px;display:none}
+    .divider{height:1px;background:var(--border);margin:14px 0}
+    .summary{background:#0f1220;border:1px solid var(--border);border-radius:12px;padding:12px;font-size:14px;line-height:1.45}
+    .pair{display:flex;justify-content:space-between;gap:8px;margin:6px 0}
+    .pair b{color:#fff}
+    .copy{padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#141423;color:#d6d6ff;cursor:pointer;font-size:12px}
+    .badge{font-size:11px;border:1px solid var(--border);padding:3px 8px;border-radius:999px;background:#171724;color:#bdbdf3}
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
 
     /* Modal */
-    .modal {
-      position:fixed;inset:0;display:none;place-items:center;
-      background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;
-      padding:20px;
-    }
-    .modal.open{display:grid;}
-    .modal-card{
-      width:min(420px,95vw);
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .modal-head h3{margin:0;font-size:18px}
-    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{
-      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
-    }
-    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:#132a1f;color:#77e2a2;border:1px solid #1f5137}
-    .pv:hover{background:#101924}
-
-    @media (max-width:420px){
-      .wrap{margin:26px auto 54px}
-      .brand h1{font-size:26px}
-      .card h2{font-size:20px}
-    }
+    .modal-backdrop{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .modal{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+    .modal header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+    .modal header h3{margin:0;font-size:16px}
+    .modal .content{padding:14px;display:grid;gap:10px}
+    .wallet-opt{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#151526;cursor:pointer}
+    .wallet-opt:hover{border-color:#3a3a55}
+    .wallet-opt .icon{width:28px;height:28px;border-radius:8px;background:#22223a;display:flex;align-items:center;justify-content:center}
+    .wallet-opt .meta{display:flex;flex-direction:column}
+    .wallet-opt .meta small{color:var(--muted)}
+    .disabled{opacity:.6;cursor:not-allowed}
   </style>
 </head>
 <body>
-  <!-- CONFIG (URL backend) -->
+  <!-- CONFIG CENTRALE (BACKEND_BASE) -->
   <script src="config.js"></script>
 
   <div class="wrap">
     <div class="brand">
-      <span class="brand-badge">Crypto • Instant</span>
+      <div class="brand-logo">↗</div>
       <h1>LinkiSend</h1>
+      <span class="badge">MVP</span>
     </div>
 
-    <div class="card" role="region" aria-label="Formulaire d’envoi">
-      <h2>Envoyer des cryptos</h2>
-      <p class="sub">Génère un lien de virement en 10&nbsp;secondes.</p>
+    <div class="card" id="card-wallet">
+      <div class="title">1) Connecter mon wallet</div>
+      <button class="btn" id="btn-connect">Connecter un wallet</button>
+      <div class="status" id="wallet-status">Aucun wallet connecté.</div>
+      <div class="helper">Support v1 : <b>MetaMask</b> (navigateur) & <b>WalletConnect</b> (bientôt).</div>
+    </div>
 
+    <div class="card hidden" id="card-token">
+      <div class="title">2) Choisir la crypto à envoyer</div>
+      <label for="token">Token disponible (solde & USD)</label>
+      <select id="token" disabled></select>
+      <div class="helper" id="balance-helper">Démo : soldes simulés jusqu’à l’intégration complète.</div>
+
+      <label for="amount">Montant</label>
+      <input type="number" id="amount" placeholder="Ex : 0.01" min="0" step="0.000001" inputmode="decimal" />
+      <div class="helper" id="usd-preview" aria-live="polite">≈ $0.00</div>
+    </div>
+
+    <div class="card hidden" id="card-network">
+      <div class="title">3) Réseau</div>
       <div class="row">
-        <div class="col">
-          <label for="currency">Token</label>
-          <select id="currency">
-            <option>USDT</option><option>USDC</option><option>ETH</option>
-            <option>BTC</option><option>SOL</option><option>BNB</option>
-            <option>AVAX</option><option>DAI</option><option>LINK</option>
-          </select>
+        <div style="flex:1">
+          <label for="network">Réseau détecté</label>
+          <select id="network"></select>
         </div>
-        <div class="col">
-          <label for="amount">Montant (crypto)</label>
-          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+        <div class="inline" style="align-self:flex-end">
+          <span class="pill" id="chain-pill">Non détecté</span>
         </div>
       </div>
-
-      <label for="wallet">Ton wallet (expéditeur)</label>
-      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
-
-      <label for="phone">Numéro du destinataire</label>
-      <input type="text" id="phone" placeholder="+33..." inputmode="tel" />
-
-      <label for="network">Réseau</label>
-      <select id="network">
-        <option>Ethereum</option><option>BNB Chain</option>
-        <option>Polygon</option><option>Solana</option><option>Avalanche</option>
-      </select>
-
-      <button id="generateBtn" class="btn">Générer le lien</button>
-
-      <p class="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
-
-      <div id="result" class="result" style="display:none"></div>
-      <div id="error"  class="error"  style="display:none"></div>
+      <div class="helper">Le réseau suit ton wallet. Tu peux changer si besoin (une demande de switch sera envoyée à ton wallet).</div>
+      <div class="error" id="net-error"></div>
     </div>
-  </div>
 
-  <!-- Modal choix wallet -->
-  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="walletModalTitle">Connecter un wallet</h3>
-        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
+    <div class="card hidden" id="card-phone">
+      <div class="title">4) Destinataire</div>
+      <label for="phone">Numéro (format international)</label>
+      <div class="row">
+        <input id="phone" placeholder="+33 6 12 34 56 78" />
+        <button class="btn secondary" id="btn-contacts" title="Choisir dans mes contacts" style="white-space:nowrap;">📇 Contacts</button>
       </div>
-      <div class="providers">
-        <button class="pv" data-wallet="metamask">
-          <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="" width="20" height="20" />
-          MetaMask <span class="tag">EVM</span>
-        </button>
-        <button class="pv" data-wallet="walletconnect">
-          <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/svg/walletconnect-logo.svg" alt="" width="20" height="20" />
-          WalletConnect <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="coinbase">
-          <img src="https://avatars.githubusercontent.com/u/1885080?s=200&v=4" alt="" width="20" height="20" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="phantom">
-          <img src="https://avatars.githubusercontent.com/u/78782331?s=200&v=4" alt="" width="20" height="20" />
-          Phantom <span class="tag">Solana</span>
-        </button>
+      <div class="helper">Sur mobile, l’accès à l’agenda peut être proposé si disponible. Sinon, colle le numéro.</div>
+      <div class="error" id="phone-error"></div>
+    </div>
+
+    <div class="card hidden" id="card-summary">
+      <div class="title">5) Résumé</div>
+      <div class="summary" id="summary-box">
+        <div class="pair"><span class="muted">Wallet</span><b id="s-wallet">—</b></div>
+        <div class="pair"><span class="muted">Token</span><b id="s-token">—</b></div>
+        <div class="pair"><span class="muted">Montant</span><b id="s-amount">—</b></div>
+        <div class="pair"><span class="muted">≈ USD</span><b id="s-usd">—</b></div>
+        <div class="pair"><span class="muted">Réseau</span><b id="s-network">—</b></div>
+        <div class="pair"><span class="muted">Téléphone</span><b id="s-phone">—</b></div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn" id="btn-generate" disabled>Générer le lien</button>
+      <div class="error" id="api-error"></div>
+      <div class="success" id="api-success">
+        Lien généré :
+        <div class="inline" style="gap:8px;margin-top:6px">
+          <a id="gen-link" href="#" target="_blank" class="pill" style="overflow:hidden;text-overflow:ellipsis;max-width:100%"></a>
+          <button class="copy" id="btn-copy">Copier</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // Config backend (fallback localhost)
-    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
-      ? window.LINKISEND_CONFIG.BACKEND_BASE
-      : `${location.protocol}//${location.hostname}:8000`;
+  <!-- Modal connexion wallet -->
+  <div class="modal-backdrop" id="modal-connect">
+    <div class="modal">
+      <header>
+        <h3>Choisir un wallet</h3>
+        <button class="copy" id="close-modal">Fermer</button>
+      </header>
+      <div class="content">
+        <div class="wallet-opt" id="opt-metamask">
+          <div class="icon">🦊</div>
+          <div class="meta">
+            <b>MetaMask</b>
+            <small>Extension navigateur / App mobile</small>
+          </div>
+        </div>
+        <div class="wallet-opt disabled" title="Bientôt">
+          <div class="icon">🔗</div>
+          <div class="meta">
+            <b>WalletConnect</b>
+            <small>Bientôt (Trust, Rainbow, Zerion, Ledger…)</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Elements
-    const resultDiv = document.getElementById('result');
-    const errorDiv  = document.getElementById('error');
-    const walletInput = document.getElementById('wallet');
+<script>
+  // -------------------- CONFIG BACKEND --------------------
+  const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+    ? window.LINKISEND_CONFIG.BACKEND_BASE
+    : `${location.protocol}//${location.hostname}:8000`;
 
-    // Modal helpers
-    const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
+  // -------------------- STATE --------------------
+  const state = {
+    wallet: { address: null, chainId: null, networkKey: null, networkName: null },
+    tokens: [],       // {symbol, name, balance, priceUsd}
+    selectedToken: null, // object
+    amount: null,
+    phone: "",
+  };
 
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{
-      e.preventDefault(); openModal();
-    });
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+  // -------------------- UTILS --------------------
+  const CHAINS = {
+    "0x1":  { key: "ethereum", name: "Ethereum" },
+    "0x89": { key: "polygon",  name: "Polygon" },
+    "0x38": { key: "bsc",      name: "BNB Chain" },
+    "0xa4b1": { key: "arbitrum", name: "Arbitrum One" },
+    "0x2105": { key: "base", name: "Base" },
+  };
 
-    // Choix provider
-    modal.querySelectorAll('.pv').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const provider = btn.getAttribute('data-wallet');
-        if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-          try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            closeModal();
-          }catch(e){ alert("Connexion refusée."); }
-        }else{
-          alert("Connexion via " + provider + " arrive bientôt.");
-        }
+  // Démo : soldes simulés en attendant l’intégration balances on-chain
+  const MOCK_TOKENS_BY_CHAIN = {
+    ethereum: [
+      { symbol:"USDC", name:"USD Coin", balance: 152.35, priceUsd:1 },
+      { symbol:"ETH",  name:"Ether",    balance: 0.42,  priceUsd:3200 },
+    ],
+    polygon: [
+      { symbol:"USDT", name:"Tether",   balance: 98.1, priceUsd:1 },
+      { symbol:"MATIC",name:"Polygon",  balance: 180,  priceUsd:0.55 },
+    ],
+    bsc: [
+      { symbol:"USDT", name:"Tether",   balance: 34.5, priceUsd:1 },
+      { symbol:"BNB",  name:"BNB",      balance: 1.2,  priceUsd:520 },
+    ],
+    arbitrum: [
+      { symbol:"USDC", name:"USD Coin", balance: 75.9, priceUsd:1 },
+      { symbol:"ETH",  name:"Ether",    balance: 0.15, priceUsd:3200 },
+    ],
+    base: [
+      { symbol:"USDC", name:"USD Coin", balance: 210.4, priceUsd:1 },
+      { symbol:"ETH",  name:"Ether",    balance: 0.08, priceUsd:3200 },
+    ]
+  };
+
+  function shorten(addr){ return addr ? addr.slice(0,6)+"…"+addr.slice(-4) : ""; }
+  function formatUSD(v){ return "$"+(Math.round(v*100)/100).toFixed(2); }
+  function e164Ok(s){
+    if(!s) return false;
+    const t = s.trim();
+    return /^\+?[1-9]\d{6,14}$/.test(t.replace(/\s/g,""));
+  }
+
+  // -------------------- DOM --------------------
+  const $ = sel => document.querySelector(sel);
+  const cardWallet  = $("#card-wallet");
+  const cardToken   = $("#card-token");
+  const cardNetwork = $("#card-network");
+  const cardPhone   = $("#card-phone");
+  const cardSummary = $("#card-summary");
+
+  const btnConnect = $("#btn-connect");
+  const statusWallet = $("#wallet-status");
+
+  const tokenSelect = $("#token");
+  const amountInput = $("#amount");
+  const usdPreview  = $("#usd-preview");
+
+  const networkSelect = $("#network");
+  const chainPill = $("#chain-pill");
+  const netError = $("#net-error");
+
+  const phoneInput = $("#phone");
+  const phoneError = $("#phone-error");
+  const btnContacts = $("#btn-contacts");
+
+  const sWallet = $("#s-wallet");
+  const sToken  = $("#s-token");
+  const sAmount = $("#s-amount");
+  const sUsd    = $("#s-usd");
+  const sNetwork= $("#s-network");
+  const sPhone  = $("#s-phone");
+
+  const btnGenerate = $("#btn-generate");
+  const apiError = $("#api-error");
+  const apiSuccess = $("#api-success");
+  const genLink = $("#gen-link");
+  const btnCopy = $("#btn-copy");
+
+  // Modal
+  const modal = $("#modal-connect");
+  const optMetamask = $("#opt-metamask");
+  const closeModal = $("#close-modal");
+
+  // -------------------- WALLET (MetaMask) --------------------
+  btnConnect.addEventListener("click", ()=> { modal.style.display = "flex"; });
+
+  closeModal.addEventListener("click", ()=> { modal.style.display = "none"; });
+
+  optMetamask.addEventListener("click", async ()=>{
+    if(!window.ethereum){
+      alert("MetaMask non détecté. Installe l’extension ou ouvre via l’app MetaMask.");
+      return;
+    }
+    try{
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+      state.wallet.address = accounts?.[0] || null;
+      state.wallet.chainId = chainId;
+      const chainInfo = CHAINS[chainId];
+      if(chainInfo){
+        state.wallet.networkKey = chainInfo.key;
+        state.wallet.networkName = chainInfo.name;
+      }else{
+        state.wallet.networkKey = null;
+        state.wallet.networkName = "Réseau non supporté";
+      }
+
+      statusWallet.textContent = `Connecté : ${shorten(state.wallet.address)}`;
+      chainPill.textContent = state.wallet.networkName || "Inconnu";
+
+      modal.style.display = "none";
+
+      // Afficher étapes suivantes
+      hydrateNetworkSelect();
+      loadTokensForNetwork();   // démo : soldes simulés
+      cardToken.classList.remove("hidden");
+      cardNetwork.classList.remove("hidden");
+      cardPhone.classList.remove("hidden");
+      cardSummary.classList.remove("hidden");
+
+      refreshSummary();
+      validateReady();
+      // Ecouteurs réseau / compte
+      window.ethereum.on?.('chainChanged', (cid)=>{
+        state.wallet.chainId = cid;
+        const info = CHAINS[cid];
+        state.wallet.networkKey = info?.key || null;
+        state.wallet.networkName = info?.name || "Réseau non supporté";
+        chainPill.textContent = state.wallet.networkName;
+        hydrateNetworkSelect();
+        loadTokensForNetwork(); // re-remplir tokens
+        // reset amount et sélection
+        amountInput.value = "";
+        state.amount = null;
+        refreshSummary();
+        validateReady();
       });
+      window.ethereum.on?.('accountsChanged', (accs)=>{
+        state.wallet.address = accs?.[0] || null;
+        statusWallet.textContent = state.wallet.address ? `Connecté : ${shorten(state.wallet.address)}` : "Aucun wallet connecté.";
+        refreshSummary();
+        validateReady();
+      });
+    }catch(err){
+      alert("Connexion refusée.");
+    }
+  });
+
+  // -------------------- NETWORK SELECT --------------------
+  function hydrateNetworkSelect(){
+    networkSelect.innerHTML = "";
+    const entries = Object.values(CHAINS);
+    entries.forEach(ch=>{
+      const opt = document.createElement("option");
+      opt.value = ch.key;
+      opt.textContent = ch.name;
+      if(state.wallet.networkKey === ch.key) opt.selected = true;
+      networkSelect.appendChild(opt);
     });
+  }
 
-    // Génération du lien
-    document.getElementById('generateBtn').addEventListener('click', async ()=>{
-      const amount = parseFloat(document.getElementById('amount').value);
-      const currency = document.getElementById('currency').value;
-      const sender_wallet = walletInput.value.trim();
-      const recipient_phone = document.getElementById('phone').value.trim();
-      const network = document.getElementById('network').value;
+  networkSelect.addEventListener("change", async ()=>{
+    const desiredKey = networkSelect.value;
+    const entry = Object.entries(CHAINS).find(([hex,info])=> info.key===desiredKey);
+    if(!entry){ return; }
+    const [targetChainId, info] = entry;
 
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if (!amount || !currency || !sender_wallet || !recipient_phone || !network){
-        errorDiv.textContent = "Merci de remplir tous les champs obligatoires.";
-        errorDiv.style.display='block';
+    if(window.ethereum && state.wallet.chainId !== targetChainId){
+      try{
+        await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: targetChainId }] });
+      }catch(err){
+        // L’utilisatrice a peut-être refusé ; on remet l’UI sur l’ancien réseau.
+        netError.textContent = "Le réseau n’a pas été changé dans le wallet.";
+        netError.style.display = "block";
+        setTimeout(()=> netError.style.display="none", 3000);
+        hydrateNetworkSelect();
         return;
       }
+    }
+    // Si succès (ou pas de MetaMask), on aligne l’état
+    state.wallet.chainId = entry[0];
+    state.wallet.networkKey = info.key;
+    state.wallet.networkName = info.name;
+    chainPill.textContent = state.wallet.networkName;
 
-      try{
-        const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
-        });
-        const data = await res.json();
-        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+    loadTokensForNetwork();
+    amountInput.value = "";
+    state.amount = null;
+    refreshSummary();
+    validateReady();
+  });
 
-        const lien = `${BACKEND}/s/${data.short_id}`;
-        resultDiv.innerHTML = `<b>Lien généré :</b><br><a href="${lien}" target="_blank" rel="noopener">${lien}</a>`;
-        resultDiv.style.display='block';
-      }catch(err){
-        errorDiv.textContent = err.message || 'Erreur réseau';
-        errorDiv.style.display='block';
-      }
+  // -------------------- TOKENS (démo) --------------------
+  function loadTokensForNetwork(){
+    const key = state.wallet.networkKey;
+    const list = key ? (MOCK_TOKENS_BY_CHAIN[key] || []) : [];
+    // Ne garder que > 0
+    state.tokens = list.filter(t => (t.balance || 0) > 0);
+
+    tokenSelect.innerHTML = "";
+    state.tokens.forEach((t, idx)=>{
+      const opt = document.createElement("option");
+      opt.value = String(idx);
+      opt.textContent = `${t.name} (${t.symbol}) • ${t.balance} • ≈ ${formatUSD(t.balance * (t.priceUsd||0))}`;
+      tokenSelect.appendChild(opt);
     });
-  </script>
+
+    tokenSelect.disabled = state.tokens.length === 0;
+    state.selectedToken = state.tokens.length ? state.tokens[0] : null;
+
+    updateUSDPreview();
+    refreshSummary();
+  }
+
+  tokenSelect.addEventListener("change", ()=>{
+    const idx = Number(tokenSelect.value);
+    state.selectedToken = state.tokens[idx] || null;
+    // Reset montant quand on change de token, pour éviter erreurs
+    amountInput.value = "";
+    state.amount = null;
+    updateUSDPreview();
+    refreshSummary();
+    validateReady();
+  });
+
+  amountInput.addEventListener("input", ()=>{
+    const v = parseFloat(amountInput.value);
+    state.amount = isNaN(v) ? null : v;
+    updateUSDPreview();
+    refreshSummary();
+    validateReady();
+  });
+
+  function updateUSDPreview(){
+    const amt = parseFloat(amountInput.value);
+    if(state.selectedToken && !isNaN(amt)){
+      const usd = amt * (state.selectedToken.priceUsd || 0);
+      usdPreview.textContent = "≈ " + formatUSD(usd);
+    }else{
+      usdPreview.textContent = "≈ $0.00";
+    }
+  }
+
+  // -------------------- PHONE --------------------
+  phoneInput.addEventListener("input", ()=>{
+    state.phone = phoneInput.value.trim();
+    phoneError.style.display = "none";
+    refreshSummary();
+    validateReady();
+  });
+
+  btnContacts.addEventListener("click", async ()=>{
+    // Best-effort simple (demo) : on affiche une info.
+    alert("Sélecteur de contacts disponible sur certains navigateurs mobiles. Pour l’instant, colle le numéro manuellement.");
+  });
+
+  // -------------------- SUMMARY + GENERATE --------------------
+  function refreshSummary(){
+    sWallet.textContent  = state.wallet.address ? shorten(state.wallet.address) : "—";
+    sToken.textContent   = state.selectedToken ? `${state.selectedToken.symbol}` : "—";
+    sAmount.textContent  = (state.amount && !isNaN(state.amount)) ? String(state.amount) : "—";
+    sUsd.textContent     = (state.selectedToken && state.amount) ? formatUSD(state.amount * (state.selectedToken.priceUsd||0)) : "—";
+    sNetwork.textContent = state.wallet.networkName || "—";
+    sPhone.textContent   = state.phone || "—";
+  }
+
+  function validateReady(){
+    const ok =
+      !!state.wallet.address &&
+      !!state.selectedToken &&
+      !!state.wallet.networkKey &&
+      (state.amount && state.amount > 0) &&
+      e164Ok(state.phone);
+
+    btnGenerate.disabled = !ok;
+    return ok;
+  }
+
+  btnGenerate.addEventListener("click", async ()=>{
+    apiError.style.display = "none";
+    apiSuccess.style.display = "none";
+
+    if(!validateReady()){
+      apiError.textContent = "Champs incomplets ou invalides.";
+      apiError.style.display = "block";
+      return;
+    }
+    try{
+      const payload = {
+        amount: state.amount,
+        currency: state.selectedToken.symbol,
+        sender_wallet: state.wallet.address,
+        recipient_phone: state.phone.replace(/\s/g,""),
+        network: state.wallet.networkName || "Ethereum"
+      };
+      const res = await fetch(`${BACKEND}/create-link`, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+      const lien = `${BACKEND}/s/${data.short_id}`;
+      genLink.textContent = lien;
+      genLink.href = lien;
+      apiSuccess.style.display = "block";
+    }catch(err){
+      apiError.textContent = err.message || "Erreur réseau";
+      apiError.style.display = "block";
+    }
+  });
+
+  btnCopy.addEventListener("click", async ()=>{
+    const text = genLink.textContent || "";
+    try{
+      await navigator.clipboard.writeText(text);
+      btnCopy.textContent = "Copié ✓";
+      setTimeout(()=> btnCopy.textContent = "Copier", 1200);
+    }catch{
+      btnCopy.textContent = "Échec";
+      setTimeout(()=> btnCopy.textContent = "Copier", 1200);
+    }
+  });
+</script>
 </body>
 </html>
