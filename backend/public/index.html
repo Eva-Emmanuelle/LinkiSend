@@ -42,24 +42,11 @@
       margin:40px auto 64px;
       padding:0 16px;
     }
-    .brand{
-      display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px;
-    }
-    .brand-badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:6px 10px;border-radius:999px;
-      background:linear-gradient(180deg,#0e1621,#0a121a);
-      border:1px solid var(--stroke);color:#8ec4ff;font-weight:600;font-size:12px;
-      letter-spacing:.2px;
-    }
-    .brand h1{
-      margin:0;
-      font-size:30px; /* plus grand que le titre écran */
-      line-height:1.05;
-      font-weight:800;
-      letter-spacing:.2px;
-      text-shadow:0 2px 24px rgba(0,0,0,.35);
-    }
+
+    /* Logo seul au-dessus du formulaire */
+    .logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
+    .logo{width:120px;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
+
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);
@@ -145,12 +132,13 @@
       display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
       border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
     }
-    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:#132a1f;color:#77e2a2;border:1px solid #1f5137}
     .pv:hover{background:#101924}
+    .pv img{width:20px;height:20px;display:block}
+    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:#132a1f;color:#77e2a2;border:1px solid #1f5137}
+    .tag-soon{background:#292313;color:#f0d27d;border:1px solid #6b5a1d}
 
     @media (max-width:420px){
       .wrap{margin:26px auto 54px}
-      .brand h1{font-size:26px}
       .card h2{font-size:20px}
     }
   </style>
@@ -160,14 +148,14 @@
   <script src="config.js"></script>
 
   <div class="wrap">
-    <div class="brand">
-      <span class="brand-badge">Crypto • Instant</span>
-      <h1>LinkiSend</h1>
+    <!-- LOGO SEUL -->
+    <div class="logo-wrap">
+      <img class="logo" src="assets/branding/logo.svg" alt="LinkiSend" />
     </div>
 
     <div class="card" role="region" aria-label="Formulaire d’envoi">
       <h2>Envoyer des cryptos</h2>
-      <p class="sub">Génère un lien de virement en 10&nbsp;secondes.</p>
+      <p class="sub">Génère un lien en 10&nbsp;secondes.</p>
 
       <!-- 1) WALLET EN PREMIER -->
       <label for="wallet">Ton wallet (expéditeur)</label>
@@ -219,19 +207,19 @@
       </div>
       <div class="providers">
         <button class="pv" data-wallet="metamask">
-          <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="" width="20" height="20" />
+          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
           MetaMask <span class="tag">EVM</span>
         </button>
         <button class="pv" data-wallet="walletconnect">
-          <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/svg/walletconnect-logo.svg" alt="" width="20" height="20" />
-          WalletConnect <span class="tag">Bientôt</span>
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag tag-soon">Bientôt</span>
         </button>
         <button class="pv" data-wallet="coinbase">
-          <img src="https://avatars.githubusercontent.com/u/1885080?s=200&v=4" alt="" width="20" height="20" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
+          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
+          Coinbase Wallet <span class="tag tag-soon">Bientôt</span>
         </button>
         <button class="pv" data-wallet="phantom">
-          <img src="https://avatars.githubusercontent.com/u/78782331?s=200&v=4" alt="" width="20" height="20" />
+          <img src="assets/wallets/phantom.svg" alt="Phantom" />
           Phantom <span class="tag">Solana</span>
         </button>
       </div>
@@ -260,7 +248,7 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // Choix provider
+    // Choix provider (comportement inchangé vs version validée)
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -277,7 +265,7 @@
       });
     });
 
-    // Génération du lien
+    // Génération du lien (identique à la version validée)
     document.getElementById('generateBtn').addEventListener('click', async ()=>{
       const amount = parseFloat(document.getElementById('amount').value);
       const currency = document.getElementById('currency').value;
