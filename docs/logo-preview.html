@@ -45,7 +45,7 @@
       position: relative;
     }
     .brand img.word{
-      max-width: 260px;
+      max-width: 240px;
       height: auto;
       display: block;
     }
@@ -100,7 +100,7 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;
       font-weight:700;font-size:15px;cursor:pointer;
-      background: radial-gradient(circle at 0% 50%, #9333ea, #22c55e);
+      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);
       color:#fff;
       box-shadow:0 10px 24px rgba(34,197,94,.2);
       transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
@@ -113,7 +113,6 @@
       color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
       padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
       background:#0a1220; margin:8px 2px 4px; width:max-content;
-      cursor:pointer;
     }
     .wallet-link:hover{background:#0d1729}
 
@@ -139,7 +138,17 @@
       border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
     }
     .pv img{width:20px;height:20px}
+    .tag{
+      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
+      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);
+      color:#fff;border:0;font-weight:600;
+    }
     .pv:hover{background:#101924}
+
+    @media (max-width:420px){
+      .wrap{margin:26px auto 54px}
+      .card h2{font-size:20px}
+    }
   </style>
 </head>
 <body>
@@ -155,7 +164,7 @@
 
       <label for="wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a id="connectWalletLink" class="wallet-link">Connecter un wallet</a>
+      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
 
       <div class="row">
         <div class="col">
@@ -180,30 +189,45 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal" id="walletModal">
+  <!-- Modal choix wallet -->
+  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-card">
       <div class="modal-head">
-        <h3>Connecter un wallet</h3>
-        <button class="x" id="walletModalClose">✕</button>
+        <h3 id="walletModalTitle">Connecter un wallet</h3>
+        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
       </div>
       <div class="providers">
-        <button class="pv"><img src="metamask.svg" alt=""> MetaMask</button>
-        <button class="pv"><img src="walletconnect.svg" alt=""> WalletConnect</button>
-        <button class="pv"><img src="coinbase.svg" alt=""> Coinbase</button>
-        <button class="pv"><img src="phantom.svg" alt=""> Phantom</button>
+        <button class="pv" data-wallet="metamask">
+          <img src="metamask.svg" alt="MetaMask" />
+          MetaMask <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="walletconnect">
+          <img src="walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="coinbase">
+          <img src="coinbase_wallet_appicon.svg" alt="Coinbase Wallet" />
+          Coinbase Wallet <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="phantom">
+          <img src="Phantom-Icon_App.svg" alt="Phantom" />
+          Phantom <span class="tag">Solana</span>
+        </button>
       </div>
     </div>
   </div>
 
   <script>
+    // Modal helpers
     const modal = document.getElementById('walletModal');
-    const openBtn = document.getElementById('connectWalletLink');
-    const closeBtn = document.getElementById('walletModalClose');
+    const openModal = () => { modal.classList.add('open'); };
+    const closeModal = () => { modal.classList.remove('open'); };
 
-    openBtn.addEventListener('click', ()=> modal.classList.add('open'));
-    closeBtn.addEventListener('click', ()=> modal.classList.remove('open'));
-    modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.classList.remove('open') });
+    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{
+      e.preventDefault(); openModal();
+    });
+    document.getElementById('walletModalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
   </script>
 </body>
 </html>
