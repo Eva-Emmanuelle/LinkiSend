@@ -20,7 +20,7 @@
     h1{font-size:22px;margin:0 2px 10px}
     .sub{color:var(--dim);font-size:13px;margin:0 2px 14px}
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--dim)}
-    input,select{width:100%;height:44px;padding:10px 12px;border-radius:var(--rsm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;transition:.15s border,.15s box-shadow}
+    input,select{width:100%;height:44px;padding:10px 12px;border-radius:var(--rsm);border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;outline:none;transition:.15s border,.15s box-shadow}
     input:focus,select:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
     .row{display:flex;gap:10px}
     .col{flex:1}
@@ -52,8 +52,8 @@
     /* Dial selector */
     .phone-row{display:flex;gap:8px;align-items:center}
     .dial{position:relative;display:flex;gap:6px}
-    .dial-btn,.dial-search{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-    .dial-btn:hover,.dial-search:hover{background:#0d1729}
+    .dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+    .dial-btn:hover{background:#0d1729}
     .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
     .dial-head .loupe{font-size:16px}
@@ -70,7 +70,7 @@
   <div class="wrap">
     <div class="card" aria-label="Preview Listes blanches + Indicatif">
       <h1>Preview — Liste blanche (envoyeur) + indicatif</h1>
-      <p class="sub">Enregistre un numéro (💾), affiche tes enregistrés (📖). Choisis rapidement l’indicatif (🇫🇷 +33) ou cherche-le (🔎).</p>
+      <p class="sub">Enregistre un numéro (💾), affiche tes enregistrés (📖). Choisis rapidement l’indicatif (🇫🇷 +33) et filtre dans le panneau.</p>
 
       <label for="wallet">Ton wallet (expéditeur)</label>
       <input id="wallet" placeholder="0xABCDEF..." autocomplete="off"/>
@@ -95,9 +95,11 @@
         <!-- Dial selector -->
         <div class="dial">
           <button id="dialBtn" class="dial-btn" type="button"><span class="flag">🇫🇷</span><span id="dialCode">+33</span></button>
-          <button id="dialSearchBtn" class="dial-search" type="button" title="Chercher"><span>🔎</span></button>
           <div id="dialPanel" class="dial-panel" role="dialog" aria-modal="true">
-            <div class="dial-head"><span class="loupe">🔎</span><input id="dialSearch" class="dial-search-input" autocomplete="off" aria-label="Rechercher"/></div>
+            <div class="dial-head">
+              <span class="loupe">🔎</span>
+              <input id="dialSearch" class="dial-search-input" autocomplete="off" aria-label="Rechercher"/>
+            </div>
             <div id="dialList" class="dial-list"></div>
           </div>
         </div>
@@ -132,40 +134,39 @@
     // Données pays (drapeau + code)
     // =============================
     const DIALS = [
-      {cc:"FR",flag:"🇫🇷",code:"+33",name:"France"},
-      {cc:"ES",flag:"🇪🇸",code:"+34",name:"Espagne"},
-      {cc:"BE",flag:"🇧🇪",code:"+32",name:"Belgique"},
-      {cc:"CH",flag:"🇨🇭",code:"+41",name:"Suisse"},
-      {cc:"DE",flag:"🇩🇪",code:"+49",name:"Allemagne"},
-      {cc:"IT",flag:"🇮🇹",code:"+39",name:"Italie"},
-      {cc:"PT",flag:"🇵🇹",code:"+351",name:"Portugal"},
-      {cc:"GB",flag:"🇬🇧",code:"+44",name:"Royaume-Uni"},
-      {cc:"US",flag:"🇺🇸",code:"+1", name:"États-Unis"},
-      {cc:"CA",flag:"🇨🇦",code:"+1", name:"Canada"},
-      {cc:"MA",flag:"🇲🇦",code:"+212",name:"Maroc"},
-      {cc:"DZ",flag:"🇩🇿",code:"+213",name:"Algérie"},
-      {cc:"TN",flag:"🇹🇳",code:"+216",name:"Tunisie"},
-      {cc:"SN",flag:"🇸🇳",code:"+221",name:"Sénégal"},
-      {cc:"CI",flag:"🇨🇮",code:"+225",name:"Côte d’Ivoire"},
-      {cc:"CM",flag:"🇨🇲",code:"+237",name:"Cameroun"},
-      {cc:"TG",flag:"🇹🇬",code:"+228",name:"Togo"},
-      {cc:"ML",flag:"🇲🇱",code:"+223",name:"Mali"},
-      {cc:"RU",flag:"🇷🇺",code:"+7", name:"Russie"},
-      {cc:"TR",flag:"🇹🇷",code:"+90",name:"Turquie"},
-      {cc:"AE",flag:"🇦🇪",code:"+971",name:"Émirats"},
-      {cc:"IN",flag:"🇮🇳",code:"+91",name:"Inde"},
-      {cc:"CN",flag:"🇨🇳",code:"+86",name:"Chine"},
-      {cc:"JP",flag:"🇯🇵",code:"+81",name:"Japon"},
-      {cc:"KR",flag:"🇰🇷",code:"+82",name:"Corée du Sud"},
-      {cc:"BR",flag:"🇧🇷",code:"+55",name:"Brésil"},
-      {cc:"MX",flag:"🇲🇽",code:"+52",name:"Mexique"},
-      {cc:"AR",flag:"🇦🇷",code:"+54",name:"Argentine"},
-      {cc:"CL",flag:"🇨🇱",code:"+56",name:"Chili"},
-      {cc:"AU",flag:"🇦🇺",code:"+61",name:"Australie"},
-      {cc:"NZ",flag:"🇳🇿",code:"+64",name:"Nouvelle-Zélande"},
+      {flag:"🇫🇷",code:"+33",name:"France"},
+      {flag:"🇪🇸",code:"+34",name:"Espagne"},
+      {flag:"🇧🇪",code:"+32",name:"Belgique"},
+      {flag:"🇨🇭",code:"+41",name:"Suisse"},
+      {flag:"🇩🇪",code:"+49",name:"Allemagne"},
+      {flag:"🇮🇹",code:"+39",name:"Italie"},
+      {flag:"🇵🇹",code:"+351",name:"Portugal"},
+      {flag:"🇬🇧",code:"+44",name:"Royaume-Uni"},
+      {flag:"🇺🇸",code:"+1", name:"États-Unis"},
+      {flag:"🇨🇦",code:"+1", name:"Canada"},
+      {flag:"🇲🇦",code:"+212",name:"Maroc"},
+      {flag:"🇩🇿",code:"+213",name:"Algérie"},
+      {flag:"🇹🇳",code:"+216",name:"Tunisie"},
+      {flag:"🇸🇳",code:"+221",name:"Sénégal"},
+      {flag:"🇨🇮",code:"+225",name:"Côte d’Ivoire"},
+      {flag:"🇨🇲",code:"+237",name:"Cameroun"},
+      {flag:"🇹🇬",code:"+228",name:"Togo"},
+      {flag:"🇲🇱",code:"+223",name:"Mali"},
+      {flag:"🇷🇺",code:"+7", name:"Russie"},
+      {flag:"🇹🇷",code:"+90",name:"Turquie"},
+      {flag:"🇦🇪",code:"+971",name:"Émirats"},
+      {flag:"🇮🇳",code:"+91",name:"Inde"},
+      {flag:"🇨🇳",code:"+86",name:"Chine"},
+      {flag:"🇯🇵",code:"+81",name:"Japon"},
+      {flag:"🇰🇷",code:"+82",name:"Corée du Sud"},
+      {flag:"🇧🇷",code:"+55",name:"Brésil"},
+      {flag:"🇲🇽",code:"+52",name:"Mexique"},
+      {flag:"🇦🇷",code:"+54",name:"Argentine"},
+      {flag:"🇨🇱",code:"+56",name:"Chili"},
+      {flag:"🇦🇺",code:"+61",name:"Australie"},
+      {flag:"🇳🇿",code:"+64",name:"Nouvelle-Zélande"},
     ];
 
-    // Elem utilitaires
     const $ = (s)=>document.querySelector(s);
 
     // =============================
@@ -173,18 +174,16 @@
     // =============================
     const dialBtn = $("#dialBtn");
     const dialCodeSpan = $("#dialCode");
-    const dialSearchBtn = $("#dialSearchBtn");
     const dialPanel = $("#dialPanel");
     const dialSearch = $("#dialSearch");
     const dialList = $("#dialList");
 
-    // État actuel (par défaut France)
-    let currentDial = {flag:"🇫🇷", code:"+33"};
+    let currentDial = {flag:"🇫🇷", code:"+33"}; // défaut
 
     function renderDialList(filter=""){
       const f = (filter||"").trim().toLowerCase();
       dialList.innerHTML = "";
-      DIALS.filter(d => !f || d.name.toLowerCase().includes(f) || d.code.includes(f) || d.cc.toLowerCase().includes(f))
+      DIALS.filter(d => !f || d.name.toLowerCase().includes(f) || d.code.includes(f))
            .forEach(d=>{
               const row = document.createElement("div");
               row.className = "dial-item";
@@ -207,12 +206,9 @@
     dialBtn.addEventListener("click", ()=>{
       if (dialPanel.style.display === "block") closeDialPanel(); else openDialPanel();
     });
-    dialSearchBtn.addEventListener("click", ()=>{
-      if (dialPanel.style.display === "block") closeDialPanel(); else openDialPanel();
-    });
     dialSearch.addEventListener("input", ()=>renderDialList(dialSearch.value));
     document.addEventListener("click",(e)=>{
-      if (!dialPanel.contains(e.target) && e.target!==dialBtn && e.target!==dialSearchBtn) closeDialPanel();
+      if (!dialPanel.contains(e.target) && e.target!==dialBtn) closeDialPanel();
     });
 
     // =============================
@@ -271,7 +267,7 @@
       openSuggest();
     }
 
-    // 👉 La liste n’apparaît QUE via l’emoji 📖
+    // La liste n’apparaît QUE via l’emoji 📖
     showAllBtn.addEventListener("click", ()=>{
       const has = loadContacts().length>0;
       if (!has){ closeSuggest(); return; }
@@ -293,12 +289,11 @@
       if (!name){ aliasInput.focus(); return; }
       addContact(name, phone);
       inlineSave.style.display="none";
-      // 👉 On NE montre pas la liste automatiquement (seulement avec 📖)
+      // pas d’ouverture auto de la liste (seulement via 📖)
     });
     aliasKo.addEventListener("click", ()=>{ inlineSave.style.display="none"; aliasInput.value=""; });
 
-    // (facultatif) Utiliser l’indicatif sélectionné + numéro tapé
-    // const fullNumber = () => currentDial.code + phoneInput.value.trim();
+    // (facultatif) Concaténer indicatif + numéro : currentDial.code + phoneInput.value.trim()
   </script>
 </body>
 </html>
