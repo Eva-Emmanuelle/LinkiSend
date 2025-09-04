@@ -2,17 +2,13 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Preview — Liste blanche (envoyeur)</title>
+  <title>Preview — Liste blanche + Indicatif</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    :root{
-      --bg:#0b0f14; --card:#121821; --card2:#0f1620; --stroke:#1f2a37;
-      --text:#e6edf3; --dim:#9fb0c0; --focus:#334155; --shadow:0 12px 40px rgba(0,0,0,.45);
-      --r:14px; --rsm:10px;
-    }
+    :root{--bg:#0b0f14;--card:#121821;--card2:#0f1620;--stroke:#1f2a37;--text:#e6edf3;--dim:#9fb0c0;--focus:#334155;--shadow:0 12px 40px rgba(0,0,0,.45);--r:14px;--rsm:10px;}
     *,*:before,*:after{box-sizing:border-box}
     body{
-      margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial;
+      margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial;
       background:
         radial-gradient(1200px 600px at 20% -10%, #132034 0%, transparent 60%),
         radial-gradient(900px 500px at 110% 0%, #1a2334 0%, transparent 60%),
@@ -20,70 +16,61 @@
       color:var(--text);
     }
     .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}
-    .card{
-      background:linear-gradient(180deg,var(--card),var(--card2));
-      border:1px solid var(--stroke); border-radius:var(--r); box-shadow:var(--shadow);
-      padding:18px 16px;
-    }
+    .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--stroke);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 16px}
     h1{font-size:22px;margin:0 2px 10px}
     .sub{color:var(--dim);font-size:13px;margin:0 2px 14px}
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--dim)}
-    input,select{
-      width:100%;height:44px;padding:10px 12px;border-radius:var(--rsm);
-      border:1px solid var(--stroke); background:#0e141c; color:#e6edf3; outline:none;
-      transition:.15s border,.15s box-shadow;
-    }
+    input,select{width:100%;height:44px;padding:10px 12px;border-radius:var(--rsm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;transition:.15s border,.15s box-shadow}
     input:focus,select:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
     .row{display:flex;gap:10px}
     .col{flex:1}
 
+    /* CTA désactivé du preview */
+    .btn{width:100%;height:46px;border:0;border-radius:12px;cursor:not-allowed;font-weight:700;font-size:15px;color:#fff;
+      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;opacity:.6}
+
     /* Boutons compacts (emoji) */
-    .btn-icon{
-      height:28px; min-width:28px; padding:0 8px;
-      border-radius:8px; border:1px dashed var(--stroke);
-      background:#0a1220; color:#cfe1ff; cursor:pointer; font-size:16px; line-height:28px;
-      display:inline-flex;align-items:center;justify-content:center;
-    }
+    .btn-icon{height:28px;min-width:28px;padding:0 8px;border-radius:8px;border:1px dashed var(--stroke);background:#0a1220;color:#cfe1ff;cursor:pointer;font-size:16px;line-height:28px;display:inline-flex;align-items:center;justify-content:center}
     .btn-icon:hover{background:#0d1729}
 
-    /* CTA désactivé du preview */
-    .btn{
-      width:100%; height:46px; border:0; border-radius:12px; cursor:not-allowed; font-weight:700; font-size:15px; color:#fff;
-      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);
-      box-shadow:0 10px 24px rgba(34,197,94,.2); margin-top:14px; opacity:.6;
-    }
-
-    /* Suggestions */
+    /* Suggestions (contacts) */
     .suggest{position:relative;margin-top:6px}
-    .suggest-list{
-      position:absolute;left:0;right:0;top:100%;z-index:20;margin-top:6px;
-      background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);
-      display:none; max-height:220px; overflow:auto;
-    }
-    .s-item{display:flex;align-items:center;justify-content:space-between;gap:8px;
-      padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04); cursor:pointer;}
+    .suggest-list{position:absolute;left:0;right:0;top:100%;z-index:20;margin-top:6px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none;max-height:220px;overflow:auto}
+    .s-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
     .s-item:last-child{border-bottom:0}
     .s-primary{font-weight:700}
     .s-secondary{color:var(--dim);font-size:12px}
     .s-actions{display:flex;gap:6px}
-    .chip-del{
-      background:#1a2433;border:1px solid #223046;color:#cbd5e1;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer;
-    }
+    .chip-del{background:#1a2433;border:1px solid #223046;color:#cbd5e1;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}
 
     /* Inline save */
     .inline-save{display:none;gap:6px;align-items:center;margin-top:8px}
-    .inline-save input{
-      height:36px; padding:8px 10px; border-radius:8px; font-size:14px;
-    }
+    .inline-save input{height:36px;padding:8px 10px;border-radius:8px;font-size:14px}
     .inline-save .ok{background:#0f2a18;border:1px solid #1f6d3a}
     .inline-save .ko{background:#2a0f15;border:1px solid #6d1f2c}
+
+    /* Dial selector */
+    .phone-row{display:flex;gap:8px;align-items:center}
+    .dial{position:relative;display:flex;gap:6px}
+    .dial-btn,.dial-search{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+    .dial-btn:hover,.dial-search:hover{background:#0d1729}
+    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
+    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .dial-head .loupe{font-size:16px}
+    .dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
+    .dial-list{max-height:260px;overflow:auto}
+    .dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+    .dial-item:last-child{border-bottom:0}
+    .flag{font-size:16px}
+    .dialcode{color:#cfe1ff}
+    .country{color:#9fb0c0;font-size:12px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card" aria-label="Preview Listes blanches">
-      <h1>Preview — Liste blanche (envoyeur)</h1>
-      <p class="sub">Enregistre un numéro avec un pseudo, puis retrouve-le en un clic dans le champ.</p>
+    <div class="card" aria-label="Preview Listes blanches + Indicatif">
+      <h1>Preview — Liste blanche (envoyeur) + indicatif</h1>
+      <p class="sub">Enregistre un numéro (💾), affiche tes enregistrés (📖). Choisis rapidement l’indicatif (🇫🇷 +33) ou cherche-le (🔎).</p>
 
       <label for="wallet">Ton wallet (expéditeur)</label>
       <input id="wallet" placeholder="0xABCDEF..." autocomplete="off"/>
@@ -102,10 +89,24 @@
       <label for="network">Réseau</label>
       <select id="network"><option>Ethereum</option><option>Polygon</option><option>BNB Chain</option><option>Solana</option></select>
 
-      <!-- === Zone liste blanche === -->
+      <!-- === Zone numéro + indicatif === -->
       <label for="phone">Numéro du destinataire</label>
+      <div class="phone-row">
+        <!-- Dial selector -->
+        <div class="dial">
+          <button id="dialBtn" class="dial-btn" type="button"><span class="flag">🇫🇷</span><span id="dialCode">+33</span></button>
+          <button id="dialSearchBtn" class="dial-search" type="button" title="Chercher"><span>🔎</span></button>
+          <div id="dialPanel" class="dial-panel" role="dialog" aria-modal="true">
+            <div class="dial-head"><span class="loupe">🔎</span><input id="dialSearch" class="dial-search-input" autocomplete="off" aria-label="Rechercher"/></div>
+            <div id="dialList" class="dial-list"></div>
+          </div>
+        </div>
+        <!-- Phone input -->
+        <input id="phone" placeholder="612345678" autocomplete="off"/>
+      </div>
+
+      <!-- Numéro + suggestions (contacts) -->
       <div class="suggest">
-        <input id="phone" placeholder="+33..." autocomplete="off"/>
         <div id="suggestList" class="suggest-list" role="listbox"></div>
       </div>
 
@@ -127,14 +128,106 @@
   </div>
 
   <script>
-    const LS_KEY = "linkisend_contacts"; // [{ id, name, phone, created }]
+    // =============================
+    // Données pays (drapeau + code)
+    // =============================
+    const DIALS = [
+      {cc:"FR",flag:"🇫🇷",code:"+33",name:"France"},
+      {cc:"ES",flag:"🇪🇸",code:"+34",name:"Espagne"},
+      {cc:"BE",flag:"🇧🇪",code:"+32",name:"Belgique"},
+      {cc:"CH",flag:"🇨🇭",code:"+41",name:"Suisse"},
+      {cc:"DE",flag:"🇩🇪",code:"+49",name:"Allemagne"},
+      {cc:"IT",flag:"🇮🇹",code:"+39",name:"Italie"},
+      {cc:"PT",flag:"🇵🇹",code:"+351",name:"Portugal"},
+      {cc:"GB",flag:"🇬🇧",code:"+44",name:"Royaume-Uni"},
+      {cc:"US",flag:"🇺🇸",code:"+1", name:"États-Unis"},
+      {cc:"CA",flag:"🇨🇦",code:"+1", name:"Canada"},
+      {cc:"MA",flag:"🇲🇦",code:"+212",name:"Maroc"},
+      {cc:"DZ",flag:"🇩🇿",code:"+213",name:"Algérie"},
+      {cc:"TN",flag:"🇹🇳",code:"+216",name:"Tunisie"},
+      {cc:"SN",flag:"🇸🇳",code:"+221",name:"Sénégal"},
+      {cc:"CI",flag:"🇨🇮",code:"+225",name:"Côte d’Ivoire"},
+      {cc:"CM",flag:"🇨🇲",code:"+237",name:"Cameroun"},
+      {cc:"TG",flag:"🇹🇬",code:"+228",name:"Togo"},
+      {cc:"ML",flag:"🇲🇱",code:"+223",name:"Mali"},
+      {cc:"RU",flag:"🇷🇺",code:"+7", name:"Russie"},
+      {cc:"TR",flag:"🇹🇷",code:"+90",name:"Turquie"},
+      {cc:"AE",flag:"🇦🇪",code:"+971",name:"Émirats"},
+      {cc:"IN",flag:"🇮🇳",code:"+91",name:"Inde"},
+      {cc:"CN",flag:"🇨🇳",code:"+86",name:"Chine"},
+      {cc:"JP",flag:"🇯🇵",code:"+81",name:"Japon"},
+      {cc:"KR",flag:"🇰🇷",code:"+82",name:"Corée du Sud"},
+      {cc:"BR",flag:"🇧🇷",code:"+55",name:"Brésil"},
+      {cc:"MX",flag:"🇲🇽",code:"+52",name:"Mexique"},
+      {cc:"AR",flag:"🇦🇷",code:"+54",name:"Argentine"},
+      {cc:"CL",flag:"🇨🇱",code:"+56",name:"Chili"},
+      {cc:"AU",flag:"🇦🇺",code:"+61",name:"Australie"},
+      {cc:"NZ",flag:"🇳🇿",code:"+64",name:"Nouvelle-Zélande"},
+    ];
+
+    // Elem utilitaires
     const $ = (s)=>document.querySelector(s);
+
+    // =============================
+    // Sélecteur d’indicatif
+    // =============================
+    const dialBtn = $("#dialBtn");
+    const dialCodeSpan = $("#dialCode");
+    const dialSearchBtn = $("#dialSearchBtn");
+    const dialPanel = $("#dialPanel");
+    const dialSearch = $("#dialSearch");
+    const dialList = $("#dialList");
+
+    // État actuel (par défaut France)
+    let currentDial = {flag:"🇫🇷", code:"+33"};
+
+    function renderDialList(filter=""){
+      const f = (filter||"").trim().toLowerCase();
+      dialList.innerHTML = "";
+      DIALS.filter(d => !f || d.name.toLowerCase().includes(f) || d.code.includes(f) || d.cc.toLowerCase().includes(f))
+           .forEach(d=>{
+              const row = document.createElement("div");
+              row.className = "dial-item";
+              row.innerHTML = `<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;
+              row.onclick = ()=>{
+                currentDial = {flag:d.flag, code:d.code};
+                dialBtn.innerHTML = `<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;
+                dialPanel.style.display = "none";
+              };
+              dialList.appendChild(row);
+           });
+    }
+    function openDialPanel(){
+      renderDialList("");
+      dialPanel.style.display = "block";
+      setTimeout(()=>dialSearch.focus(), 0);
+    }
+    function closeDialPanel(){ dialPanel.style.display="none"; }
+
+    dialBtn.addEventListener("click", ()=>{
+      if (dialPanel.style.display === "block") closeDialPanel(); else openDialPanel();
+    });
+    dialSearchBtn.addEventListener("click", ()=>{
+      if (dialPanel.style.display === "block") closeDialPanel(); else openDialPanel();
+    });
+    dialSearch.addEventListener("input", ()=>renderDialList(dialSearch.value));
+    document.addEventListener("click",(e)=>{
+      if (!dialPanel.contains(e.target) && e.target!==dialBtn && e.target!==dialSearchBtn) closeDialPanel();
+    });
+
+    // =============================
+    // Liste blanche (contacts)
+    // =============================
+    const LS_KEY = "linkisend_contacts"; // [{ id, name, phone, created }]
     const phoneInput = $("#phone");
     const suggestEl = $("#suggestList");
     const inlineSave = $("#inlineSave");
     const aliasInput = $("#aliasInput");
+    const showAllBtn = $("#showAllBtn");
+    const saveBtn = $("#saveBtn");
+    const aliasOk = $("#aliasOk");
+    const aliasKo = $("#aliasKo");
 
-    // --- storage ---
     function loadContacts(){ try { return JSON.parse(localStorage.getItem(LS_KEY)||"[]"); } catch { return []; } }
     function saveContacts(list){ localStorage.setItem(LS_KEY, JSON.stringify(list)); }
     function addContact(name, phone){
@@ -146,7 +239,6 @@
     }
     function removeContact(id){ saveContacts(loadContacts().filter(c=>c.id!==id)); }
 
-    // --- suggest UI ---
     function closeSuggest(){ suggestEl.style.display="none"; suggestEl.innerHTML=""; }
     function openSuggest(){ suggestEl.style.display="block"; }
 
@@ -157,9 +249,7 @@
       const f=(filter||"").trim().toLowerCase();
       const rows=data.filter(c=>!f || c.name.toLowerCase().includes(f) || c.phone.includes(filter));
       suggestEl.innerHTML="";
-
-      if (!rows.length){ closeSuggest(); return; } // pas d'affichage si vide
-
+      if (!rows.length){ closeSuggest(); return; }
       rows.forEach(c=>{
         const row=document.createElement("div");
         row.className="s-item";
@@ -168,10 +258,7 @@
             <div class="s-primary">${escapeHtml(c.name)}</div>
             <div class="s-secondary">${escapeHtml(c.phone)}</div>
           </div>
-          <div class="s-actions">
-            <button class="chip-del" data-id="${c.id}" type="button" aria-label="Supprimer">🗑️</button>
-          </div>
-        `;
+          <div class="s-actions"><button class="chip-del" data-id="${c.id}" type="button" aria-label="Supprimer">🗑️</button></div>`;
         row.addEventListener("click",(e)=>{
           const t=e.target;
           if (t && t.classList && t.classList.contains("chip-del")) return;
@@ -184,40 +271,34 @@
       openSuggest();
     }
 
-    // --- interactions ---
-    phoneInput.addEventListener("focus", ()=>renderSuggest(phoneInput.value));
-    phoneInput.addEventListener("input", ()=>renderSuggest(phoneInput.value));
-    document.addEventListener("click",(e)=>{ if (!suggestEl.contains(e.target) && e.target!==phoneInput) closeSuggest(); });
-
-    // affiche liste complète
-    $("#showAllBtn").addEventListener("click", ()=>{
+    // 👉 La liste n’apparaît QUE via l’emoji 📖
+    showAllBtn.addEventListener("click", ()=>{
       const has = loadContacts().length>0;
       if (!has){ closeSuggest(); return; }
       renderSuggest(""); openSuggest(); phoneInput.focus();
     });
+    document.addEventListener("click",(e)=>{
+      if (!suggestEl.contains(e.target) && e.target!==showAllBtn) closeSuggest();
+    });
 
-    // ouvre le petit champ inline pour saisir le pseudo
-    $("#saveBtn").addEventListener("click", ()=>{
+    // Enregistrer (💾) → petit champ inline
+    saveBtn.addEventListener("click", ()=>{
       const phone = phoneInput.value.trim();
       if (!phone){ alert("Entre un numéro avant d’enregistrer."); return; }
-      inlineSave.style.display="flex";
-      aliasInput.value=""; aliasInput.focus();
+      inlineSave.style.display="flex"; aliasInput.value=""; aliasInput.focus();
     });
-
-    // valider / annuler l'enregistrement inline
-    $("#aliasOk").addEventListener("click", ()=>{
+    aliasOk.addEventListener("click", ()=>{
       const phone = phoneInput.value.trim();
       const name = aliasInput.value.trim();
-      if (!name) { aliasInput.focus(); return; }
+      if (!name){ aliasInput.focus(); return; }
       addContact(name, phone);
       inlineSave.style.display="none";
-      // 👉 après enregistrement : ouvrir la liste enregistrée directement
-      renderSuggest(""); openSuggest(); phoneInput.focus();
+      // 👉 On NE montre pas la liste automatiquement (seulement avec 📖)
     });
-    $("#aliasKo").addEventListener("click", ()=>{
-      inlineSave.style.display="none";
-      aliasInput.value="";
-    });
+    aliasKo.addEventListener("click", ()=>{ inlineSave.style.display="none"; aliasInput.value=""; });
+
+    // (facultatif) Utiliser l’indicatif sélectionné + numéro tapé
+    // const fullNumber = () => currentDial.code + phoneInput.value.trim();
   </script>
 </body>
 </html>
