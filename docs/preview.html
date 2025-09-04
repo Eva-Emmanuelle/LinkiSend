@@ -13,7 +13,6 @@
     --muted:#9ca3af;         /* texte secondaire */
     --brand:#27ae60;         /* vert brand */
     --brand-press:#219653;
-    --accent:#5a2ca0;
   }
   *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
   body{margin:0;background:linear-gradient(180deg,#0a0f1f,#0f172a 60%);color:var(--text)}
@@ -24,7 +23,7 @@
   .ok{color:var(--brand)}
   p.helper{margin:0 0 18px;color:var(--muted)}
 
-  /* bloc clair de succès */
+  /* Bloc clair de succès */
   .result-cta{
     margin-top:8px;padding:16px;border-radius:14px;
     background:#ecfdf5;                    /* clair */
@@ -51,9 +50,7 @@
     box-shadow:0 6px 18px rgba(39,174,96,.25)
   }
   .btn-primary:active{transform:translateY(1px);filter:brightness(.95)}
-  .btn-ghost{
-    background:#ffffff;border:1px solid #d1fae5;color:#065f46
-  }
+
   .sub{
     margin-top:10px;color:#0f5132;font-size:13px;display:flex;gap:8px;align-items:center
   }
@@ -79,7 +76,6 @@
             <code id="the-link">https://linkisend.onrender.com/s/abcd1234</code>
           </div>
           <button class="btn btn-primary" id="copyBtn" aria-label="Copier le lien">📋 Copier le lien</button>
-          <a class="btn btn-ghost" id="openBtn" href="https://linkisend.onrender.com/s/abcd1234" target="_blank" rel="noopener">🔗 Ouvrir</a>
         </div>
         <div class="sub">⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.</div>
       </div>
@@ -90,7 +86,6 @@
 
 <script>
   const copyBtn = document.getElementById('copyBtn');
-  const openBtn = document.getElementById('openBtn');
   const linkEl  = document.getElementById('the-link');
   const toast   = document.getElementById('toast');
 
@@ -101,4 +96,13 @@
       toast.classList.add('show');
       setTimeout(()=>toast.classList.remove('show'), 1500);
     }catch(e){
-      // fall
+      const r = document.createRange(); r.selectNode(linkEl);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      document.execCommand('copy'); sel.removeAllRanges();
+      toast.textContent = 'Copié ✅';
+      toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1500);
+    }
+  });
+</script>
+</body>
+</html>
