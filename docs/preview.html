@@ -50,7 +50,17 @@
   .result-purple a{color:#c3b5ff;text-decoration:underline}
   .result-purple a:hover{opacity:.9;text-decoration:none}
 
-  .label{font-weight:600;margin-bottom:6px}
+  /* ===== Variation 3: Fond clair ===== */
+  .result-light{
+    margin-top:8px;padding:14px 16px;border-radius:12px;
+    background:#f0fdf4;                  /* vert très pâle */
+    border:1px solid #bbf7d0;            /* vert clair */
+    color:#065f46;                       /* texte vert foncé */
+    word-break:break-word;
+  }
+  .result-light strong{display:block;margin:0 0 6px;color:#047857}
+  .result-light a{color:#059669;text-decoration:underline;font-weight:600}
+  .result-light a:hover{opacity:.9;text-decoration:none}
 </style>
 </head>
 <body>
@@ -62,7 +72,6 @@
         <div class="fake-input">Ton wallet (expéditeur) — 0xABCDEF…</div>
         <div class="fake-input">Montant — 0.01</div>
       </div>
-
       <div class="result-green">
         <strong>Lien généré :</strong>
         <a href="#" onclick="return false">https://linkisend.onrender.com/s/abcd1234</a>
@@ -76,8 +85,20 @@
         <div class="fake-input">Ton wallet (expéditeur) — 0xABCDEF…</div>
         <div class="fake-input">Montant — 0.01</div>
       </div>
-
       <div class="result-purple">
+        <strong>Lien généré :</strong>
+        <a href="#" onclick="return false">https://linkisend.onrender.com/s/abcd1234</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Preview – Variante <span style="color:#27ae60">CLAIR</span></h1>
+      <p>Encadré clair, style notification positive, pour trancher avec le fond sombre.</p>
+      <div class="demo-fields">
+        <div class="fake-input">Ton wallet (expéditeur) — 0xABCDEF…</div>
+        <div class="fake-input">Montant — 0.01</div>
+      </div>
+      <div class="result-light">
         <strong>Lien généré :</strong>
         <a href="#" onclick="return false">https://linkisend.onrender.com/s/abcd1234</a>
       </div>
