@@ -84,20 +84,7 @@
     .dial-list{max-height:260px;overflow:auto}
     .dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
     .dial-item:last-child{border-bottom:0}
-
-    /* Drapeaux via emoji/SVG (Twemoji) */
-    .flag{
-      font-size:16px;
-      line-height:1;
-      font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;
-    }
-    .flag img{
-      width:1.1em;
-      height:1.1em;
-      vertical-align:-0.15em;
-      display:inline-block;
-    }
-
+    .flag{font-size:16px}
     .dialcode{color:#cfe1ff}
     .country{color:#9fb0c0;font-size:12px}
   </style>
@@ -152,10 +139,8 @@
 
   <div class="toast" id="toast">Lien copié ✅</div>
 
-  <!-- 1) Liste des pays -->
+  <!-- Charger la liste des pays AVANT le script principal -->
   <script src="countries.js"></script>
-  <!-- 2) Twemoji pour convertir les emojis drapeaux en SVG (affichage 100% fiable) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" referrerpolicy="no-referrer"></script>
 
   <script>
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
@@ -166,66 +151,12 @@
 
     const dialBtn=document.getElementById('dialBtn'),dialPanel=document.getElementById('dialPanel'),dialSearch=document.getElementById('dialSearch'),dialList=document.getElementById('dialList');
     let currentDial={flag:"🇫🇷",code:"+33"};
-
-    function renderDialList(f=""){
-      dialList.innerHTML="";
-      DIALS
-        .filter(d=>!f || d.name.toLowerCase().includes(f) || d.code.includes(f))
-        .forEach(d=>{
-          const row=document.createElement("div");
-          row.className="dial-item";
-          row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;
-          row.onclick=()=>{
-            currentDial={flag:d.flag,code:d.code};
-            dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;
-            // Convertit l'emoji du bouton en SVG
-            if (window.twemoji) twemoji.parse(dialBtn, {folder:"svg", ext:".svg"});
-            dialPanel.style.display="none";
-          };
-          dialList.appendChild(row);
-        });
-
-      // Convertit tous les emojis drapeaux de la liste en SVG
-      if (window.twemoji) twemoji.parse(dialList, {folder:"svg", ext:".svg"});
-    }
-
+    function renderDialList(f=""){dialList.innerHTML="";DIALS.filter(d=>!f||d.name.toLowerCase().includes(f)||d.code.includes(f)).forEach(d=>{const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;row.onclick=()=>{currentDial={flag:d.flag,code:d.code};dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none";};dialList.appendChild(row);});}
     dialBtn.onclick=()=>{dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");renderDialList("");}
     dialSearch.oninput=()=>renderDialList(dialSearch.value.toLowerCase());
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
 
-    document.getElementById('generateBtn').onclick=async()=>{
-      const amount=parseFloat(document.getElementById('amount').value),
-            currency=document.getElementById('currency').value,
-            sender_wallet=walletInput.value.trim(),
-            localPhone=document.getElementById('phone').value.trim(),
-            recipient_phone=`${currentDial.code}${localPhone}`,
-            network=document.getElementById('network').value;
-
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){
-        errorDiv.textContent="Merci de remplir tous les champs.";
-        errorDiv.style.display='block';
-        return;
-      }
-
-      try{
-        const res=await fetch(`${BACKEND}/create-link`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})
-        });
-        const data=await res.json();
-        if(!res.ok) throw new Error(data.detail||"Erreur");
-        const lien=`https://linkisend.io/${data.short_id}`;
-        linkEl.textContent=lien;
-        resultDiv.style.display='block';
-      }catch(err){
-        errorDiv.textContent=err.message;
-        errorDiv.style.display='block';
-      }
-    };
+    document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
 </body>
 </html>
