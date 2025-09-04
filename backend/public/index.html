@@ -360,7 +360,7 @@
         const data = await res.json();
         if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
 
-        const lien = `${BACKEND}/s/${data.short_id}`;
+        const lien = `https://linkisend.io/${data.short_id}`;
         linkEl.textContent = lien;                 // maj du lien
         linkEl.parentElement.setAttribute('title', lien);
         resultDiv.style.display='block';           // affiche le bloc clair
