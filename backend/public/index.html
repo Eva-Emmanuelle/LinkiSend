@@ -42,7 +42,7 @@
     .row{display:flex;gap:var(--gap)}
     .col{flex:1}
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
-    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:#var(--text);outline:none;transition:.15s border,.15s box-shadow,.15s background;}
+    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;transition:.15s border,.15s box-shadow,.15s background;}
     select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
     .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);transition:transform .06s ease, box-shadow .2s ease, background .12s ease;margin-top:14px;}
@@ -68,7 +68,7 @@
     .modal-head h3{margin:0;font-size:18px}
     .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:#text;cursor:pointer;font-weight:600}
+    .pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}
     .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600;}
     .pv:hover{background:#101924}
@@ -78,10 +78,10 @@
     .dial{position:relative;display:flex}
     .dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
     .dial-btn:hover{background:#0d1729}
-    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:300px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none;}
+    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none;}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
     .dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
-    .dial-list{max-height:300px;overflow:auto}
+    .dial-list{max-height:260px;overflow:auto}
     .dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
     .dial-item:last-child{border-bottom:0}
     .flag{font-size:16px}
@@ -140,341 +140,15 @@
 
   <script>
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
-    const resultDiv=document.getElementById('result'),
-          errorDiv=document.getElementById('error'),
-          walletInput=document.getElementById('wallet'),
-          linkEl=document.getElementById('the-link');
-
-    /* =======================
-       DIALS — Tous les pays
-       ======================= */
-    const DIALS = [
-      {"flag":"🇦🇨","code":"+247","name":"Ascension Island"},
-      {"flag":"🇦🇩","code":"+376","name":"Andorre"},
-      {"flag":"🇦🇪","code":"+971","name":"Émirats arabes unis"},
-      {"flag":"🇦🇫","code":"+93","name":"Afghanistan"},
-      {"flag":"🇦🇬","code":"+1268","name":"Antigua-et-Barbuda"},
-      {"flag":"🇦🇮","code":"+1264","name":"Anguilla"},
-      {"flag":"🇦🇱","code":"+355","name":"Albanie"},
-      {"flag":"🇦🇲","code":"+374","name":"Arménie"},
-      {"flag":"🇦🇴","code":"+244","name":"Angola"},
-      {"flag":"🇦🇶","code":"+672","name":"Antarctique"},
-      {"flag":"🇦🇷","code":"+54","name":"Argentine"},
-      {"flag":"🇦🇸","code":"+1684","name":"Samoa américaines"},
-      {"flag":"🇦🇹","code":"+43","name":"Autriche"},
-      {"flag":"🇦🇺","code":"+61","name":"Australie"},
-      {"flag":"🇦🇼","code":"+297","name":"Aruba"},
-      {"flag":"🇦🇽","code":"+358","name":"Åland"},
-      {"flag":"🇦🇿","code":"+994","name":"Azerbaïdjan"},
-      {"flag":"🇧🇦","code":"+387","name":"Bosnie-Herzégovine"},
-      {"flag":"🇧🇧","code":"+1246","name":"Barbade"},
-      {"flag":"🇧🇩","code":"+880","name":"Bangladesh"},
-      {"flag":"🇧🇪","code":"+32","name":"Belgique"},
-      {"flag":"🇧🇫","code":"+226","name":"Burkina Faso"},
-      {"flag":"🇧🇬","code":"+359","name":"Bulgarie"},
-      {"flag":"🇧🇭","code":"+973","name":"Bahreïn"},
-      {"flag":"🇧🇮","code":"+257","name":"Burundi"},
-      {"flag":"🇧🇯","code":"+229","name":"Bénin"},
-      {"flag":"🇧🇱","code":"+590","name":"Saint-Barthélemy"},
-      {"flag":"🇧🇲","code":"+1441","name":"Bermudes"},
-      {"flag":"🇧🇳","code":"+673","name":"Brunéi Darussalam"},
-      {"flag":"🇧🇴","code":"+591","name":"Bolivie"},
-      {"flag":"🇧🇶","code":"+599","name":"Bonaire, Saint-Eustache et Saba"},
-      {"flag":"🇧🇷","code":"+55","name":"Brésil"},
-      {"flag":"🇧🇸","code":"+1242","name":"Bahamas"},
-      {"flag":"🇧🇹","code":"+975","name":"Bhoutan"},
-      {"flag":"🇧🇻","code":"+47","name":"Île Bouvet"},
-      {"flag":"🇧🇼","code":"+267","name":"Botswana"},
-      {"flag":"🇧🇾","code":"+375","name":"Bélarus"},
-      {"flag":"🇧🇿","code":"+501","name":"Belize"},
-      {"flag":"🇨🇦","code":"+1","name":"Canada"},
-      {"flag":"🇨🇨","code":"+61","name":"Îles Cocos"},
-      {"flag":"🇨🇩","code":"+243","name":"Congo (RDC)"},
-      {"flag":"🇨🇫","code":"+236","name":"République centrafricaine"},
-      {"flag":"🇨🇬","code":"+242","name":"Congo"},
-      {"flag":"🇨🇭","code":"+41","name":"Suisse"},
-      {"flag":"🇨🇮","code":"+225","name":"Côte d’Ivoire"},
-      {"flag":"🇨🇰","code":"+682","name":"Îles Cook"},
-      {"flag":"🇨🇱","code":"+56","name":"Chili"},
-      {"flag":"🇨🇲","code":"+237","name":"Cameroun"},
-      {"flag":"🇨🇳","code":"+86","name":"Chine"},
-      {"flag":"🇨🇴","code":"+57","name":"Colombie"},
-      {"flag":"🇨🇷","code":"+506","name":"Costa Rica"},
-      {"flag":"🇨🇺","code":"+53","name":"Cuba"},
-      {"flag":"🇨🇻","code":"+238","name":"Cap-Vert"},
-      {"flag":"🇨🇼","code":"+5999","name":"Curaçao"},
-      {"flag":"🇨🇽","code":"+61","name":"Île Christmas"},
-      {"flag":"🇨🇾","code":"+357","name":"Chypre"},
-      {"flag":"🇨🇿","code":"+420","name":"Tchéquie"},
-      {"flag":"🇩🇪","code":"+49","name":"Allemagne"},
-      {"flag":"🇩🇯","code":"+253","name":"Djibouti"},
-      {"flag":"🇩🇰","code":"+45","name":"Danemark"},
-      {"flag":"🇩🇲","code":"+1767","name":"Dominique"},
-      {"flag":"🇩🇴","code":"+1809","name":"République dominicaine (809)"},
-      {"flag":"🇩🇴","code":"+1829","name":"République dominicaine (829)"},
-      {"flag":"🇩🇴","code":"+1849","name":"République dominicaine (849)"},
-      {"flag":"🇩🇿","code":"+213","name":"Algérie"},
-      {"flag":"🇪🇨","code":"+593","name":"Équateur"},
-      {"flag":"🇪🇪","code":"+372","name":"Estonie"},
-      {"flag":"🇪🇬","code":"+20","name":"Égypte"},
-      {"flag":"🇪🇭","code":"+212","name":"Sahara occidental"},
-      {"flag":"🇪🇷","code":"+291","name":"Érythrée"},
-      {"flag":"🇪🇸","code":"+34","name":"Espagne"},
-      {"flag":"🇪🇹","code":"+251","name":"Éthiopie"},
-      {"flag":"🇫🇮","code":"+358","name":"Finlande"},
-      {"flag":"🇫🇯","code":"+679","name":"Fidji"},
-      {"flag":"🇫🇰","code":"+500","name":"Îles Falkland"},
-      {"flag":"🇫🇲","code":"+691","name":"Micronésie"},
-      {"flag":"🇫🇴","code":"+298","name":"Îles Féroé"},
-      {"flag":"🇫🇷","code":"+33","name":"France"},
-      {"flag":"🇬🇦","code":"+241","name":"Gabon"},
-      {"flag":"🇬🇧","code":"+44","name":"Royaume-Uni"},
-      {"flag":"🇬🇩","code":"+1473","name":"Grenade"},
-      {"flag":"🇬🇪","code":"+995","name":"Géorgie"},
-      {"flag":"🇬🇫","code":"+594","name":"Guyane française"},
-      {"flag":"🇬🇬","code":"+44","name":"Guernesey"},
-      {"flag":"🇬🇭","code":"+233","name":"Ghana"},
-      {"flag":"🇬🇮","code":"+350","name":"Gibraltar"},
-      {"flag":"🇬🇱","code":"+299","name":"Groenland"},
-      {"flag":"🇬🇲","code":"+220","name":"Gambie"},
-      {"flag":"🇬🇳","code":"+224","name":"Guinée"},
-      {"flag":"🇬🇵","code":"+590","name":"Guadeloupe"},
-      {"flag":"🇬🇶","code":"+240","name":"Guinée équatoriale"},
-      {"flag":"🇬🇷","code":"+30","name":"Grèce"},
-      {"flag":"🇬🇹","code":"+502","name":"Guatemala"},
-      {"flag":"🇬🇺","code":"+1671","name":"Guam"},
-      {"flag":"🇬🇼","code":"+245","name":"Guinée-Bissau"},
-      {"flag":"🇬🇾","code":"+592","name":"Guyana"},
-      {"flag":"🇭🇰","code":"+852","name":"Hong Kong"},
-      {"flag":"🇭🇲","code":"+672","name":"Heard-et-MacDonald"},
-      {"flag":"🇭🇳","code":"+504","name":"Honduras"},
-      {"flag":"🇭🇷","code":"+385","name":"Croatie"},
-      {"flag":"🇭🇹","code":"+509","name":"Haïti"},
-      {"flag":"🇭🇺","code":"+36","name":"Hongrie"},
-      {"flag":"🇮🇩","code":"+62","name":"Indonésie"},
-      {"flag":"🇮🇪","code":"+353","name":"Irlande"},
-      {"flag":"🇮🇱","code":"+972","name":"Israël"},
-      {"flag":"🇮🇲","code":"+44","name":"Île de Man"},
-      {"flag":"🇮🇳","code":"+91","name":"Inde"},
-      {"flag":"🇮🇴","code":"+246","name":"Territoire britannique de l’océan Indien"},
-      {"flag":"🇮🇶","code":"+964","name":"Irak"},
-      {"flag":"🇮🇷","code":"+98","name":"Iran"},
-      {"flag":"🇮🇸","code":"+354","name":"Islande"},
-      {"flag":"🇮🇹","code":"+39","name":"Italie"},
-      {"flag":"🇯🇪","code":"+44","name":"Jersey"},
-      {"flag":"🇯🇲","code":"+1876","name":"Jamaïque"},
-      {"flag":"🇯🇴","code":"+962","name":"Jordanie"},
-      {"flag":"🇯🇵","code":"+81","name":"Japon"},
-      {"flag":"🇰🇪","code":"+254","name":"Kenya"},
-      {"flag":"🇰🇬","code":"+996","name":"Kirghizistan"},
-      {"flag":"🇰🇭","code":"+855","name":"Cambodge"},
-      {"flag":"🇰🇮","code":"+686","name":"Kiribati"},
-      {"flag":"🇰🇲","code":"+269","name":"Comores"},
-      {"flag":"🇰🇳","code":"+1869","name":"Saint-Kitts-et-Nevis"},
-      {"flag":"🇰🇵","code":"+850","name":"Corée du Nord"},
-      {"flag":"🇰🇷","code":"+82","name":"Corée du Sud"},
-      {"flag":"🇰🇼","code":"+965","name":"Koweït"},
-      {"flag":"🇰🇾","code":"+1345","name":"Îles Caïmans"},
-      {"flag":"🇰🇿","code":"+7","name":"Kazakhstan"},
-      {"flag":"🇱🇦","code":"+856","name":"Laos"},
-      {"flag":"🇱🇧","code":"+961","name":"Liban"},
-      {"flag":"🇱🇨","code":"+1758","name":"Sainte-Lucie"},
-      {"flag":"🇱🇮","code":"+423","name":"Liechtenstein"},
-      {"flag":"🇱🇰","code":"+94","name":"Sri Lanka"},
-      {"flag":"🇱🇷","code":"+231","name":"Libéria"},
-      {"flag":"🇱🇸","code":"+266","name":"Lesotho"},
-      {"flag":"🇱🇹","code":"+370","name":"Lituanie"},
-      {"flag":"🇱🇺","code":"+352","name":"Luxembourg"},
-      {"flag":"🇱🇻","code":"+371","name":"Lettonie"},
-      {"flag":"🇱🇾","code":"+218","name":"Libye"},
-      {"flag":"🇲🇦","code":"+212","name":"Maroc"},
-      {"flag":"🇲🇨","code":"+377","name":"Monaco"},
-      {"flag":"🇲🇩","code":"+373","name":"Moldavie"},
-      {"flag":"🇲🇪","code":"+382","name":"Monténégro"},
-      {"flag":"🇲🇫","code":"+590","name":"Saint-Martin"},
-      {"flag":"🇲🇬","code":"+261","name":"Madagascar"},
-      {"flag":"🇲🇭","code":"+692","name":"Îles Marshall"},
-      {"flag":"🇲🇰","code":"+389","name":"Macédoine du Nord"},
-      {"flag":"🇲🇱","code":"+223","name":"Mali"},
-      {"flag":"🇲🇲","code":"+95","name":"Myanmar"},
-      {"flag":"🇲🇳","code":"+976","name":"Mongolie"},
-      {"flag":"🇲🇴","code":"+853","name":"Macao"},
-      {"flag":"🇲🇵","code":"+1670","name":"Mariannes du Nord"},
-      {"flag":"🇲🇶","code":"+596","name":"Martinique"},
-      {"flag":"🇲🇷","code":"+222","name":"Mauritanie"},
-      {"flag":"🇲🇸","code":"+1664","name":"Montserrat"},
-      {"flag":"🇲🇹","code":"+356","name":"Malte"},
-      {"flag":"🇲🇺","code":"+230","name":"Maurice"},
-      {"flag":"🇲🇻","code":"+960","name":"Maldives"},
-      {"flag":"🇲🇼","code":"+265","name":"Malawi"},
-      {"flag":"🇲🇽","code":"+52","name":"Mexique"},
-      {"flag":"🇲🇾","code":"+60","name":"Malaisie"},
-      {"flag":"🇲🇿","code":"+258","name":"Mozambique"},
-      {"flag":"🇳🇦","code":"+264","name":"Namibie"},
-      {"flag":"🇳🇨","code":"+687","name":"Nouvelle-Calédonie"},
-      {"flag":"🇳🇪","code":"+227","name":"Niger"},
-      {"flag":"🇳🇫","code":"+672","name":"Île Norfolk"},
-      {"flag":"🇳🇬","code":"+234","name":"Nigéria"},
-      {"flag":"🇳🇮","code":"+505","name":"Nicaragua"},
-      {"flag":"🇳🇱","code":"+31","name":"Pays-Bas"},
-      {"flag":"🇳🇴","code":"+47","name":"Norvège"},
-      {"flag":"🇳🇵","code":"+977","name":"Népal"},
-      {"flag":"🇳🇷","code":"+674","name":"Nauru"},
-      {"flag":"🇳🇿","code":"+64","name":"Nouvelle-Zélande"},
-      {"flag":"🇴🇲","code":"+968","name":"Oman"},
-      {"flag":"🇵🇦","code":"+507","name":"Panama"},
-      {"flag":"🇵🇪","code":"+51","name":"Pérou"},
-      {"flag":"🇵🇫","code":"+689","name":"Polynésie française"},
-      {"flag":"🇵🇬","code":"+675","name":"Papouasie-Nouvelle-Guinée"},
-      {"flag":"🇵🇭","code":"+63","name":"Philippines"},
-      {"flag":"🇵🇰","code":"+92","name":"Pakistan"},
-      {"flag":"🇵🇱","code":"+48","name":"Pologne"},
-      {"flag":"🇵🇲","code":"+508","name":"Saint-Pierre-et-Miquelon"},
-      {"flag":"🇵🇳","code":"+64","name":"Pitcairn"},
-      {"flag":"🇵🇷","code":"+1787","name":"Porto Rico (787)"},
-      {"flag":"🇵🇷","code":"+1939","name":"Porto Rico (939)"},
-      {"flag":"🇵🇸","code":"+970","name":"Palestine"},
-      {"flag":"🇵🇹","code":"+351","name":"Portugal"},
-      {"flag":"🇵🇼","code":"+680","name":"Palaos"},
-      {"flag":"🇵🇾","code":"+595","name":"Paraguay"},
-      {"flag":"🇶🇦","code":"+974","name":"Qatar"},
-      {"flag":"🇷🇪","code":"+262","name":"La Réunion"},
-      {"flag":"🇷🇴","code":"+40","name":"Roumanie"},
-      {"flag":"🇷🇸","code":"+381","name":"Serbie"},
-      {"flag":"🇷🇺","code":"+7","name":"Russie"},
-      {"flag":"🇷🇼","code":"+250","name":"Rwanda"},
-      {"flag":"🇸🇦","code":"+966","name":"Arabie saoudite"},
-      {"flag":"🇸🇧","code":"+677","name":"Îles Salomon"},
-      {"flag":"🇸🇨","code":"+248","name":"Seychelles"},
-      {"flag":"🇸🇩","code":"+249","name":"Soudan"},
-      {"flag":"🇸🇪","code":"+46","name":"Suède"},
-      {"flag":"🇸🇬","code":"+65","name":"Singapour"},
-      {"flag":"🇸🇭","code":"+290","name":"Sainte-Hélène"},
-      {"flag":"🇸🇮","code":"+386","name":"Slovénie"},
-      {"flag":"🇸🇯","code":"+47","name":"Svalbard et Jan Mayen"},
-      {"flag":"🇸🇰","code":"+421","name":"Slovaquie"},
-      {"flag":"🇸🇱","code":"+232","name":"Sierra Leone"},
-      {"flag":"🇸🇲","code":"+378","name":"Saint-Marin"},
-      {"flag":"🇸🇳","code":"+221","name":"Sénégal"},
-      {"flag":"🇸🇴","code":"+252","name":"Somalie"},
-      {"flag":"🇸🇷","code":"+597","name":"Suriname"},
-      {"flag":"🇸🇸","code":"+211","name":"Soudan du Sud"},
-      {"flag":"🇸🇹","code":"+239","name":"Sao Tomé-et-Principe"},
-      {"flag":"🇸🇻","code":"+503","name":"Salvador"},
-      {"flag":"🇸🇽","code":"+1721","name":"Sint Maarten"},
-      {"flag":"🇸🇾","code":"+963","name":"Syrie"},
-      {"flag":"🇸🇿","code":"+268","name":"Eswatini"},
-      {"flag":"🇹🇦","code":"+290","name":"Tristan da Cunha"},
-      {"flag":"🇹🇨","code":"+1649","name":"Îles Turques-et-Caïques"},
-      {"flag":"🇹🇩","code":"+235","name":"Tchad"},
-      {"flag":"🇹🇬","code":"+228","name":"Togo"},
-      {"flag":"🇹🇭","code":"+66","name":"Thaïlande"},
-      {"flag":"🇹🇯","code":"+992","name":"Tadjikistan"},
-      {"flag":"🇹🇰","code":"+690","name":"Tokelau"},
-      {"flag":"🇹🇱","code":"+670","name":"Timor oriental"},
-      {"flag":"🇹🇲","code":"+993","name":"Turkménistan"},
-      {"flag":"🇹🇳","code":"+216","name":"Tunisie"},
-      {"flag":"🇹🇴","code":"+676","name":"Tonga"},
-      {"flag":"🇹🇷","code":"+90","name":"Turquie"},
-      {"flag":"🇹🇹","code":"+1868","name":"Trinité-et-Tobago"},
-      {"flag":"🇹🇻","code":"+688","name":"Tuvalu"},
-      {"flag":"🇹🇼","code":"+886","name":"Taïwan"},
-      {"flag":"🇹🇿","code":"+255","name":"Tanzanie"},
-      {"flag":"🇺🇦","code":"+380","name":"Ukraine"},
-      {"flag":"🇺🇬","code":"+256","name":"Ouganda"},
-      {"flag":"🇺🇲","code":"+1","name":"Îles mineures éloignées des États-Unis"},
-      {"flag":"🇺🇳","code":"+1","name":"Nations Unies"},
-      {"flag":"🇺🇸","code":"+1","name":"États-Unis"},
-      {"flag":"🇺🇾","code":"+598","name":"Uruguay"},
-      {"flag":"🇺🇿","code":"+998","name":"Ouzbékistan"},
-      {"flag":"🇻🇦","code":"+379","name":"Vatican"},
-      {"flag":"🇻🇨","code":"+1784","name":"Saint-Vincent-et-les-Grenadines"},
-      {"flag":"🇻🇪","code":"+58","name":"Venezuela"},
-      {"flag":"🇻🇬","code":"+1284","name":"Îles Vierges britanniques"},
-      {"flag":"🇻🇮","code":"+1340","name":"Îles Vierges des États-Unis"},
-      {"flag":"🇻🇳","code":"+84","name":"Viêt Nam"},
-      {"flag":"🇻🇺","code":"+678","name":"Vanuatu"},
-      {"flag":"🇼🇫","code":"+681","name":"Wallis-et-Futuna"},
-      {"flag":"🇼🇸","code":"+685","name":"Samoa"},
-      {"flag":"🇽🇰","code":"+383","name":"Kosovo"},
-      {"flag":"🇾🇪","code":"+967","name":"Yémen"},
-      {"flag":"🇾🇹","code":"+262","name":"Mayotte"},
-      {"flag":"🇿🇦","code":"+27","name":"Afrique du Sud"},
-      {"flag":"🇿🇲","code":"+260","name":"Zambie"},
-      {"flag":"🇿🇼","code":"+263","name":"Zimbabwe"}
-    ];
-
-    const dialBtn=document.getElementById('dialBtn'),
-          dialPanel=document.getElementById('dialPanel'),
-          dialSearch=document.getElementById('dialSearch'),
-          dialList=document.getElementById('dialList');
-
+    const resultDiv=document.getElementById('result'),errorDiv=document.getElementById('error'),walletInput=document.getElementById('wallet'),linkEl=document.getElementById('the-link');
+    const DIALS=[{flag:"🇫🇷",code:"+33",name:"France"},{flag:"🇪🇸",code:"+34",name:"Espagne"},{flag:"🇧🇪",code:"+32",name:"Belgique"},{flag:"🇨🇭",code:"+41",name:"Suisse"},{flag:"🇩🇪",code:"+49",name:"Allemagne"}];
+    const dialBtn=document.getElementById('dialBtn'),dialPanel=document.getElementById('dialPanel'),dialSearch=document.getElementById('dialSearch'),dialList=document.getElementById('dialList');
     let currentDial={flag:"🇫🇷",code:"+33"};
-
-    function renderDialList(f=""){
-      const q=(f||"").trim().toLowerCase();
-      dialList.innerHTML="";
-      DIALS.filter(d=>!q||d.name.toLowerCase().includes(q)||d.code.includes(q)).forEach(d=>{
-        const row=document.createElement("div");
-        row.className="dial-item";
-        row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;
-        row.onclick=()=>{
-          currentDial={flag:d.flag,code:d.code};
-          dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;
-          dialPanel.style.display="none";
-        };
-        dialList.appendChild(row);
-      });
-    }
-
-    dialBtn.onclick=(e)=>{
-      e.stopPropagation(); // évite la fermeture immédiate par le listener global
-      const open = dialPanel.style.display==="block";
-      dialPanel.style.display = open ? "none" : "block";
-      if(!open){ dialSearch.value=""; renderDialList(""); setTimeout(()=>dialSearch.focus(),0); }
-    };
-    dialSearch.oninput=()=>renderDialList(dialSearch.value);
-
-    // ✅ Correction: on ferme seulement si clic en dehors du panneau ET du bouton
-    document.addEventListener("click",(e)=>{
-      if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
-        dialPanel.style.display="none";
-      }
-    });
-
-    // Génération du lien (inchangé)
-    document.getElementById('generateBtn').onclick=async()=>{
-      const amount=parseFloat(document.getElementById('amount').value),
-            currency=document.getElementById('currency').value,
-            sender_wallet=walletInput.value.trim(),
-            localPhone=document.getElementById('phone').value.trim(),
-            recipient_phone=`${currentDial.code}${localPhone}`,
-            network=document.getElementById('network').value;
-
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){
-        errorDiv.textContent="Merci de remplir tous les champs.";
-        errorDiv.style.display='block';
-        return;
-      }
-      try{
-        const res=await fetch(`${BACKEND}/create-link`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})
-        });
-        const data=await res.json();
-        if(!res.ok) throw new Error(data.detail||"Erreur");
-        const lien=`https://linkisend.io/${data.short_id}`;
-        linkEl.textContent=lien;
-        resultDiv.style.display='block';
-      }catch(err){
-        errorDiv.textContent=err.message;
-        errorDiv.style.display='block';
-      }
-    };
+    function renderDialList(f=""){dialList.innerHTML="";DIALS.filter(d=>!f||d.name.toLowerCase().includes(f)||d.code.includes(f)).forEach(d=>{const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;row.onclick=()=>{currentDial={flag:d.flag,code:d.code};dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none";};dialList.appendChild(row);});}
+    dialBtn.onclick=()=>{dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");renderDialList("");}
+    dialSearch.oninput=()=>renderDialList(dialSearch.value.toLowerCase());
+    document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
+    document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
 </body>
 </html>
