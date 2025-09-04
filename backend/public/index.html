@@ -150,5 +150,6 @@
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
     document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
+  <script src="countries.js"></script>
 </body>
 </html>
