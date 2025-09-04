@@ -115,12 +115,49 @@
       background:#0a1220; margin:8px 2px 4px; width:max-content;
     }
     .wallet-link:hover{background:#0d1729}
+
+    /* Ancien styles result/error (on garde error tel quel) */
     .result,.error{
       margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;
       border:1px solid var(--stroke);
     }
-    .result{background:#0a1b13;color:#a7f3d0;border-color:#134e32}
     .error{background:#1b0e10;color:#fecaca;border-color:#6b1d24}
+
+    /* === Nouveau bloc clair "Lien prêt" === */
+    .result-cta{
+      margin:14px 2px 0;
+      padding:16px;
+      border-radius:14px;
+      background:#ecfdf5;                 /* clair */
+      border:1px solid #bbf7d0;           /* vert clair */
+      color:#064e3b;                      /* texte vert foncé */
+      display:none;
+    }
+    .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+    .linkbox{
+      flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;
+      border-radius:10px;padding:12px 14px;display:flex;align-items:center
+    }
+    .linkbox code{
+      font-family: ui-monospace, Menlo, Consolas, "Roboto Mono", monospace;
+      font-size:16px;line-height:1.3;color:#065f46;white-space:nowrap;overflow:auto
+    }
+    .btn-copy{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:12px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;
+      background:linear-gradient(90deg,#27ae60,#32d36c);color:#fff;
+      box-shadow:0 6px 18px rgba(39,174,96,.25)
+    }
+    .btn-copy:active{transform:translateY(1px);filter:brightness(.95)}
+    .sub-cta{margin-top:10px;color:#0f5132;font-size:13px;display:flex;gap:8px;align-items:center}
+
+    /* Toast copie */
+    .toast{
+      position:fixed;right:16px;bottom:16px;background:#10b981;color:white;
+      padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);
+      opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
 
     /* Modal */
     .modal {
@@ -207,7 +244,19 @@
 
       <p class="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
-      <div id="result" class="result" style="display:none"></div>
+      <!-- === NOUVEAU : bloc résultat clair avec CTA copier === -->
+      <div id="result" class="result-cta" aria-live="polite">
+        <h3 style="margin:0 0 10px;font-size:18px;color:#065f46">Lien prêt ✅</h3>
+        <div class="row-cta">
+          <div class="linkbox">
+            <code id="the-link"></code>
+          </div>
+          <button class="btn-copy" id="copyBtn" aria-label="Copier le lien">📋 Copier le lien</button>
+        </div>
+        <div class="sub-cta">⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.</div>
+      </div>
+
+      <!-- Erreurs -->
       <div id="error"  class="error"  style="display:none"></div>
     </div>
   </div>
@@ -240,6 +289,9 @@
     </div>
   </div>
 
+  <!-- Toast copie -->
+  <div class="toast" id="toast">Lien copié ✅</div>
+
   <script>
     // Config backend (fallback localhost)
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
@@ -250,6 +302,9 @@
     const resultDiv = document.getElementById('result');
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
+    const linkEl  = document.getElementById('the-link');
+    const copyBtn = document.getElementById('copyBtn');
+    const toast   = document.getElementById('toast');
 
     // Modal helpers
     const modal = document.getElementById('walletModal');
@@ -306,13 +361,32 @@
         if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
 
         const lien = `${BACKEND}/s/${data.short_id}`;
-        resultDiv.innerHTML = `<b>Lien généré :</b><br><a href="${lien}" target="_blank" rel="noopener">${lien}</a>`;
-        resultDiv.style.display='block';
+        linkEl.textContent = lien;                 // maj du lien
+        linkEl.parentElement.setAttribute('title', lien);
+        resultDiv.style.display='block';           // affiche le bloc clair
       }catch(err){
         errorDiv.textContent = err.message || 'Erreur réseau';
         errorDiv.style.display='block';
       }
     });
+
+    // Copier le lien (une seule fois, listener global)
+    if(copyBtn){
+      copyBtn.addEventListener('click', async () => {
+        try{
+          const text = linkEl.textContent.trim();
+          await navigator.clipboard.writeText(text);
+          toast.classList.add('show');
+          setTimeout(()=>toast.classList.remove('show'), 1500);
+        }catch(e){
+          const r = document.createRange(); r.selectNode(linkEl);
+          const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          document.execCommand('copy'); sel.removeAllRanges();
+          toast.textContent = 'Copié ✅';
+          toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1500);
+        }
+      });
+    }
   </script>
 </body>
 </html>
