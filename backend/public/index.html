@@ -4,73 +4,158 @@
   <meta charset="UTF-8" />
   <title>LinkiSend — Envoyer des cryptos</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
- <style>
-  :root{
-    --brand:#27ae60;           /* vert principal (boutons) */
-    --brand-press:#219653;     /* vert pressé */
-    --accent:#5a2ca0;          /* violet secondaire éventuel */
-    --text:#e5e7eb;
-    --muted:#9ca3af;
-    --bg:#0f172a;              /* ardoise foncé */
-    --card:#0b1020;            /* carte foncée */
-    --ring:rgba(39,174,96,.35);
-  }
+  <style>
+    :root{
+      --bg: #0b0f14;
+      --bg-soft:#0f141b;
+      --card:#121821;
+      --card-2:#0f1620;
+      --text:#e6edf3;
+      --text-dim:#9fb0c0;
+      --stroke:#1f2a37;
+      --focus:#334155;
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --radius:14px;
+      --radius-sm:10px;
+      --gap:12px;
+    }
+    *,*:before,*:after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, #132034 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, #1a2334 0%, transparent 60%),
+        var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{
+      max-width:420px;
+      margin:40px auto 64px;
+      padding:0 16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:18px;
+      position: relative;
+    }
+    .brand img.word{
+      max-width: 240px;
+      height: auto;
+      display: block;
+    }
+    .brand img.arrow{
+      position:absolute;
+      left:0;
+      top:50%;
+      transform: translateY(-50%);
+      max-width: 60px;
+      height:auto;
+    }
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card-2));
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px 16px;
+    }
+    .card h2{
+      margin:4px 2px 2px;
+      font-size:22px;font-weight:750;
+    }
+    .sub{
+      color:var(--text-dim);
+      margin:0 2px 14px;
+      font-size:13px;
+    }
+    .row{display:flex;gap:var(--gap)}
+    .col{flex:1}
+    label{
+      display:block;
+      margin:10px 2px 6px;
+      font-size:13px;
+      color:var(--text-dim);
+    }
+    select,input{
+      width:100%;
+      height:44px;
+      padding:10px 12px;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--stroke);
+      background:#0e141c;
+      color:var(--text);
+      outline:none;
+      transition:.15s border,.15s box-shadow,.15s background;
+    }
+    select:focus,input:focus{
+      border-color:var(--focus);
+      box-shadow:0 0 0 3px rgba(51,65,85,.35);
+    }
+    .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
+    .btn{
+      width:100%;height:46px;border:0;border-radius:12px;
+      font-weight:700;font-size:15px;cursor:pointer;
+      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);
+      color:#fff;
+      box-shadow:0 10px 24px rgba(34,197,94,.2);
+      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
+      margin-top:14px;
+    }
+    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
+    .btn:active{transform:translateY(1px)}
+    .wallet-link{
+      display:inline-flex;align-items:center;gap:8px;
+      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
+      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
+      background:#0a1220; margin:8px 2px 4px; width:max-content;
+    }
+    .wallet-link:hover{background:#0d1729}
+    .result,.error{
+      margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;
+      border:1px solid var(--stroke);
+    }
+    .result{background:#0a1b13;color:#a7f3d0;border-color:#134e32}
+    .error{background:#1b0e10;color:#fecaca;border-color:#6b1d24}
 
-  *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    /* Modal */
+    .modal {
+      position:fixed;inset:0;display:none;place-items:center;
+      background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;
+      padding:20px;
+    }
+    .modal.open{display:grid;}
+    .modal-card{
+      width:min(420px,95vw);
+      background:linear-gradient(180deg,var(--card),var(--card-2));
+      border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .modal-head h3{margin:0;font-size:18px}
+    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+    .pv{
+      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
+      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
+    }
+    .pv img{width:20px;height:20px}
+    .tag{
+      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
+      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);
+      color:#fff;border:0;font-weight:600;
+    }
+    .pv:hover{background:#101924}
 
-  body{
-    margin:0; background:linear-gradient(180deg,#0a0f1f,#0f172a 60%);
-    color:var(--text);
-  }
-
-  .wrap{max-width:480px;margin:32px auto;padding:0 16px}
-  .card{
-    background:var(--card);
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,.35)
-  }
-
-  h1{display:flex;align-items:center;gap:10px;margin:0 0 18px}
-  h2{margin:0 0 6px;font-size:22px}
-  p.helper{margin:0 0 18px;color:var(--muted);font-size:14px}
-
-  label{display:block;margin:12px 0 6px;font-size:13px;color:#cbd5e1}
-  input,select{
-    width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);
-    background:#0f1a32;color:var(--text);outline:none
-  }
-  input:focus,select:focus{border-color:var(--ring);box-shadow:0 0 0 4px var(--ring)}
-
-  .wallet-row{display:flex;gap:10px}
-  .wallet-row input{flex:1}
-  .btn{
-    width:100%;display:inline-flex;justify-content:center;align-items:center;gap:8px;
-    padding:12px 14px;border:0;border-radius:12px;
-    background:linear-gradient(90deg,var(--brand),#32d36c);
-    color:white;font-weight:600;cursor:pointer;transition:transform .04s ease,filter .2s ease
-  }
-  .btn:active{transform:translateY(1px);filter:brightness(.95)}
-  .btn[disabled]{opacity:.6;cursor:not-allowed}
-
-  /* ENCART Lien généré — fort contraste */
-  .result{
-    margin-top:14px; padding:14px 16px; border-radius:12px;
-    background:rgba(39,174,96,.12);              /* léger fond vert */
-    border:1px solid rgba(39,174,96,.55);        /* bordure verte visible */
-    color:#d1fae5;                                /* texte très clair */
-    word-break:break-word;
-  }
-  .result strong{display:block;margin-bottom:6px;color:#bbf7d0}
-  .result a{
-    color:#86efac;                               /* vert clair lisible */
-    text-decoration:underline;
-  }
-  .result a:hover{opacity:.9;text-decoration:none}
-
-  /* petite pastille sous le bouton */
-  .note{margin-top:8px;color:#94a3b8;font-size:12.5px}
-</style>
-
+    @media (max-width:420px){
+      .wrap{margin:26px auto 54px}
+      .card h2{font-size:20px}
+    }
+  </style>
 </head>
 <body>
   <!-- CONFIG (URL backend) -->
