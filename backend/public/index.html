@@ -91,6 +91,7 @@
 </head>
 <body>
   <script src="config.js"></script>
+
   <div class="wrap">
     <div class="brand">
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
@@ -138,11 +139,14 @@
 
   <div class="toast" id="toast">Lien copié ✅</div>
 
+  <!-- Charger la liste des pays AVANT le script principal -->
+  <script src="countries.js"></script>
+
   <script>
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
     const resultDiv=document.getElementById('result'),errorDiv=document.getElementById('error'),walletInput=document.getElementById('wallet'),linkEl=document.getElementById('the-link');
 
-    // Utilisation du fichier countries.js
+    // Utilisation de COUNTRIES depuis countries.js
     const DIALS = COUNTRIES;
 
     const dialBtn=document.getElementById('dialBtn'),dialPanel=document.getElementById('dialPanel'),dialSearch=document.getElementById('dialSearch'),dialList=document.getElementById('dialList');
@@ -151,10 +155,8 @@
     dialBtn.onclick=()=>{dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");renderDialList("");}
     dialSearch.oninput=()=>renderDialList(dialSearch.value.toLowerCase());
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
+
     document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
-
-  <!-- Inclusion du fichier countries.js -->
-  <script src="countries.js"></script>
 </body>
 </html>
