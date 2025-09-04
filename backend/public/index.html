@@ -32,370 +32,123 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
     }
-    .wrap{
-      max-width:420px;
-      margin:40px auto 64px;
-      padding:0 16px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-bottom:18px;
-      position: relative;
-    }
-    .brand img.word{
-      max-width: 240px;
-      height: auto;
-      display: block;
-    }
-    .brand img.arrow{
-      position:absolute;
-      left:0;
-      top:50%;
-      transform: translateY(-50%);
-      max-width: 60px;
-      height:auto;
-    }
-    .card{
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px 16px;
-    }
-    .card h2{
-      margin:4px 2px 2px;
-      font-size:22px;font-weight:750;
-    }
-    .sub{
-      color:var(--text-dim);
-      margin:0 2px 14px;
-      font-size:13px;
-    }
+    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px;}
+    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position: relative;}
+    .brand img.word{max-width: 240px;height: auto;display: block;}
+    .brand img.arrow{position:absolute;left:0;top:50%;transform: translateY(-50%);max-width: 60px;height:auto;}
+    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;}
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750;}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px;}
     .row{display:flex;gap:var(--gap)}
     .col{flex:1}
-    label{
-      display:block;
-      margin:10px 2px 6px;
-      font-size:13px;
-      color:var(--text-dim);
-    }
-    select,input{
-      width:100%;
-      height:44px;
-      padding:10px 12px;
-      border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);
-      background:#0e141c;
-      color:var(--text);
-      outline:none;
-      transition:.15s border,.15s box-shadow,.15s background;
-    }
-    select:focus,input:focus{
-      border-color:var(--focus);
-      box-shadow:0 0 0 3px rgba(51,65,85,.35);
-    }
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
+    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;transition:.15s border,.15s box-shadow,.15s background;}
+    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{
-      width:100%;height:46px;border:0;border-radius:12px;
-      font-weight:700;font-size:15px;cursor:pointer;
-      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);
-      color:#fff;
-      box-shadow:0 10px 24px rgba(34,197,94,.2);
-      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
-      margin-top:14px;
-    }
+    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);transition:transform .06s ease, box-shadow .2s ease, background .12s ease;margin-top:14px;}
     .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
     .btn:active{transform:translateY(1px)}
-    .wallet-link{
-      display:inline-flex;align-items:center;gap:8px;
-      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
-      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
-      background:#0a1220; margin:8px 2px 4px; width:max-content;
-    }
+    .wallet-link{display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content;}
     .wallet-link:hover{background:#0d1729}
-
-    /* Ancien styles result/error (on garde error tel quel) */
-    .result,.error{
-      margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;
-      border:1px solid var(--stroke);
-    }
-    .error{
-  margin:14px 2px 0;
-  padding:12px 14px;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:500;
-  background:#fee2e2;         /* fond rouge clair */
-  color:#991b1b;              /* texte rouge foncé */
-  border:1px solid #f87171;   /* bordure rouge vif */
-}
-    
-    /* === Nouveau bloc clair "Lien prêt" === */
-    .result-cta{
-      margin:14px 2px 0;
-      padding:16px;
-      border-radius:14px;
-      background:#ecfdf5;                 /* clair */
-      border:1px solid #bbf7d0;           /* vert clair */
-      color:#064e3b;                      /* texte vert foncé */
-      display:none;
-    }
+    .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke);}
+    .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171;}
+    .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none;}
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .linkbox{
-      flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;
-      border-radius:10px;padding:12px 14px;display:flex;align-items:center
-    }
-    .linkbox code{
-      font-family: ui-monospace, Menlo, Consolas, "Roboto Mono", monospace;
-      font-size:16px;line-height:1.3;color:#065f46;white-space:nowrap;overflow:auto
-    }
-    .btn-copy{
-      display:inline-flex;align-items:center;justify-content:center;gap:8px;
-      padding:12px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;
-      background:linear-gradient(90deg,#27ae60,#32d36c);color:#fff;
-      box-shadow:0 6px 18px rgba(39,174,96,.25)
-    }
+    .linkbox{flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;border-radius:10px;padding:12px 14px;display:flex;align-items:center}
+    .linkbox code{font-family: ui-monospace, Menlo, Consolas, "Roboto Mono", monospace;font-size:16px;line-height:1.3;color:#065f46;white-space:nowrap;overflow:auto}
+    .btn-copy{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;background:linear-gradient(90deg,#27ae60,#32d36c);color:#fff;box-shadow:0 6px 18px rgba(39,174,96,.25)}
     .btn-copy:active{transform:translateY(1px);filter:brightness(.95)}
     .sub-cta{margin-top:10px;color:#0f5132;font-size:13px;display:flex;gap:8px;align-items:center}
-
-    /* Toast copie */
-    .toast{
-      position:fixed;right:16px;bottom:16px;background:#10b981;color:white;
-      padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);
-      opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
-    }
+    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;}
     .toast.show{opacity:1;transform:translateY(0)}
-
-    /* Modal */
-    .modal {
-      position:fixed;inset:0;display:none;place-items:center;
-      background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;
-      padding:20px;
-    }
+    .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
     .modal.open{display:grid;}
-    .modal-card{
-      width:min(420px,95vw);
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);
-      padding:16px;
-    }
+    .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
     .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .modal-head h3{margin:0;font-size:18px}
     .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{
-      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
-    }
+    .pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}
-    .tag{
-      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
-      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);
-      color:#fff;border:0;font-weight:600;
-    }
+    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600;}
     .pv:hover{background:#101924}
 
-    @media (max-width:420px){
-      .wrap{margin:26px auto 54px}
-      .card h2{font-size:20px}
-    }
+    /* === indicatif avec drapeaux === */
+    .phone-row{display:flex;gap:8px;align-items:center}
+    .dial{position:relative;display:flex}
+    .dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+    .dial-btn:hover{background:#0d1729}
+    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none;}
+    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
+    .dial-list{max-height:260px;overflow:auto}
+    .dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+    .dial-item:last-child{border-bottom:0}
+    .flag{font-size:16px}
+    .dialcode{color:#cfe1ff}
+    .country{color:#9fb0c0;font-size:12px}
   </style>
 </head>
 <body>
-  <!-- CONFIG (URL backend) -->
   <script src="config.js"></script>
-
   <div class="wrap">
     <div class="brand">
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
       <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
     </div>
-
-    <div class="card" role="region" aria-label="Formulaire d’envoi">
+    <div class="card">
       <h2>Envoyer des cryptos</h2>
       <p class="sub">Génère un lien en 10&nbsp;secondes.</p>
-
-      <!-- 1) WALLET EN PREMIER -->
       <label for="wallet">Ton wallet (expéditeur)</label>
-      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
+      <input type="text" id="wallet" placeholder="0xABCDEF..." />
+      <a href="#" id="connectWalletLink" class="wallet-link">Connecter un wallet</a>
 
-      <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
           <label for="currency">Token</label>
-          <select id="currency">
-            <option>USDT</option><option>USDC</option><option>ETH</option>
-            <option>BTC</option><option>SOL</option><option>BNB</option>
-            <option>AVAX</option><option>DAI</option><option>LINK</option>
-          </select>
+          <select id="currency"><option>USDT</option><option>USDC</option><option>ETH</option></select>
         </div>
         <div class="col">
-          <label for="amount">Montant (crypto)</label>
-          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+          <label for="amount">Montant</label>
+          <input type="number" id="amount" value="0.01"/>
         </div>
       </div>
 
-      <!-- 3) RÉSEAU -->
       <label for="network">Réseau</label>
-      <select id="network">
-        <option>Ethereum</option><option>BNB Chain</option>
-        <option>Polygon</option><option>Solana</option><option>Avalanche</option>
-      </select>
+      <select id="network"><option>Ethereum</option><option>BNB Chain</option></select>
 
-      <!-- 4) TÉLÉPHONE EN DERNIER -->
-      <label for="phone">Numéro du destinataire</label>
-      <input type="text" id="phone" placeholder="+33..." inputmode="tel" />
+      <label>Numéro du destinataire</label>
+      <div class="phone-row">
+        <div class="dial">
+          <button id="dialBtn" class="dial-btn"><span class="flag">🇫🇷</span><span id="dialCode">+33</span></button>
+          <div id="dialPanel" class="dial-panel">
+            <div class="dial-head"><input id="dialSearch" class="dial-search-input" placeholder="Rechercher..."/></div>
+            <div id="dialList" class="dial-list"></div>
+          </div>
+        </div>
+        <input type="text" id="phone" placeholder="612345678"/>
+      </div>
 
       <button id="generateBtn" class="btn">Générer le lien</button>
-
-      <p class="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
-
-      <!-- === NOUVEAU : bloc résultat clair avec CTA copier === -->
-      <div id="result" class="result-cta" aria-live="polite">
-        <h3 style="margin:0 0 10px;font-size:18px;color:#065f46">Lien prêt ✅</h3>
-        <div class="row-cta">
-          <div class="linkbox">
-            <code id="the-link"></code>
-          </div>
-          <button class="btn-copy" id="copyBtn" aria-label="Copier le lien">📋 Copier le lien</button>
-        </div>
-        <div class="sub-cta">⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.</div>
-      </div>
-
-      <!-- Erreurs -->
-      <div id="error"  class="error"  style="display:none"></div>
+      <p class="hint">Aucun transfert tant que le lien n’est pas réclamé.</p>
+      <div id="result" class="result-cta"><code id="the-link"></code></div>
+      <div id="error" class="error" style="display:none"></div>
     </div>
   </div>
 
-  <!-- Modal choix wallet -->
-  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="walletModalTitle">Connecter un wallet</h3>
-        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
-      </div>
-      <div class="providers">
-        <button class="pv" data-wallet="metamask">
-          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
-          MetaMask <span class="tag">EVM</span>
-        </button>
-        <button class="pv" data-wallet="walletconnect">
-          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
-          WalletConnect <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="coinbase">
-          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="phantom">
-          <img src="assets/wallets/phantom.svg" alt="Phantom" />
-          Phantom <span class="tag">Solana</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast copie -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
   <script>
-    // Config backend (fallback localhost)
-    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
-      ? window.LINKISEND_CONFIG.BACKEND_BASE
-      : `${location.protocol}//${location.hostname}:8000`;
-
-    // Elements
-    const resultDiv = document.getElementById('result');
-    const errorDiv  = document.getElementById('error');
-    const walletInput = document.getElementById('wallet');
-    const linkEl  = document.getElementById('the-link');
-    const copyBtn = document.getElementById('copyBtn');
-    const toast   = document.getElementById('toast');
-
-    // Modal helpers
-    const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{
-      e.preventDefault(); openModal();
-    });
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
-
-    // Choix provider
-    modal.querySelectorAll('.pv').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const provider = btn.getAttribute('data-wallet');
-        if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-          try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            closeModal();
-          }catch(e){ alert("Connexion refusée."); }
-        }else{
-          alert("Connexion via " + provider + " arrive bientôt.");
-        }
-      });
-    });
-
-    // Génération du lien
-    document.getElementById('generateBtn').addEventListener('click', async ()=>{
-      const amount = parseFloat(document.getElementById('amount').value);
-      const currency = document.getElementById('currency').value;
-      const sender_wallet = walletInput.value.trim();
-      const recipient_phone = document.getElementById('phone').value.trim();
-      const network = document.getElementById('network').value;
-
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if (!amount || !currency || !sender_wallet || !recipient_phone || !network){
-        errorDiv.textContent = "Merci de remplir tous les champs obligatoires.";
-        errorDiv.style.display='block';
-        return;
-      }
-
-      try{
-        const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
-        });
-        const data = await res.json();
-        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
-
-        const lien = `https://linkisend.io/${data.short_id}`;
-        linkEl.textContent = lien;                 // maj du lien
-        linkEl.parentElement.setAttribute('title', lien);
-        resultDiv.style.display='block';           // affiche le bloc clair
-      }catch(err){
-        errorDiv.textContent = err.message || 'Erreur réseau';
-        errorDiv.style.display='block';
-      }
-    });
-
-    // Copier le lien (une seule fois, listener global)
-    if(copyBtn){
-      copyBtn.addEventListener('click', async () => {
-        try{
-          const text = linkEl.textContent.trim();
-          await navigator.clipboard.writeText(text);
-          toast.classList.add('show');
-          setTimeout(()=>toast.classList.remove('show'), 1500);
-        }catch(e){
-          const r = document.createRange(); r.selectNode(linkEl);
-          const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
-          document.execCommand('copy'); sel.removeAllRanges();
-          toast.textContent = 'Copié ✅';
-          toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1500);
-        }
-      });
-    }
+    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
+    const resultDiv=document.getElementById('result'),errorDiv=document.getElementById('error'),walletInput=document.getElementById('wallet'),linkEl=document.getElementById('the-link');
+    const DIALS=[{flag:"🇫🇷",code:"+33",name:"France"},{flag:"🇪🇸",code:"+34",name:"Espagne"},{flag:"🇧🇪",code:"+32",name:"Belgique"},{flag:"🇨🇭",code:"+41",name:"Suisse"},{flag:"🇩🇪",code:"+49",name:"Allemagne"}];
+    const dialBtn=document.getElementById('dialBtn'),dialPanel=document.getElementById('dialPanel'),dialSearch=document.getElementById('dialSearch'),dialList=document.getElementById('dialList');
+    let currentDial={flag:"🇫🇷",code:"+33"};
+    function renderDialList(f=""){dialList.innerHTML="";DIALS.filter(d=>!f||d.name.toLowerCase().includes(f)||d.code.includes(f)).forEach(d=>{const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;row.onclick=()=>{currentDial={flag:d.flag,code:d.code};dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none";};dialList.appendChild(row);});}
+    dialBtn.onclick=()=>{dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");renderDialList("");}
+    dialSearch.oninput=()=>renderDialList(dialSearch.value.toLowerCase());
+    document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
+    document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
 </body>
 </html>
