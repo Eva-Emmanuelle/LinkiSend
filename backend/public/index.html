@@ -141,7 +141,10 @@
   <script>
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
     const resultDiv=document.getElementById('result'),errorDiv=document.getElementById('error'),walletInput=document.getElementById('wallet'),linkEl=document.getElementById('the-link');
-    const DIALS=[{flag:"🇫🇷",code:"+33",name:"France"},{flag:"🇪🇸",code:"+34",name:"Espagne"},{flag:"🇧🇪",code:"+32",name:"Belgique"},{flag:"🇨🇭",code:"+41",name:"Suisse"},{flag:"🇩🇪",code:"+49",name:"Allemagne"}];
+
+    // Utilisation du fichier countries.js
+    const DIALS = COUNTRIES;
+
     const dialBtn=document.getElementById('dialBtn'),dialPanel=document.getElementById('dialPanel'),dialSearch=document.getElementById('dialSearch'),dialList=document.getElementById('dialList');
     let currentDial={flag:"🇫🇷",code:"+33"};
     function renderDialList(f=""){dialList.innerHTML="";DIALS.filter(d=>!f||d.name.toLowerCase().includes(f)||d.code.includes(f)).forEach(d=>{const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="flag">${d.flag}</span><span class="dialcode">${d.code}</span><span class="country">${d.name}</span>`;row.onclick=()=>{currentDial={flag:d.flag,code:d.code};dialBtn.innerHTML=`<span class="flag">${d.flag}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none";};dialList.appendChild(row);});}
@@ -150,6 +153,8 @@
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&e.target!==dialBtn)dialPanel.style.display="none";});
     document.getElementById('generateBtn').onclick=async()=>{const amount=parseFloat(document.getElementById('amount').value),currency=document.getElementById('currency').value,sender_wallet=walletInput.value.trim(),localPhone=document.getElementById('phone').value.trim(),recipient_phone=`${currentDial.code}${localPhone}`,network=document.getElementById('network').value;resultDiv.style.display='none';errorDiv.style.display='none';if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent="Merci de remplir tous les champs.";errorDiv.style.display='block';return;}try{const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur");const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';}catch(err){errorDiv.textContent=err.message;errorDiv.style.display='block';}};
   </script>
+
+  <!-- Inclusion du fichier countries.js -->
   <script src="countries.js"></script>
 </body>
 </html>
