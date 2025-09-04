@@ -244,6 +244,7 @@
   </div>
 
   <script>
+  document.addEventListener('DOMContentLoaded', ()=> {
     // ====== Backend ======
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
       ? window.LINKISEND_CONFIG.BACKEND_BASE
@@ -254,6 +255,13 @@
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
     const linkEl  = document.getElementById('the-link');
+
+    // ====== Indicatifs (déclarés AVANT applyLang) ======
+    const dialBtn = document.getElementById('dialBtn');
+    const dialPanel = document.getElementById('dialPanel');
+    const dialSearch = document.getElementById('dialSearch');
+    const dialList = document.getElementById('dialList');
+    let currentDial = { iso:"FR", code:"+33" };
 
     // ====== Langue (FR/EN) ======
     const langToggle = document.getElementById('langToggle');
@@ -279,11 +287,10 @@
       document.getElementById("dialSearch").placeholder = t[lang].search;
       document.getElementById("resultTitle").textContent = t[lang].resultTitle;
       document.getElementById("validityText").textContent = t[lang].validity;
-      langToggle.textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
+      document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
       // re-render country list if open
       if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
     }
-    applyLang();
 
     langToggle.addEventListener('click', ()=>{
       lang = (lang === 'fr') ? 'en' : 'fr';
@@ -315,13 +322,7 @@
       });
     });
 
-    // ====== Indicatifs (depuis COUNTRIES) ======
-    const dialBtn = document.getElementById('dialBtn');
-    const dialPanel = document.getElementById('dialPanel');
-    const dialSearch = document.getElementById('dialSearch');
-    const dialList = document.getElementById('dialList');
-    let currentDial = { iso:"FR", code:"+33" };
-
+    // ====== Indicatifs (COUNTRIES) ======
     function renderDialList(f=""){
       dialList.innerHTML="";
       const filter = f.toLowerCase();
@@ -372,7 +373,6 @@
         div.className = "contact-item";
         div.textContent = `${c.name} (${c.phone})`;
         div.onclick = ()=>{
-          // Remplit le champ + met à jour l’indicatif
           document.getElementById("phone").value = c.phone.replace(c.code, "");
           currentDial = { iso:c.iso, code:c.code };
           dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
@@ -436,6 +436,10 @@
         errorDiv.style.display='block';
       }
     });
+
+    // ---- Appliquer la langue (APRES init des éléments) ----
+    applyLang();
+  });
   </script>
 </body>
 </html>
