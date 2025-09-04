@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Preview – Encadré Lien généré</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220;            /* fond app */
+    --card:#0f182b;          /* carte */
+    --text:#e5e7eb;          /* texte principal */
+    --muted:#9ca3af;         /* texte secondaire */
+    --brand:#27ae60;         /* vert brand */
+    --accent:#5a2ca0;        /* violet accent */
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  body{margin:0;background:linear-gradient(180deg,#0a0f1f,#0f172a 60%);color:var(--text)}
+  .wrap{max-width:680px;margin:40px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:22px;margin-bottom:22px}
+
+  h1{margin:0 0 18px;font-size:22px}
+  p{margin:0 0 14px;color:var(--muted)}
+  .demo-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .fake-input{background:#0f1a32;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px;color:#93a4c6}
+
+  /* ===== Variation 1: Vert (alignée au bouton) ===== */
+  .result-green{
+    margin-top:8px;padding:14px 16px;border-radius:12px;
+    background:rgba(39,174,96,.12);               /* fond vert doux */
+    border:1px solid rgba(39,174,96,.55);         /* bordure verte visible */
+    color:#d8ffe8;                                 /* texte clair */
+    box-shadow:0 4px 14px rgba(39,174,96,.12);
+    word-break:break-word;
+  }
+  .result-green strong{display:block;margin:0 0 6px;color:#c7f9d8}
+  .result-green a{color:#86efac;text-decoration:underline}
+  .result-green a:hover{opacity:.9;text-decoration:none}
+
+  /* ===== Variation 2: Violet (accent secondaire) ===== */
+  .result-purple{
+    margin-top:8px;padding:14px 16px;border-radius:12px;
+    background:rgba(90,44,160,.15);               /* fond violet doux */
+    border:1px solid rgba(90,44,160,.55);         /* bordure violette visible */
+    color:#e9ddff;                                 /* texte clair */
+    box-shadow:0 4px 14px rgba(90,44,160,.18);
+    word-break:break-word;
+  }
+  .result-purple strong{display:block;margin:0 0 6px;color:#e8d5ff}
+  .result-purple a{color:#c3b5ff;text-decoration:underline}
+  .result-purple a:hover{opacity:.9;text-decoration:none}
+
+  .label{font-weight:600;margin-bottom:6px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Preview – Variante <span style="color:#86efac">VERT</span></h1>
+      <p>Objectif : encadré très lisible, cohérent avec le bouton vert → lisibilité forte du lien.</p>
+      <div class="demo-fields">
+        <div class="fake-input">Ton wallet (expéditeur) — 0xABCDEF…</div>
+        <div class="fake-input">Montant — 0.01</div>
+      </div>
+
+      <div class="result-green">
+        <strong>Lien généré :</strong>
+        <a href="#" onclick="return false">https://linkisend.onrender.com/s/abcd1234</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Preview – Variante <span style="color:#c3b5ff">VIOLET</span></h1>
+      <p>Option accent : encadré violet pour marquer la section sans rappeler le vert des actions.</p>
+      <div class="demo-fields">
+        <div class="fake-input">Ton wallet (expéditeur) — 0xABCDEF…</div>
+        <div class="fake-input">Montant — 0.01</div>
+      </div>
+
+      <div class="result-purple">
+        <strong>Lien généré :</strong>
+        <a href="#" onclick="return false">https://linkisend.onrender.com/s/abcd1234</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
