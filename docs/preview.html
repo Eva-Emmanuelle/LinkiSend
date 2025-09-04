@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Preview — Réclamer mes cryptos (Dark, identique à envoyeur)</title>
+  <title>Preview — Réclamer mes cryptos (Dark aligné envoyeur)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
     :root{
@@ -33,11 +33,11 @@
       -moz-osx-font-smoothing:grayscale;
     }
     .wrap{
-      max-width:420px; /* => EXACTEMENT la même largeur que l’envoyeur */
+      max-width:420px; /* même largeur que l’envoyeur */
       margin:40px auto 64px;
       padding:0 16px;
     }
-    /* === Header / Logo identique à l’envoyeur === */
+    /* Header / Logo — on pointe vers /docs/ pour l’aperçu */
     .brand{
       display:flex;align-items:center;justify-content:center;
       margin-bottom:18px;position:relative;
@@ -48,7 +48,7 @@
       max-width:60px;height:auto;
     }
 
-    /* === Carte & typographies identiques === */
+    /* Carte & champs (identiques envoyeur) */
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);
@@ -59,8 +59,6 @@
     .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}
     .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
 
-    .row{display:flex;gap:var(--gap)}
-    .col{flex:1}
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
     input{
       width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
@@ -68,6 +66,14 @@
       outline:none;transition:.15s border,.15s box-shadow,.15s background;
     }
     input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
+
+    .wallet-link{
+      display:inline-flex;align-items:center;gap:8px;
+      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
+      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
+      background:#0a1220; margin:8px 2px 4px; width:max-content;
+    }
+    .wallet-link:hover{background:#0d1729}
 
     /* Bouton principal identique */
     .btn{
@@ -81,22 +87,21 @@
     .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
     .btn:active{transform:translateY(1px)}
 
-    /* Lien “Connecter un wallet” identique */
-    .wallet-link{
-      display:inline-flex;align-items:center;gap:8px;
-      color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
-      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
-      background:#0a1220; margin:8px 2px 4px; width:max-content;
+    /* Encadré d’identification du lien (sans bouton copier) */
+    .idbox{
+      margin:8px 2px 12px;
+      padding:10px 12px;
+      border-radius:10px;
+      background:#ecfdf5;            /* clair succès */
+      border:1px solid #bbf7d0;
+      color:#065f46;
+      font-size:13px;
     }
-    .wallet-link:hover{background:#0d1729}
+    .idbox a{color:#059669;text-decoration:underline}
+    .idbox a:hover{opacity:.9;text-decoration:none}
 
-    .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-
-    /* === Modal identique (copie envoyeur) === */
-    .modal {
-      position:fixed;inset:0;display:none;place-items:center;
-      background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px;
-    }
+    /* Modal identique */
+    .modal {position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}
     .modal.open{display:grid;}
     .modal-card{
       width:min(420px,95vw);
@@ -128,16 +133,20 @@
 </head>
 <body>
   <div class="wrap">
-    <!-- Logo identique -->
+    <!-- Logo : on référence les fichiers du dossier docs pour l’aperçu -->
     <div class="brand">
-      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
-      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
+      <img src="docs/logo-arrow.svg" alt="Flèche" class="arrow" />
+      <img src="docs/logo-word.svg" alt="LinkiSend" class="word" />
     </div>
 
-    <!-- Formulaire receveur (miroir de l’envoyeur) -->
     <div class="card" role="region" aria-label="Formulaire de réclamation">
       <h2>Réclamer mes cryptos</h2>
       <p class="sub">Entre ton numéro et l’adresse où tu veux recevoir.</p>
+
+      <!-- Encadré d’identification du lien -->
+      <div class="idbox">
+        🔑 Lien : <a href="#" onclick="return false">https://linkisend.io/dz4zKt</a>
+      </div>
 
       <!-- 1) TÉLÉPHONE -->
       <label for="r_phone">Ton numéro de téléphone</label>
@@ -147,14 +156,13 @@
       <label for="r_wallet">Ton wallet (réception)</label>
       <input type="text" id="r_wallet" placeholder="0xABCDEF..." autocomplete="off" />
       <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
-      <p class="hint">Connecte MetaMask ou colle ton adresse manuellement (EVM, 0x...).</p>
 
-      <!-- 3) CTA IDENTIQUE -->
+      <!-- CTA -->
       <button class="btn" id="receiveBtn">Recevoir mes cryptos</button>
     </div>
   </div>
 
-  <!-- Modal (identique envoyeur) -->
+  <!-- Modal identique envoyeur -->
   <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-card">
       <div class="modal-head">
@@ -182,9 +190,8 @@
     </div>
   </div>
 
-  <!-- JS minimal (mêmes interactions que l’envoyeur pour la connexion) -->
   <script>
-    // éléments
+    // Ouverture/fermeture modal (identique envoyeur)
     const walletInput = document.getElementById('r_wallet');
     const modal = document.getElementById('walletModal');
     const openModal = () => modal.classList.add('open');
@@ -194,7 +201,7 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // mêmes providers (MetaMask actif, autres "bientôt")
+    // Providers (MetaMask actif)
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
