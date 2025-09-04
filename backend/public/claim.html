@@ -2,66 +2,228 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>LinkiSend — Recevoir mes cryptos</title>
+  <title>LinkiSend — Réclamer mes cryptos</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <style>
-    body{margin:0;font-family:sans-serif;background:#0b0f14;color:#e6edf3}
-    .wrap{max-width:420px;margin:40px auto;padding:0 16px}
-    .card{background:#121821;border:1px solid #1f2a37;border-radius:14px;padding:18px 16px}
-    label{display:block;margin:10px 2px 6px;font-size:13px;color:#9fb0c0}
-    input,select{width:100%;height:44px;padding:10px;border-radius:10px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3}
-    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
-      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);color:#fff;margin-top:14px}
+    :root{
+      --bg:#0b0f14; --bg-soft:#0f141b; --card:#121821; --card-2:#0f1620;
+      --text:#e6edf3; --text-dim:#9fb0c0; --stroke:#1f2a37; --focus:#334155;
+      --shadow:0 12px 40px rgba(0,0,0,.45); --radius:14px; --radius-sm:10px;
+    }
+    *,*:before,*:after{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, #132034 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 0%, #1a2334 0%, transparent 60%),
+        var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}
+
+    /* Header / logo identique à index */
+    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}
+    .brand img.word{max-width:240px;height:auto}
+    .brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto}
+
+    /* Carte & champs */
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card-2));
+      border:1px solid var(--stroke);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:18px 16px;
+    }
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
+    input{
+      width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
+      border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;
+      transition:.15s border,.15s box-shadow,.15s background;
+    }
+    input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
+    .wallet-link{
+      display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
+      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);
+      background:#0a1220;margin:8px 2px 4px;width:max-content;
+    }
+    .wallet-link:hover{background:#0d1729}
+
+    /* CTA identique */
+    .btn{
+      width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
+      background: radial-gradient(circle at 20% 20%, #8b5cf6, #06b6d4, #22c55e);
+      color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
+      transition:transform .06s ease, box-shadow .2s ease, background .12s ease;
+    }
+    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
+    .btn:active{transform:translateY(1px)}
+
+    /* Code d’envoi */
+    .idbox{
+      margin:8px 2px 12px;padding:10px 12px;border-radius:10px;
+      background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;font-size:13px;display:none
+    }
+    .idbox code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+
+    /* Messages */
     .error,.success{margin:14px 2px 0;padding:12px 14px;border-radius:10px;font-size:14px;font-weight:500;display:none}
     .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
     .success{background:#dcfce7;color:#166534;border:1px solid #22c55e}
-    .info{margin:8px 2px;padding:10px;border-radius:10px;background:#0e141c;font-size:14px}
-    .phone-row{display:flex;gap:8px}
-    .phone-row select{width:40%}
-    .phone-row input{flex:1}
+
+    /* Modal (identique index) */
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}
+    .modal.open{display:grid;}
+    .modal-card{
+      width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));
+      border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;
+    }
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .modal-head h3{margin:0;font-size:18px}
+    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+    .pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
+    .pv img{width:20px;height:20px}
+    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
+    .pv:hover{background:#101924}
   </style>
 </head>
 <body>
+  <!-- CONFIG backend -->
   <script src="config.js"></script>
+
   <div class="wrap">
+    <!-- Logo -->
+    <div class="brand">
+      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
+      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
+    </div>
+
+    <!-- Formulaire -->
     <div class="card">
-      <h2>Recevoir mes cryptos</h2>
-      <div id="linkInfo" class="info"></div>
+      <h2>Réclamer mes cryptos</h2>
+      <p class="sub">Entre ton numéro et l’adresse où tu veux recevoir.</p>
+
+      <div id="idbox" class="idbox">🔑 Code d’envoi : <code id="sidCode"></code></div>
+
       <label for="phone">Ton numéro de téléphone</label>
-      <div class="phone-row">
-        <select id="dial">
-          <option value="+33">🇫🇷 +33</option>
-          <option value="+34">🇪🇸 +34</option>
-          <option value="+1">🇺🇸 +1</option>
-        </select>
-        <input id="phone" placeholder="612345678" />
-      </div>
+      <input type="tel" id="phone" placeholder="+33..." inputmode="tel" />
+
       <label for="wallet">Ton wallet (réception)</label>
-      <input id="wallet" placeholder="0xABCDEF..." />
+      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
+      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
+
       <button id="claimBtn" class="btn">Recevoir mes cryptos</button>
+
       <div id="error" class="error"></div>
       <div id="success" class="success"></div>
+
+      <p class="sub">Aucun transfert on-chain n’est effectué tant que la réclamation n’est pas validée.</p>
     </div>
   </div>
+
+  <!-- Modal wallet -->
+  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="walletModalTitle">Connecter un wallet</h3>
+        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
+      </div>
+      <div class="providers">
+        <button class="pv" data-wallet="metamask">
+          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
+          MetaMask <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="walletconnect">
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="coinbase">
+          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
+          Coinbase Wallet <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="phantom">
+          <img src="assets/wallets/phantom.svg" alt="Phantom" />
+          Phantom <span class="tag">Solana</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
-    const params=new URLSearchParams(location.search);const sid=params.get('sid');
-    const infoDiv=document.getElementById('linkInfo'),errDiv=document.getElementById('error'),succDiv=document.getElementById('success');
-    let networkExpected=null;
-    async function loadInfo(){
-      try{const r=await fetch(`${BACKEND}/link/${sid}`);const d=await r.json();if(!r.ok)throw new Error(d.detail);
-        networkExpected=d.network;
-        infoDiv.textContent=`Tu recevras ${d.amount} ${d.currency} sur ${d.network} (~${d.usd||'?'} $).`; }
-      catch(e){infoDiv.textContent=e.message;}}
-    loadInfo();
-    document.getElementById('claimBtn').onclick=async()=>{
-      errDiv.style.display=succDiv.style.display='none';
-      const fullPhone=document.getElementById('dial').value+document.getElementById('phone').value.trim();
-      const wallet=document.getElementById('wallet').value.trim();
-      try{const r=await fetch(`${BACKEND}/claim`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({short_id:sid,phone:fullPhone,wallet})});
-        const d=await r.json();if(!r.ok)throw new Error(d.detail);
-        succDiv.textContent=d.message;succDiv.style.display='block';}
-      catch(e){errDiv.textContent=e.message;errDiv.style.display='block';}};
+    // Base backend (depuis config.js sinon fallback dev)
+    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+      ? window.LINKISEND_CONFIG.BACKEND_BASE
+      : `${location.protocol}//${location.hostname}:8000`;
+
+    // Récupération du short_id depuis ?sid=
+    const params = new URLSearchParams(location.search);
+    const short_id = params.get('sid');
+    if(short_id){
+      document.getElementById('sidCode').textContent = short_id;
+      document.getElementById('idbox').style.display = 'block';
+    }
+
+    const walletInput = document.getElementById('wallet');
+    const errorDiv = document.getElementById('error');
+    const successDiv = document.getElementById('success');
+
+    /* === Modal ouverture/fermeture === */
+    const modal = document.getElementById('walletModal');
+    const openModal = () => modal.classList.add('open');
+    const closeModal = () => modal.classList.remove('open');
+
+    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+    document.getElementById('walletModalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+
+    /* === Connexion MetaMask (identique envoyeur) === */
+    modal.querySelectorAll('.pv').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const provider = btn.getAttribute('data-wallet');
+        if(provider === 'metamask'){
+          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
+          try{
+            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+            if(accounts && accounts[0]) walletInput.value = accounts[0];
+            closeModal();
+          }catch(e){ alert("Connexion refusée."); }
+        }else{
+          alert("Connexion via " + provider + " arrive bientôt.");
+        }
+      });
+    });
+
+    /* === Soumission 'Recevoir mes cryptos' === */
+    document.getElementById('claimBtn').addEventListener('click', async ()=>{
+      errorDiv.style.display='none'; errorDiv.textContent='';
+      successDiv.style.display='none'; successDiv.textContent='';
+
+      const phone = (document.getElementById('phone').value || '').trim();
+      const wallet = (walletInput.value || '').trim();
+
+      if(!phone || !wallet){
+        errorDiv.textContent = 'Merci de remplir tous les champs obligatoires.';
+        errorDiv.style.display='block';
+        return;
+      }
+
+      try{
+        const res = await fetch(`${BACKEND}/claim`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ short_id, phone, wallet })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.detail || 'Erreur lors de la réclamation');
+
+        successDiv.textContent = data.message || 'Réclamation enregistrée.';
+        successDiv.style.display='block';
+      }catch(err){
+        errorDiv.textContent = err.message || 'Erreur réseau';
+        errorDiv.style.display='block';
+      }
+    });
   </script>
 </body>
 </html>
