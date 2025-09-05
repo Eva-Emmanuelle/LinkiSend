@@ -86,26 +86,6 @@
     }
     .toast.show{opacity:1;transform:translateY(0)}
 
-    /* Modal */
-    .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
-    .modal.open{display:grid;}
-    .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .modal-head h3{margin:0;font-size:18px}
-    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{
-      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
-    }
-    .pv img{width:20px;height:20px}
-    .tag{
-      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
-      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);
-      color:#fff;border:0;font-weight:600;
-    }
-    .pv:hover{background:#101924}
-
     /* Phone & contacts */
     .phone-row{display:flex;gap:8px;align-items:center}
     .dial{position:relative;display:flex}
@@ -198,6 +178,12 @@
   .modal-card{ max-height: 84vh; } /* un peu plus compact si la hauteur est faible */
 }
   </style>
+  <!-- Ethers (provider pour signer les transactions) -->
+<script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<!-- Web3Modal (WalletConnect) - bundles UMD -->
+<script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const s = document.getElementById('splash');
@@ -390,34 +376,6 @@ document.addEventListener("DOMContentLoaded", function () {
   <!-- Toast copie (conservé au cas où) -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
-  <!-- Modal choix wallet (inchangée) -->
-  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="walletModalTitle">Connecter un wallet</h3>
-        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
-      </div>
-      <div class="providers">
-        <button class="pv" data-wallet="metamask">
-          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
-          MetaMask <span class="tag">EVM</span>
-        </button>
-        <button class="pv" data-wallet="walletconnect">
-          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
-          WalletConnect <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="coinbase">
-          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
-        </button>
-        <button class="pv" data-wallet="phantom">
-          <img src="assets/wallets/phantom.svg" alt="Phantom" />
-          Phantom <span class="tag">Solana</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', ()=> {
   // ====== Backend ======
@@ -476,47 +434,50 @@ document.addEventListener('DOMContentLoaded', ()=> {
     applyLang();
   });
 
-  // ====== Wallet Modal (inchangé) ======
-  const modal = document.getElementById('walletModal');
-  const openModal = () => { modal.classList.add('open'); };
-  const closeModal = () => { modal.classList.remove('open'); };
-  document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
-  document.getElementById('walletModalClose').addEventListener('click', closeModal);
-  modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+// ====== WalletConnect direct ======
+const WC_PROJECT_ID = const WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
+ // Ton projectId WalletConnect
+const { EthereumProvider } = window['@web3modal/ethereum'];
+const { Web3Modal } = window['@web3modal/standalone'];
 
-  modal.querySelectorAll('.pv').forEach(btn=>{
-  btn.addEventListener('click', async ()=>{
-    const provider = btn.getAttribute('data-wallet');
+const ethProvider = EthereumProvider.init({
+  projectId: WC_PROJECT_ID,
+  showQrModal: true, // affiche le QR code sur desktop
+  chains: [1, 137, 56, 43114] // Ethereum, Polygon, BNB, Avalanche
+});
 
-    if(provider === 'metamask'){
-      if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-      try{
-        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-        if(accounts && accounts[0]) walletInput.value = accounts[0];
-        closeModal();
-      }catch(e){ alert("Connexion refusée."); }
-    } else if (provider === "phantom") {
-      // Connexion Phantom
-      if (window.solana && window.solana.isPhantom) {
-        window.solana.connect()
-          .then(resp => {
-            const walletAddress = resp.publicKey.toString();
-            walletInput.value = walletAddress;
-            closeModal();
-            alert("Phantom connecté : " + walletAddress);
-          })
-          .catch(err => {
-            console.error(err);
-            alert("Connexion Phantom refusée ou erreur.");
-          });
-      } else {
-        window.open("https://phantom.app/", "_blank");
-      }
-    } else {
-      // Tous les autres wallets encore non implémentés
-      alert("Connexion via " + provider + " arrive bientôt.");
+const w3m = new Web3Modal({
+  projectId: WC_PROJECT_ID,
+  themeMode: 'dark',
+  enableAnalytics: false
+});
+
+const connectWalletLink = document.getElementById('connectWalletLink');
+const walletInput = document.getElementById('wallet');
+
+connectWalletLink.addEventListener('click', async (e)=>{
+  e.preventDefault();
+  try {
+    // Ouvre WalletConnect
+    w3m.openModal({ view: 'Connect' });
+    await ethProvider.connect();
+
+    // Récupère l’adresse
+    const accounts = await ethProvider.request({ method: 'eth_accounts' });
+    if (accounts && accounts[0]) {
+      walletInput.value = accounts[0];
     }
-  });
+    w3m.closeModal();
+
+    alert((localStorage.getItem('lang')||'fr').startsWith('fr') 
+      ? "Wallet connecté ✅" 
+      : "Wallet connected ✅");
+  } catch (err) {
+    console.error(err);
+    alert((localStorage.getItem('lang')||'fr').startsWith('fr') 
+      ? "Connexion annulée/échouée" 
+      : "Connection cancelled/failed");
+  }
 });
 
   // ====== Indicatifs (COUNTRIES) ======
