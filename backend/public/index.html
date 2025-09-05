@@ -426,10 +426,30 @@ document.addEventListener('DOMContentLoaded', ()=> {
           if(accounts && accounts[0]) walletInput.value = accounts[0];
           closeModal();
         }catch(e){ alert("Connexion refusée."); }
-      }else{
-        alert("Connexion via " + provider + " arrive bientôt.");
-      }
-    });
+     }else{
+  if (provider === "Phantom") {
+    // Connexion Phantom
+    if (window.solana && window.solana.isPhantom) {
+      window.solana.connect()
+        .then(resp => {
+          const walletAddress = resp.publicKey.toString();
+          walletInput.value = walletAddress;
+          closeModal();
+          alert("Phantom connecté : " + walletAddress);
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Connexion Phantom refusée ou erreur.");
+        });
+    } else {
+      window.open("https://phantom.app/", "_blank");
+    }
+  } else {
+    // Tous les autres wallets encore non implémentés
+    alert("Connexion via " + provider + " arrive bientôt.");
+  }
+}
+);
   });
 
   // ====== Indicatifs (COUNTRIES) ======
