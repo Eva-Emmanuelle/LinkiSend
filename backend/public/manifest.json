@@ -2,21 +2,21 @@
   "name": "LinkiSend",
   "short_name": "LinkiSend",
   "description": "Envoyer des cryptos via lien, simplement.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "https://linkisend-frontend.onrender.com/",
+  "scope": "https://linkisend-frontend.onrender.com/",
   "display": "standalone",
   "background_color": "#0b0f14",
   "theme_color": "#0b0f14",
   "icons": [
-  {
-    "src": "assets/icons/icon-192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  },
-  {
-    "src": "assets/icons/icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }
-]
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
