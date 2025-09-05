@@ -200,13 +200,17 @@
   </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // === Vérifier si l'app est installée (standalone) ===
+      // === Vérifier si l'app est installée (standalone) ===
   const isStandalone =
     (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
     (window.navigator.standalone === true);
 
   if (!isStandalone) {
-    // Masquer le contenu principal
+    // Supprime le splash pour ne pas bloquer l'écran
+    const splash = document.getElementById('splash');
+    if (splash) splash.remove();
+
+    // Remplace tout le contenu par l'écran "Installer"
     document.body.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:20px;">
         <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:100px;height:auto;margin-bottom:20px;"/>
@@ -231,7 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    return; // On stoppe tout le reste du script
+    return; // Stoppe tout le reste du script
   }
   const s = document.getElementById('splash');
   if (!s) return;
