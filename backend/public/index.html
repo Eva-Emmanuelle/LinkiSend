@@ -128,25 +128,28 @@
     .contacts{margin-top:8px;display:none}
     .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
     .contact-item:hover{background:#101924}
-    /* === Fix header mobile (logo + langue) === */
-@media (max-width: 480px) {
-  .brand{               /* plus d’air sous le logo */
-    margin: 6px 0 22px;
+    /* === Fix mobile header: empêcher le chevauchement logo/texte === */
+@media (max-width: 540px){
+  .brand{
+    justify-content:flex-start !important;   /* plus centré, on aligne à gauche */
+    gap:8px !important;
+    margin:10px 0 20px !important;
+    padding:0 8px;
   }
-  .brand img.arrow{     /* flèche plus petite et un peu décalée */
-    max-width: 34px;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
+  .brand img.arrow{
+    position:static !important;              /* on annule la position absolue */
+    transform:none !important;
+    max-width:28px !important;               /* taille fixe petite */
+    height:auto !important;
+    margin-right:6px;
   }
-  .brand img.word{      /* mot "LinkiSend" réduit pour ne plus chevaucher */
-    max-width: 170px;
-    margin-left: 8px;   /* petit espace avec la flèche */
+  .brand img.word{
+    max-width:170px !important;              /* réduit le mot "LinkiSend" */
   }
-  .lang-toggle{         /* bouton langue moins massif et mieux placé */
-    right: 6px;
-    padding: 3px 8px;
-    font-size: 11px;
+  .lang-toggle{
+    right:8px !important;                    /* bouton langue un peu à droite */
+    font-size:11px;
+    padding:3px 8px;
   }
 }
   </style>
