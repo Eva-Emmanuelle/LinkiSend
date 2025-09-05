@@ -1,7 +1,7 @@
 {
+  "id": "/",
   "name": "LinkiSend",
   "short_name": "LinkiSend",
-  "id": "/",
   "description": "Envoyer des cryptos via lien, simplement.",
   "start_url": "/",
   "scope": "/",
