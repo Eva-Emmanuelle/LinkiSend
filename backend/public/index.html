@@ -128,6 +128,27 @@
     .contacts{margin-top:8px;display:none}
     .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
     .contact-item:hover{background:#101924}
+    /* === Fix header mobile (logo + langue) === */
+@media (max-width: 480px) {
+  .brand{               /* plus d’air sous le logo */
+    margin: 6px 0 22px;
+  }
+  .brand img.arrow{     /* flèche plus petite et un peu décalée */
+    max-width: 34px;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .brand img.word{      /* mot "LinkiSend" réduit pour ne plus chevaucher */
+    max-width: 170px;
+    margin-left: 8px;   /* petit espace avec la flèche */
+  }
+  .lang-toggle{         /* bouton langue moins massif et mieux placé */
+    right: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+}
   </style>
 </head>
 <body>
