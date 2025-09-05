@@ -241,48 +241,62 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (isStandalone) return; // App installée : on laisse charger le reste
 
-  // 1) On insère l'écran "Installe l'app" et on cache tout le reste
+  function browserHelp() {
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes('samsungbrowser')) {
+      return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
+    } else if (ua.includes('firefox')) {
+      return "Sur Firefox Android : menu ⋮ > Installer.";
+    } else if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) {
+      return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
+    } else if (ua.includes('chrome')) {
+      return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+    }
+    return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
+  }
+
   document.write(`
     <style>body > :not(#install-gate){display:none!important}</style>
     <div id="install-gate" style="
       min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
+      text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
       <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
       <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
       <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
         Pour utiliser LinkiSend, installe l’application sur ton téléphone.
       </p>
       <button id="installNow" style="
-        display:none;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
+        display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
         border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
         📲 Installer l’app
       </button>
       <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
-        Si le bouton n’apparaît pas, ouvre le menu du navigateur et choisis
-        <em>Ajouter à l’écran d’accueil</em>.
+        ${browserHelp()}
       </div>
     </div>
   `);
 
-  // 2) On branche la prompt quand elle est disponible
+  // On capte la prompt si le navigateur la fournit
   let _deferred = null;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     _deferred = e;
-    const btn = document.getElementById('installNow');
-    if (btn) {
-      btn.style.display = 'inline-flex';
-      btn.addEventListener('click', async () => {
-        if (!_deferred) return;
-        _deferred.prompt();
-        await _deferred.userChoice;
-        _deferred = null;
-      }, { once: true });
-    }
-  }, { once: true });
+  });
 
-  // 3) On empêche le reste du script de s'exécuter
-  // (le style injecté masque tout sauf #install-gate)
+  // Clic sur le bouton : on tente la prompt ; sinon on affiche une aide claire
+  window.addEventListener('click', async (ev) => {
+    const btn = document.getElementById('installNow');
+    if (!btn || ev.target !== btn) return;
+
+    if (_deferred) {
+      _deferred.prompt();
+      try { await _deferred.userChoice; } catch {}
+      _deferred = null;
+    } else {
+      alert(document.getElementById('installHint').textContent);
+    }
+  });
 })();
 </script>
   <!-- Splash screen -->
