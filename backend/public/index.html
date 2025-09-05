@@ -165,9 +165,38 @@
   box-shadow:var(--shadow);
 }
 #installBtn:active{transform:translateY(1px)}
+    /* Splash */
+#splash{
+  position:fixed; inset:0; z-index:9999;
+  display:grid; place-items:center;
+  background: radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
+              radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),
+              var(--bg);
+  transition: opacity .35s ease;
+}
+#splash img{
+  width: 120px; height:auto;
+  filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
+  opacity:.96;
+}
+#splash.hide{ opacity:0; pointer-events:none; }
+<script>
+  // Masquer le splash quand tout est prêt
+  window.addEventListener('load', () => {
+    const s = document.getElementById('splash');
+    if (s) {
+      s.classList.add('hide');
+      setTimeout(() => s.remove(), 400);
+    }
+  });
+</script>
   </style>
 </head>
 <body>
+  <!-- Splash screen -->
+<div id="splash">
+  <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" />
+</div>
   <!-- CONFIG (URL backend) -->
   <script src="config.js"></script>
   <!-- Pays + indicatifs (EN/FR) -->
