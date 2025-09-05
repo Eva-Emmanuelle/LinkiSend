@@ -182,16 +182,28 @@
 #splash.hide{ opacity:0; pointer-events:none; }
   </style>
   <script>
-  // Masquer le splash quand tout est prêt
-window.addEventListener('load', () => {
-  const s = document.getElementById('splash');
-  if (s) {
+  <script>
+  // Ne pas afficher le splash HTML quand l'app est déjà installée (mode standalone)
+  const isStandalone =
+    window.matchMedia && window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  window.addEventListener('load', () => {
+    const s = document.getElementById('splash');
+    if (!s) return;
+
+    if (isStandalone) {
+      // Dans l'app installée : on supprime le splash HTML (on ne garde que le splash natif Android)
+      s.remove();
+      return;
+    }
+
+    // Dans le navigateur : on garde l'animation (~1,5s total)
     setTimeout(() => {
       s.classList.add('hide');
       setTimeout(() => s.remove(), 400);
-    }, 1100); // délai avant le fondu (1,1s) + fondu (0,4s) = ~1,5s total
-  }
-});
+    }, 1100);
+  });
 </script>
 </head>
 <body>
