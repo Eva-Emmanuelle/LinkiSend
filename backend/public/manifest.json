@@ -26,11 +26,12 @@
     }
   ],
   "screenshots": [
-    {
-      "src": "assets/screenshots/screen1.jpg",
-      "sizes": "1080x1920",
-      "type": "image/jpeg",
-      "form_factor": "narrow"
-    }
-  ]
+  {
+    "src": "assets/screenshots/screen1.jpg",
+    "sizes": "1080x2400",
+    "type": "image/jpeg",
+    "form_factor": "narrow",
+    "label": "Home screen"
+  }
+]
 }
