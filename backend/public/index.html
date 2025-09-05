@@ -243,7 +243,7 @@
     </div>
   </div>
 
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', ()=> {
   // ====== Backend ======
   const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
@@ -269,36 +269,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
 
   const t = {
-    fr:{
-      title:"Envoyer des cryptos",
-      subtitle:"Génère un lien en 10 secondes.",
-      wallet:"Ton wallet (expéditeur)",
-      token:"Token",
-      amount:"Montant",
-      network:"Réseau",
-      phone:"Numéro du destinataire",
-      hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",
-      generate:"Générer le lien",
-      search:"Rechercher...",
-      resultTitle:"Lien prêt ✅",
-      validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",
-      connectWallet:"Connecter un wallet"
-    },
-    en:{
-      title:"Send crypto",
-      subtitle:"Generate a link in 10 seconds.",
-      wallet:"Your wallet (sender)",
-      token:"Token",
-      amount:"Amount",
-      network:"Network",
-      phone:"Recipient phone",
-      hint:"No on-chain transfer happens until the link is claimed.",
-      generate:"Generate link",
-      search:"Search...",
-      resultTitle:"Link ready ✅",
-      validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",
-      connectWallet:"Connect a wallet"
-    }
+    fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet"},
+    en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet"}
   };
 
   function applyLang(){
@@ -316,7 +288,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
     document.getElementById("resultTitle").textContent = t[lang].resultTitle;
     document.getElementById("validityText").textContent = t[lang].validity;
     document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
-    // re-render country list if open
     if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
   }
 
@@ -376,15 +347,22 @@ document.addEventListener('DOMContentLoaded', ()=> {
       });
   }
 
-  dialBtn.onclick = ()=>{
+  // ——— FIX: empêcher la fermeture immédiate
+  dialBtn.addEventListener('click', (e)=>{
+    e.stopPropagation(); // important
     dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
-    renderDialList("");
-    dialSearch.value = "";
-    dialSearch.focus();
-  };
+    if (dialPanel.style.display === "block"){
+      renderDialList("");
+      dialSearch.value = "";
+      dialSearch.focus();
+    }
+  });
   dialSearch.oninput = ()=> renderDialList(dialSearch.value);
   document.addEventListener("click", e=>{
-    if(!dialPanel.contains(e.target) && e.target !== dialBtn) dialPanel.style.display="none";
+    // fermer seulement si on ne clique NI dans le panel NI sur le bouton (ou ses enfants)
+    if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
+      dialPanel.style.display="none";
+    }
   });
 
   // ====== Contacts (localStorage) ======
@@ -393,7 +371,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const saveContact = document.getElementById("saveContact");
   let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
 
-  // Forcer l’emoji agenda propre 📖 (sans toucher le HTML d’origine)
+  // Forcer l’emoji agenda 📖
   if (showContacts) showContacts.textContent = "📖";
 
   function persistContacts(){
@@ -415,7 +393,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       row.style.justifyContent = "space-between";
       row.style.gap = "8px";
 
-      // libellé (nom + numéro)
       const left = document.createElement("div");
       left.textContent = `${c.name} (${c.phone})`;
       left.style.flex = "1 1 auto";
@@ -423,7 +400,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
       left.style.overflow = "hidden";
       left.style.textOverflow = "ellipsis";
 
-      // bouton suppression 🗑️
       const del = document.createElement("button");
       del.type = "button";
       del.title = (lang==='fr') ? "Supprimer" : "Delete";
@@ -436,16 +412,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
       del.style.cursor = "pointer";
       del.style.flex = "0 0 auto";
 
-      // clic sur le libellé = remplir et fermer
       left.onclick = ()=>{
         document.getElementById("phone").value = c.phone.replace(c.code, "");
         currentDial = { iso:c.iso, code:c.code };
         dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
-        // fermer la liste immédiatement après sélection
         contactsList.style.display = "none";
       };
 
-      // suppression
       del.onclick = (ev)=>{
         ev.stopPropagation();
         contacts.splice(idx, 1);
@@ -522,6 +495,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   applyLang();
 });
 </script>
+
 
 </body>
 </html>
