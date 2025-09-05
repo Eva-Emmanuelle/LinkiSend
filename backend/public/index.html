@@ -197,15 +197,16 @@
       <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
       <!-- Bloc résultat -->
-      <div id="result" class="result-cta" aria-live="polite">
-        <h3 style="margin:0 0 10px;font-size:18px;color:#065f46" id="resultTitle">Lien prêt ✅</h3>
-        <div class="row-cta">
-          <div class="linkbox">
-            <code id="the-link"></code>
-          </div>
-        </div>
-        <div class="sub-cta" id="validityText">⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.</div>
-      </div>
+<div id="result" class="result-cta" aria-live="polite">
+  <h3 style="margin:0 0 10px;font-size:18px;color:#05f46e" id="resultTitle">Lien prêt ✅</h3>
+  <div class="row-cta" style="display:flex;align-items:center;gap:8px;">
+    <code id="the-link" style="flex:1;"></code>
+    <button id="copyLinkBtn" class="btn">📋 Copier</button>
+  </div>
+  <div class="sub-cta" id="validityText" style="margin-top:10px;">
+    ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
+  </div>
+</div>
 
       <!-- Erreurs -->
       <div id="error"  class="error"  style="display:none"></div>
@@ -572,7 +573,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
       errorDiv.style.display='block';
     }
   });
-
+// Bouton "Copier le lien"
+const copyBtn = document.getElementById('copyLinkBtn');
+if (copyBtn) {
+  copyBtn.addEventListener('click', ()=>{
+    navigator.clipboard.writeText(linkEl.textContent).then(()=>{
+      copyBtn.textContent = "✅ Copié";
+      setTimeout(()=> copyBtn.textContent = "📋 Copier", 1500);
+    });
+  });
+}
   // ---- Appliquer la langue
   applyLang();
 });
