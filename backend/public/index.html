@@ -417,40 +417,39 @@ document.addEventListener('DOMContentLoaded', ()=> {
   modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
   modal.querySelectorAll('.pv').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const provider = btn.getAttribute('data-wallet');
-      if(provider === 'metamask'){
-        if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-        try{
-          const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-          if(accounts && accounts[0]) walletInput.value = accounts[0];
-          closeModal();
-        }catch(e){ alert("Connexion refusée."); }
-     }else{
-  if (provider === "Phantom") {
-    // Connexion Phantom
-    if (window.solana && window.solana.isPhantom) {
-      window.solana.connect()
-        .then(resp => {
-          const walletAddress = resp.publicKey.toString();
-          walletInput.value = walletAddress;
-          closeModal();
-          alert("Phantom connecté : " + walletAddress);
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Connexion Phantom refusée ou erreur.");
-        });
+  btn.addEventListener('click', async ()=>{
+    const provider = btn.getAttribute('data-wallet');
+
+    if(provider === 'metamask'){
+      if(!window.ethereum){ alert("MetaMask non détecté."); return; }
+      try{
+        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+        if(accounts && accounts[0]) walletInput.value = accounts[0];
+        closeModal();
+      }catch(e){ alert("Connexion refusée."); }
+    } else if (provider === "phantom") {
+      // Connexion Phantom
+      if (window.solana && window.solana.isPhantom) {
+        window.solana.connect()
+          .then(resp => {
+            const walletAddress = resp.publicKey.toString();
+            walletInput.value = walletAddress;
+            closeModal();
+            alert("Phantom connecté : " + walletAddress);
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Connexion Phantom refusée ou erreur.");
+          });
+      } else {
+        window.open("https://phantom.app/", "_blank");
+      }
     } else {
-      window.open("https://phantom.app/", "_blank");
+      // Tous les autres wallets encore non implémentés
+      alert("Connexion via " + provider + " arrive bientôt.");
     }
-  } else {
-    // Tous les autres wallets encore non implémentés
-    alert("Connexion via " + provider + " arrive bientôt.");
-  }
-}
-);
   });
+});
 
   // ====== Indicatifs (COUNTRIES) ======
   function renderDialList(f=""){
