@@ -152,6 +152,15 @@
     padding:3px 8px;
   }
 }
+    /* Bouton d'installation PWA (mobile) */
+#installBtn{
+  position:fixed;right:14px;bottom:90px;z-index:80;
+  display:none;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);
+  background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;
+  box-shadow:var(--shadow);
+}
+#installBtn:active{transform:translateY(1px)}
   </style>
 </head>
 <body>
@@ -615,9 +624,33 @@ if ("serviceWorker" in navigator) {
     .then(() => console.log("SW enregistré ✅"))
     .catch(err => console.error("SW erreur:", err));
 }
+  // === Bouton d'installation PWA ===
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();            // empêche l’infobar automatique
+  deferredPrompt = e;            // on garde la prompt
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = 'inline-flex';   // on affiche le bouton
+});
+
+document.getElementById('installBtn').addEventListener('click', async ()=>{
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();       // ouvre la boîte “Installer”
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBtn').style.display = 'none';
+});
+
+window.addEventListener('appinstalled', ()=>{
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = 'none';
+});
+
   // ---- Appliquer la langue
   applyLang();
 });
 </script>
+  <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
 </body>
 </html>
