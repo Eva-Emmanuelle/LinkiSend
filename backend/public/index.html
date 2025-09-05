@@ -181,6 +181,22 @@
   opacity:.96;
 }
 #splash.hide{ opacity:0; pointer-events:none; }
+    /* --- Fix modal on small screens --- */
+.modal{
+  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+}
+.modal-card{
+  width: min(440px, 92vw);
+  max-height: 88vh;        /* empêche de dépasser verticalement */
+  overflow: auto;          /* scroll interne si besoin */
+}
+@media (max-width: 380px){
+  .modal-card{ width: 94vw; }
+  .providers{ grid-template-columns: 1fr !important; } /* 1 colonne sur très petit écran */
+}
+@media (max-height: 640px){
+  .modal-card{ max-height: 84vh; } /* un peu plus compact si la hauteur est faible */
+}
   </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
