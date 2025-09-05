@@ -182,37 +182,15 @@
 #splash.hide{ opacity:0; pointer-events:none; }
   </style>
   <script>
-  (function () {
+  // Masquer le splash quand tout est prêt
+  window.addEventListener('load', () => {
     const s = document.getElementById('splash');
-    if (!s) return;
-
-    // Vérifie si l'app est installée (mode standalone)
-    const isStandalone =
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-      (window.navigator.standalone === true);
-
-    if (isStandalone) {
-      // Dans l'app installée, on enlève le splash HTML (Android/iOS natif prend le relais)
-      s.remove();
-      return;
-    }
-
-    let done = false;
-    function hideSplash() {
-      if (done) return;
-      done = true;
+    if (s) {
       s.classList.add('hide');
-      setTimeout(() => s.remove(), 450);
+      setTimeout(() => s.remove(), 400);
     }
-
-    // Cas normal : masquer dès que tout est chargé
-    window.addEventListener('load', hideSplash);
-
-    // Sécurité : si "load" tarde trop, on force après 1,8s
-    setTimeout(hideSplash, 1800);
-  })();
+  });
 </script>
-
 </head>
 <body>
   <!-- Splash screen -->
