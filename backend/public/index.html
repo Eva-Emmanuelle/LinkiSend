@@ -185,9 +185,9 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
-      <!-- 📒/💾 actions contacts -->
+      <!-- 📖/💾 actions contacts -->
       <div class="contact-actions">
-        <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📒</span>
+        <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
         <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
       </div>
       <div class="contacts" id="contactsList"></div>
@@ -244,202 +244,284 @@
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=> {
-    // ====== Backend ======
-    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
-      ? window.LINKISEND_CONFIG.BACKEND_BASE
-      : `${location.protocol}//${location.hostname}:8000`;
+document.addEventListener('DOMContentLoaded', ()=> {
+  // ====== Backend ======
+  const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+    ? window.LINKISEND_CONFIG.BACKEND_BASE
+    : `${location.protocol}//${location.hostname}:8000`;
 
-    // ====== Elements ======
-    const resultDiv = document.getElementById('result');
-    const errorDiv  = document.getElementById('error');
-    const walletInput = document.getElementById('wallet');
-    const linkEl  = document.getElementById('the-link');
+  // ====== Elements ======
+  const resultDiv = document.getElementById('result');
+  const errorDiv  = document.getElementById('error');
+  const walletInput = document.getElementById('wallet');
+  const linkEl  = document.getElementById('the-link');
 
-    // ====== Indicatifs (déclarés AVANT applyLang) ======
-    const dialBtn = document.getElementById('dialBtn');
-    const dialPanel = document.getElementById('dialPanel');
-    const dialSearch = document.getElementById('dialSearch');
-    const dialList = document.getElementById('dialList');
-    let currentDial = { iso:"FR", code:"+33" };
+  // ====== Indicatifs (déclarés AVANT applyLang) ======
+  const dialBtn = document.getElementById('dialBtn');
+  const dialPanel = document.getElementById('dialPanel');
+  const dialSearch = document.getElementById('dialSearch');
+  const dialList = document.getElementById('dialList');
+  let currentDial = { iso:"FR", code:"+33" };
 
-    // ====== Langue (FR/EN) ======
-    const langToggle = document.getElementById('langToggle');
-    const userPref = localStorage.getItem('lang');
-    let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
+  // ====== Langue (FR/EN) ======
+  const langToggle = document.getElementById('langToggle');
+  const userPref = localStorage.getItem('lang');
+  let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
 
-    const t = {
-      fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet"},
-      en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet"}
-    };
-
-    function applyLang(){
-      document.getElementById("title").textContent = t[lang].title;
-      document.getElementById("subtitle").textContent = t[lang].subtitle;
-      document.getElementById("lbl-wallet").textContent = t[lang].wallet;
-      document.getElementById("lbl-token").textContent = t[lang].token;
-      document.getElementById("lbl-amount").textContent = t[lang].amount;
-      document.getElementById("lbl-network").textContent = t[lang].network;
-      document.getElementById("lbl-phone").textContent = t[lang].phone;
-      document.getElementById("hint").textContent = t[lang].hint;
-      document.getElementById("generateBtn").textContent = t[lang].generate;
-      document.getElementById("connectWalletLink").textContent = t[lang].connectWallet;
-      document.getElementById("dialSearch").placeholder = t[lang].search;
-      document.getElementById("resultTitle").textContent = t[lang].resultTitle;
-      document.getElementById("validityText").textContent = t[lang].validity;
-      document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
-      // re-render country list if open
-      if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
+  const t = {
+    fr:{
+      title:"Envoyer des cryptos",
+      subtitle:"Génère un lien en 10 secondes.",
+      wallet:"Ton wallet (expéditeur)",
+      token:"Token",
+      amount:"Montant",
+      network:"Réseau",
+      phone:"Numéro du destinataire",
+      hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",
+      generate:"Générer le lien",
+      search:"Rechercher...",
+      resultTitle:"Lien prêt ✅",
+      validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",
+      connectWallet:"Connecter un wallet"
+    },
+    en:{
+      title:"Send crypto",
+      subtitle:"Generate a link in 10 seconds.",
+      wallet:"Your wallet (sender)",
+      token:"Token",
+      amount:"Amount",
+      network:"Network",
+      phone:"Recipient phone",
+      hint:"No on-chain transfer happens until the link is claimed.",
+      generate:"Generate link",
+      search:"Search...",
+      resultTitle:"Link ready ✅",
+      validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",
+      connectWallet:"Connect a wallet"
     }
+  };
 
-    langToggle.addEventListener('click', ()=>{
-      lang = (lang === 'fr') ? 'en' : 'fr';
-      localStorage.setItem('lang', lang);
-      applyLang();
-    });
+  function applyLang(){
+    document.getElementById("title").textContent = t[lang].title;
+    document.getElementById("subtitle").textContent = t[lang].subtitle;
+    document.getElementById("lbl-wallet").textContent = t[lang].wallet;
+    document.getElementById("lbl-token").textContent = t[lang].token;
+    document.getElementById("lbl-amount").textContent = t[lang].amount;
+    document.getElementById("lbl-network").textContent = t[lang].network;
+    document.getElementById("lbl-phone").textContent = t[lang].phone;
+    document.getElementById("hint").textContent = t[lang].hint;
+    document.getElementById("generateBtn").textContent = t[lang].generate;
+    document.getElementById("connectWalletLink").textContent = t[lang].connectWallet;
+    document.getElementById("dialSearch").placeholder = t[lang].search;
+    document.getElementById("resultTitle").textContent = t[lang].resultTitle;
+    document.getElementById("validityText").textContent = t[lang].validity;
+    document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
+    // re-render country list if open
+    if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
+  }
 
-    // ====== Wallet Modal (inchangé) ======
-    const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
-
-    modal.querySelectorAll('.pv').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const provider = btn.getAttribute('data-wallet');
-        if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
-          try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            closeModal();
-          }catch(e){ alert("Connexion refusée."); }
-        }else{
-          alert("Connexion via " + provider + " arrive bientôt.");
-        }
-      });
-    });
-
-    // ====== Indicatifs (COUNTRIES) ======
-    function renderDialList(f=""){
-      dialList.innerHTML="";
-      const filter = f.toLowerCase();
-      COUNTRIES
-        .filter(d =>
-          !filter ||
-          d.en.toLowerCase().includes(filter) ||
-          d.fr.toLowerCase().includes(filter) ||
-          d.code.includes(filter) ||
-          d.iso.toLowerCase().includes(filter)
-        )
-        .forEach(d=>{
-          const name = (lang === "fr") ? d.fr : d.en;
-          const row = document.createElement("div");
-          row.className = "dial-item";
-          row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
-          row.onclick = ()=>{
-            currentDial = { iso:d.iso, code:d.code };
-            dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
-            dialPanel.style.display = "none";
-          };
-          dialList.appendChild(row);
-        });
-    }
-
-    dialBtn.onclick = ()=>{
-      dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
-      renderDialList("");
-      dialSearch.value = "";
-      dialSearch.focus();
-    };
-    dialSearch.oninput = ()=> renderDialList(dialSearch.value);
-    document.addEventListener("click", e=>{
-      if(!dialPanel.contains(e.target) && e.target !== dialBtn) dialPanel.style.display="none";
-    });
-
-    // ====== Contacts (localStorage) ======
-    const contactsList = document.getElementById("contactsList");
-    const showContacts = document.getElementById("showContacts");
-    const saveContact = document.getElementById("saveContact");
-    let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
-
-    function renderContacts(){
-      contactsList.innerHTML = "";
-      if(contacts.length === 0){ contactsList.style.display = "none"; return; }
-      contacts.forEach(c=>{
-        const div = document.createElement("div");
-        div.className = "contact-item";
-        div.textContent = `${c.name} (${c.phone})`;
-        div.onclick = ()=>{
-          document.getElementById("phone").value = c.phone.replace(c.code, "");
-          currentDial = { iso:c.iso, code:c.code };
-          dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
-        };
-        contactsList.appendChild(div);
-      });
-    }
-    renderContacts();
-
-    showContacts.onclick = ()=>{
-      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
-      renderContacts();
-    };
-
-    saveContact.onclick = ()=>{
-      const num = document.getElementById("phone").value.trim();
-      if(!num){ alert(lang==='fr'?'Saisis un numéro avant.':'Enter a number first.'); return; }
-      const pseudo = prompt(lang==='fr'?'Nom du contact ?':'Contact name?');
-      if(!pseudo) return;
-      const phone = currentDial.code + num;
-      contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
-      localStorage.setItem("contacts", JSON.stringify(contacts));
-      renderContacts();
-      alert(lang==='fr'?'Contact enregistré ✅':'Contact saved ✅');
-    };
-
-    // ====== Génération du lien ======
-    document.getElementById('generateBtn').addEventListener('click', async ()=>{
-      const amount = parseFloat(document.getElementById('amount').value);
-      const currency = document.getElementById('currency').value;
-      const sender_wallet = walletInput.value.trim();
-      const localPhone = document.getElementById('phone').value.trim();
-      const recipient_phone = `${currentDial.code}${localPhone}`;
-      const network = document.getElementById('network').value;
-
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
-      if (!amount || !currency || !sender_wallet || !localPhone || !network){
-        errorDiv.textContent = (lang==='fr')
-          ? "Merci de remplir tous les champs obligatoires."
-          : "Please fill in all required fields.";
-        errorDiv.style.display='block';
-        return;
-      }
-
-      try{
-        const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
-        });
-        const data = await res.json();
-        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
-
-        const lien = `https://linkisend.io/${data.short_id}`;
-        linkEl.textContent = lien;
-        resultDiv.style.display='block';
-      }catch(err){
-        errorDiv.textContent = err.message || (lang==='fr'?'Erreur réseau':'Network error');
-        errorDiv.style.display='block';
-      }
-    });
-
-    // ---- Appliquer la langue (APRES init des éléments) ----
+  langToggle.addEventListener('click', ()=>{
+    lang = (lang === 'fr') ? 'en' : 'fr';
+    localStorage.setItem('lang', lang);
     applyLang();
   });
-  </script>
+
+  // ====== Wallet Modal (inchangé) ======
+  const modal = document.getElementById('walletModal');
+  const openModal = () => { modal.classList.add('open'); };
+  const closeModal = () => { modal.classList.remove('open'); };
+  document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+  document.getElementById('walletModalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+
+  modal.querySelectorAll('.pv').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const provider = btn.getAttribute('data-wallet');
+      if(provider === 'metamask'){
+        if(!window.ethereum){ alert("MetaMask non détecté."); return; }
+        try{
+          const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+          if(accounts && accounts[0]) walletInput.value = accounts[0];
+          closeModal();
+        }catch(e){ alert("Connexion refusée."); }
+      }else{
+        alert("Connexion via " + provider + " arrive bientôt.");
+      }
+    });
+  });
+
+  // ====== Indicatifs (COUNTRIES) ======
+  function renderDialList(f=""){
+    dialList.innerHTML="";
+    const filter = f.toLowerCase();
+    COUNTRIES
+      .filter(d =>
+        !filter ||
+        d.en.toLowerCase().includes(filter) ||
+        d.fr.toLowerCase().includes(filter) ||
+        d.code.includes(filter) ||
+        d.iso.toLowerCase().includes(filter)
+      )
+      .forEach(d=>{
+        const name = (lang === "fr") ? d.fr : d.en;
+        const row = document.createElement("div");
+        row.className = "dial-item";
+        row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
+        row.onclick = ()=>{
+          currentDial = { iso:d.iso, code:d.code };
+          dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+          dialPanel.style.display = "none";
+        };
+        dialList.appendChild(row);
+      });
+  }
+
+  dialBtn.onclick = ()=>{
+    dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
+    renderDialList("");
+    dialSearch.value = "";
+    dialSearch.focus();
+  };
+  dialSearch.oninput = ()=> renderDialList(dialSearch.value);
+  document.addEventListener("click", e=>{
+    if(!dialPanel.contains(e.target) && e.target !== dialBtn) dialPanel.style.display="none";
+  });
+
+  // ====== Contacts (localStorage) ======
+  const contactsList = document.getElementById("contactsList");
+  const showContacts = document.getElementById("showContacts");
+  const saveContact = document.getElementById("saveContact");
+  let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+
+  // Forcer l’emoji agenda propre 📖 (sans toucher le HTML d’origine)
+  if (showContacts) showContacts.textContent = "📖";
+
+  function persistContacts(){
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }
+
+  function renderContacts(){
+    contactsList.innerHTML = "";
+    if(contacts.length === 0){
+      contactsList.style.display = "none";
+      return;
+    }
+
+    contacts.forEach((c, idx)=>{
+      const row = document.createElement("div");
+      row.className = "contact-item";
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.justifyContent = "space-between";
+      row.style.gap = "8px";
+
+      // libellé (nom + numéro)
+      const left = document.createElement("div");
+      left.textContent = `${c.name} (${c.phone})`;
+      left.style.flex = "1 1 auto";
+      left.style.whiteSpace = "nowrap";
+      left.style.overflow = "hidden";
+      left.style.textOverflow = "ellipsis";
+
+      // bouton suppression 🗑️
+      const del = document.createElement("button");
+      del.type = "button";
+      del.title = (lang==='fr') ? "Supprimer" : "Delete";
+      del.textContent = "🗑️";
+      del.style.border = "1px solid var(--stroke)";
+      del.style.background = "#0a1220";
+      del.style.color = "#ffffff";
+      del.style.borderRadius = "6px";
+      del.style.padding = "4px 6px";
+      del.style.cursor = "pointer";
+      del.style.flex = "0 0 auto";
+
+      // clic sur le libellé = remplir et fermer
+      left.onclick = ()=>{
+        document.getElementById("phone").value = c.phone.replace(c.code, "");
+        currentDial = { iso:c.iso, code:c.code };
+        dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+        // fermer la liste immédiatement après sélection
+        contactsList.style.display = "none";
+      };
+
+      // suppression
+      del.onclick = (ev)=>{
+        ev.stopPropagation();
+        contacts.splice(idx, 1);
+        persistContacts();
+        renderContacts();
+      };
+
+      row.appendChild(left);
+      row.appendChild(del);
+      contactsList.appendChild(row);
+    });
+  }
+  renderContacts();
+
+  showContacts.onclick = ()=>{
+    contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
+    renderContacts();
+  };
+
+  saveContact.onclick = ()=>{
+    const num = document.getElementById("phone").value.trim();
+    if(!num){
+      alert(lang==='fr'?'Saisis un numéro avant.':'Enter a number first.');
+      return;
+    }
+    const pseudo = prompt(lang==='fr'?'Nom du contact ?':'Contact name?');
+    if(!pseudo) return;
+    const phone = currentDial.code + num;
+    contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
+    persistContacts();
+    renderContacts();
+    alert(lang==='fr'?'Contact enregistré ✅':'Contact saved ✅');
+  };
+
+  // ====== Génération du lien ======
+  document.getElementById('generateBtn').addEventListener('click', async ()=>{
+    const amount = parseFloat(document.getElementById('amount').value);
+    const currency = document.getElementById('currency').value;
+    const sender_wallet = walletInput.value.trim();
+    const localPhone = document.getElementById('phone').value.trim();
+    const recipient_phone = `${currentDial.code}${localPhone}`;
+    const network = document.getElementById('network').value;
+
+    resultDiv.style.display='none';
+    errorDiv.style.display='none';
+
+    if (!amount || !currency || !sender_wallet || !localPhone || !network){
+      errorDiv.textContent = (lang==='fr')
+        ? "Merci de remplir tous les champs obligatoires."
+        : "Please fill in all required fields.";
+      errorDiv.style.display='block';
+      return;
+    }
+
+    try{
+      const res = await fetch(`${BACKEND}/create-link`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+
+      const lien = `https://linkisend.io/${data.short_id}`;
+      linkEl.textContent = lien;
+      resultDiv.style.display='block';
+    }catch(err){
+      errorDiv.textContent = err.message || (lang==='fr'?'Erreur réseau':'Network error');
+      errorDiv.style.display='block';
+    }
+  });
+
+  // ---- Appliquer la langue (APRES init des éléments) ----
+  applyLang();
+});
+</script>
+
 </body>
 </html>
