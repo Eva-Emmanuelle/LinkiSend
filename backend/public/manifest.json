@@ -1,9 +1,10 @@
 {
   "name": "LinkiSend",
   "short_name": "LinkiSend",
+  "id": "/",
   "description": "Envoyer des cryptos via lien, simplement.",
-  "start_url": "https://linkisend-frontend.onrender.com/",
-  "scope": "https://linkisend-frontend.onrender.com/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0b0f14",
   "theme_color": "#0b0f14",
