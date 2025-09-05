@@ -175,21 +175,43 @@
   transition: opacity .35s ease;
 }
 #splash img{
-  width: 120px; height:auto;
+  width: 220px;   /* était 120px */
+  height: auto;
   filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
   opacity:.96;
 }
 #splash.hide{ opacity:0; pointer-events:none; }
   </style>
   <script>
-  // Masquer le splash quand tout est prêt
-  window.addEventListener('load', () => {
-    const s = document.getElementById('splash');
-    if (s) {
-      s.classList.add('hide');
-      setTimeout(() => s.remove(), 400);
-    }
-  });
+(function () {
+  const s = document.getElementById('splash');
+  if (!s) return;
+
+  // Mode standalone (PWA installée) ?
+  const isStandalone =
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator.standalone === true);
+
+  if (isStandalone) {
+    // Laisse Android/iOS gérer leur propre splash, retire le nôtre
+    s.remove();
+    return;
+  }
+
+  let done = false;
+  function hideSplash() {
+    if (done) return;
+    done = true;
+    s.classList.add('hide');
+    setTimeout(() => s.remove(), 400);
+  }
+
+  // Normal : masque au chargement
+  window.addEventListener('load', hideSplash);
+
+  // Sécurité : force après 1200 ms
+  setTimeout(hideSplash, 1200);
+})();
 </script>
 </head>
 <body>
