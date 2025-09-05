@@ -183,13 +183,15 @@
   </style>
   <script>
   // Masquer le splash quand tout est prêt
-  window.addEventListener('load', () => {
-    const s = document.getElementById('splash');
-    if (s) {
+window.addEventListener('load', () => {
+  const s = document.getElementById('splash');
+  if (s) {
+    setTimeout(() => {
       s.classList.add('hide');
       setTimeout(() => s.remove(), 400);
-    }
-  });
+    }, 1100); // délai avant le fondu (1,1s) + fondu (0,4s) = ~1,5s total
+  }
+});
 </script>
 </head>
 <body>
