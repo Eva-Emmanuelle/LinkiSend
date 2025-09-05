@@ -573,13 +573,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
       errorDiv.style.display='block';
     }
   });
-// Bouton "Copier le lien"
+// Icône "Copier le lien"
 const copyBtn = document.getElementById('copyLinkBtn');
 if (copyBtn) {
   copyBtn.addEventListener('click', ()=>{
     navigator.clipboard.writeText(linkEl.textContent).then(()=>{
-      copyBtn.textContent = "✅ Copié";
-      setTimeout(()=> copyBtn.textContent = "📋 Copier", 1500);
+      copyBtn.textContent = "✅";
+      setTimeout(()=> copyBtn.textContent = "📋", 1500);
     });
   });
 }
