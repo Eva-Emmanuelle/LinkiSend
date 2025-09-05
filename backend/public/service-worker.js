@@ -1,5 +1,5 @@
 // --- LinkiSend SW (cache statique minimal) ---
-const CACHE_NAME = "linkisend-v1";
+const CACHE_NAME = "linkisend-v2";
 const ASSETS = [
   "/",
   "/index.html",
