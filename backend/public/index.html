@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const walletInput = document.getElementById('wallet');
   const linkEl  = document.getElementById('the-link');
 
-  // ====== Indicatifs (déclarés AVANT applyLang) ======
+  // ====== Indicatifs ======
   const dialBtn = document.getElementById('dialBtn');
   const dialPanel = document.getElementById('dialPanel');
   const dialSearch = document.getElementById('dialSearch');
@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
 
   const t = {
-    fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet"},
-    en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet"}
+    fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},
+    en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",needNumber:"Enter a number first."}
   };
 
   function applyLang(){
@@ -289,6 +289,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     document.getElementById("validityText").textContent = t[lang].validity;
     document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
     if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
+    // MAJ textes du mini-formulaire contact
+    if (saveNameInput) saveNameInput.placeholder = t[lang].savePh;
+    if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+    if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
   }
 
   langToggle.addEventListener('click', ()=>{
@@ -347,9 +351,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
       });
   }
 
-  // ——— FIX: empêcher la fermeture immédiate
+  // ——— Indics: ouverture/fermeture robuste
   dialBtn.addEventListener('click', (e)=>{
-    e.stopPropagation(); // important
+    e.stopPropagation();
     dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
     if (dialPanel.style.display === "block"){
       renderDialList("");
@@ -359,7 +363,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   });
   dialSearch.oninput = ()=> renderDialList(dialSearch.value);
   document.addEventListener("click", e=>{
-    // fermer seulement si on ne clique NI dans le panel NI sur le bouton (ou ses enfants)
     if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
       dialPanel.style.display="none";
     }
@@ -374,16 +377,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
   // Forcer l’emoji agenda 📖
   if (showContacts) showContacts.textContent = "📖";
 
-  function persistContacts(){
-    localStorage.setItem("contacts", JSON.stringify(contacts));
-  }
+  function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
 
   function renderContacts(){
     contactsList.innerHTML = "";
-    if(contacts.length === 0){
-      contactsList.style.display = "none";
-      return;
-    }
+    if(contacts.length === 0){ contactsList.style.display = "none"; return; }
 
     contacts.forEach((c, idx)=>{
       const row = document.createElement("div");
@@ -433,25 +431,109 @@ document.addEventListener('DOMContentLoaded', ()=> {
   }
   renderContacts();
 
+  // ====== Mini-formulaire inline pour enregistrer un contact (remplace le prompt) ======
+  const actionsBar = document.querySelector('.contact-actions');
+
+  // conteneur
+  const saveInline = document.createElement('div');
+  saveInline.style.display = 'none';
+  saveInline.style.marginTop = '8px';
+  saveInline.style.padding = '10px';
+  saveInline.style.border = '1px solid var(--stroke)';
+  saveInline.style.borderRadius = '8px';
+  saveInline.style.background = '#0e1420';
+  saveInline.style.boxShadow = 'var(--shadow)';
+  saveInline.style.gap = '8px';
+  saveInline.style.alignItems = 'center';
+  saveInline.style.justifyContent = 'space-between';
+
+  // champ nom
+  const saveNameInput = document.createElement('input');
+  saveNameInput.type = 'text';
+  saveNameInput.id = 'saveName';
+  saveNameInput.placeholder = t[lang].savePh;
+  saveNameInput.style.width = '100%';
+  saveNameInput.style.padding = '8px 10px';
+  saveNameInput.style.border = '1px solid var(--stroke)';
+  saveNameInput.style.borderRadius = '6px';
+  saveNameInput.style.background = '#0a1220';
+  saveNameInput.style.color = '#e6edf3';
+  saveNameInput.style.marginRight = '8px';
+
+  // boutons
+  const btnsWrap = document.createElement('div');
+  btnsWrap.style.display = 'flex';
+  btnsWrap.style.gap = '8px';
+  btnsWrap.style.marginTop = '8px';
+
+  const saveConfirmBtn = document.createElement('button');
+  saveConfirmBtn.type = 'button';
+  saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+  saveConfirmBtn.style.border = '1px solid var(--stroke)';
+  saveConfirmBtn.style.background = '#0a1220';
+  saveConfirmBtn.style.color = '#ffffff';
+  saveConfirmBtn.style.borderRadius = '8px';
+  saveConfirmBtn.style.padding = '6px 10px';
+  saveConfirmBtn.style.cursor = 'pointer';
+
+  const saveCancelBtn = document.createElement('button');
+  saveCancelBtn.type = 'button';
+  saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
+  saveCancelBtn.style.border = '1px solid var(--stroke)';
+  saveCancelBtn.style.background = '#0a1220';
+  saveCancelBtn.style.color = '#ffffff';
+  saveCancelBtn.style.borderRadius = '8px';
+  saveCancelBtn.style.padding = '6px 10px';
+  saveCancelBtn.style.cursor = 'pointer';
+
+  saveInline.appendChild(saveNameInput);
+  btnsWrap.appendChild(saveConfirmBtn);
+  btnsWrap.appendChild(saveCancelBtn);
+  saveInline.appendChild(btnsWrap);
+
+  // insérer juste après la barre d'actions
+  actionsBar.insertAdjacentElement('afterend', saveInline);
+
+  // ouverture/fermeture du mini-formulaire
+  function toggleSaveInline(open){
+    saveInline.style.display = open ? 'block' : 'none';
+    if (open){
+      saveNameInput.value = '';
+      saveNameInput.focus();
+    }
+  }
+
+  // clic sur 📖 : aucune incidence
   showContacts.onclick = ()=>{
     contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
     renderContacts();
   };
 
+  // clic sur 💾 : ouvrir le mini-formulaire
   saveContact.onclick = ()=>{
     const num = document.getElementById("phone").value.trim();
-    if(!num){
-      alert(lang==='fr'?'Saisis un numéro avant.':'Enter a number first.');
-      return;
-    }
-    const pseudo = prompt(lang==='fr'?'Nom du contact ?':'Contact name?');
-    if(!pseudo) return;
+    if(!num){ alert(t[lang].needNumber); return; }
+    toggleSaveInline(true);
+  };
+
+  // Enregistrer
+  saveConfirmBtn.onclick = ()=>{
+    const num = document.getElementById("phone").value.trim();
+    if(!num){ alert(t[lang].needNumber); return; }
+    const pseudo = saveNameInput.value.trim();
+    if(!pseudo){ saveNameInput.focus(); return; }
     const phone = currentDial.code + num;
     contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
     persistContacts();
     renderContacts();
-    alert(lang==='fr'?'Contact enregistré ✅':'Contact saved ✅');
+    toggleSaveInline(false);
+    // petit feedback sans popup bloquante
+    // (on garde un alert court si tu préfères le retour visuel fort)
+    // alert(t[lang].saved);
   };
+
+  // Annuler
+  saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
   // ====== Génération du lien ======
   document.getElementById('generateBtn').addEventListener('click', async ()=>{
@@ -491,11 +573,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
     }
   });
 
-  // ---- Appliquer la langue (APRES init des éléments) ----
+  // ---- Appliquer la langue
   applyLang();
 });
 </script>
-
-
 </body>
 </html>
