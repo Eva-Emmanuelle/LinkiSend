@@ -198,10 +198,10 @@
 
       <!-- Bloc résultat -->
 <div id="result" class="result-cta" aria-live="polite">
-  <h3 style="margin:0 0 10px;font-size:18px;color:#05f46e" id="resultTitle">Lien prêt ✅</h3>
-  <div class="row-cta" style="display:flex;align-items:center;gap:8px;">
+  <h3 id="resultTitle" style="margin:0 0 10px;font-size:18px;">Lien prêt ✅</h3>
+  <div class="row-cta" style="display:flex;align-items:center;gap:6px;">
     <code id="the-link" style="flex:1;"></code>
-    <button id="copyLinkBtn" class="btn">📋 Copier</button>
+    <span id="copyLinkBtn" style="cursor:pointer;" title="Copier">📋</span>
   </div>
   <div class="sub-cta" id="validityText" style="margin-top:10px;">
     ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
@@ -572,13 +572,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
       errorDiv.style.display='block';
     }
   });
-// Bouton "Copier le lien"
+// Icône "Copier le lien"
 const copyBtn = document.getElementById('copyLinkBtn');
 if (copyBtn) {
   copyBtn.addEventListener('click', ()=>{
     navigator.clipboard.writeText(linkEl.textContent).then(()=>{
-      copyBtn.textContent = "✅ Copié";
-      setTimeout(()=> copyBtn.textContent = "📋 Copier", 1500);
+      copyBtn.textContent = "✅";
+      setTimeout(()=> copyBtn.textContent = "📋", 1500);
     });
   });
 }
