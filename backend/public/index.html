@@ -479,7 +479,7 @@
       applyLang();
     });
 
-    // ====== Wallet Modal (inchangé) ======
+    // ====== Wallet Modal (inchangé sauf MetaMask) ======
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -492,14 +492,40 @@
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté."); return; }
+          // === MetaMask robuste : standalone PWA, mobile, multi-providers ===
+          const isStandaloneApp =
+            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+            (window.navigator.standalone === true);
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+
+          const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+            ? window.ethereum.providers.find(p => p && p.isMetaMask)
+            : window.ethereum;
+
+          if (!eth || !eth.request) {
+            if (isStandaloneApp && !isMobile) {
+              window.open(window.location.href, '_blank'); // ouvrir dans un onglet "normal"
+              return;
+            }
+            if (isMobile) {
+              const path = location.host + location.pathname + location.search;
+              location.href = `https://metamask.app.link/dapp/${path}`;
+              return;
+            }
+            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
+            return;
+          }
+
           try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+            const accounts = await eth.request({ method:'eth_requestAccounts' });
             if(accounts && accounts[0]) walletInput.value = accounts[0];
             closeModal();
-          }catch(e){ alert("Connexion refusée."); }
+          }catch(e){
+            console.error(e);
+            alert("Connexion MetaMask refusée ou erreur.");
+          }
         } else if (provider === "phantom") {
-          // Connexion Phantom
+          // Connexion Phantom (inchangée)
           if (window.solana && window.solana.isPhantom) {
             window.solana.connect()
               .then(resp => {
