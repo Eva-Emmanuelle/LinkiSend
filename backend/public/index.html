@@ -167,9 +167,34 @@
   </style>
 
   <!-- Web3Modal (WalletConnect) - UMD -->
-  <script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
-  <script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
+<script>
+  // === WalletConnect minimal correct ===
+  const WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
 
+  const { EthereumProvider } = window['@web3modal/ethereum'];
+  const { Web3Modal }        = window['@web3modal/standalone'];
+
+  // Crée la modale UI
+  const w3m = new Web3Modal({
+    projectId: WC_PROJECT_ID,
+    themeMode: 'dark',
+    enableAnalytics: false
+  });
+
+  // Provider EVM (sans QR intégré)
+  const ethProvider = EthereumProvider.init({
+    projectId: WC_PROJECT_ID,
+    showQrModal: false,           // IMPORTANT: on gère le QR via w3m
+    chains: [1, 137, 56, 43114]   // Ethereum, Polygon, BNB, Avalanche
+  });
+
+  // Quand WalletConnect fournit l’URI, on ouvre la modale avec cet URI
+  ethProvider.on('display_uri', (uri) => {
+    try { w3m.openModal({ uri }); } catch {}
+  });
+</script>
   <!-- Init WalletConnect en GLOBAL (évite les erreurs de portée) -->
   <script>
     window.WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
@@ -447,25 +472,31 @@
       });
 
       // ====== WalletConnect: bouton principal ======
-      const connectWalletLink = document.getElementById('connectWalletLink');
-      connectWalletLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-          if (!window.w3m || !window.ethProvider) throw new Error('WalletConnect non initialisé');
-          window.w3m.openModal({ view: 'Connect' });
-          await window.ethProvider.connect();
-          const accounts = await window.ethProvider.request({ method: 'eth_accounts' });
-          if (accounts && accounts[0]) walletInput.value = accounts[0];
-          else throw new Error('Aucune adresse retournée');
-        } catch (err) {
-          console.error(err);
-          alert((localStorage.getItem('lang')||'fr').startsWith('fr')
-            ? "Connexion annulée/échouée"
-            : "Connection cancelled/failed");
-        } finally {
-          try { window.w3m && window.w3m.closeModal(); } catch {}
-        }
-      });
+     <script>
+  const connectWalletLink = document.getElementById('connectWalletLink');
+  connectWalletLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      // Lance la connexion (l’event display_uri ouvrira la modale)
+      await ethProvider.connect();
+
+      // Adresse EVM
+      const accounts = await ethProvider.request({ method: 'eth_accounts' });
+      if (accounts && accounts[0]) {
+        walletInput.value = accounts[0];
+      } else {
+        throw new Error('Aucune adresse retournée');
+      }
+    } catch (err) {
+      console.error(err);
+      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+        ? "Connexion annulée/échouée"
+        : "Connection cancelled/failed");
+    } finally {
+      try { w3m.closeModal(); } catch {}
+    }
+  });
+</script>
 
       // ====== (le reste est inchangé) ======
       // Modal (conserve, mais non utilisée pour WC)
