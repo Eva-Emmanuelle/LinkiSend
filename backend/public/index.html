@@ -168,6 +168,42 @@
 
   <!-- Web3Modal Ethereum provider (UMD) -->
   <script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
+  <script id="wc-diag">
+(function(){
+  // Détecte le bon global UMD et initialise si besoin
+  const hasG1 = !!(window.Web3ModalEthereum && window.Web3ModalEthereum.EthereumProvider);
+  const hasG2 = !!(window['@web3modal/ethereum'] && window['@web3modal/ethereum'].EthereumProvider);
+  const umdGlobal = hasG1 ? 'Web3ModalEthereum' : (hasG2 ? '@web3modal/ethereum' : 'none');
+
+  const info = {
+    origin: location.origin,
+    wcProjectId: window.WC_PROJECT_ID || null,
+    umd_global_found: umdGlobal,
+    has_ethProvider_global: !!window.ethProvider,
+    has_window_ethereum: !!window.ethereum,
+    web3modal_scripts: Array.from(document.querySelectorAll('script[src*="web3modal"]')).map(s=>s.src)
+  };
+
+  console.log('%c[LinkiSend][WC DIAG]', 'background:#0ea5e9;color:#fff;padding:2px 6px;border-radius:4px');
+  console.table(info);
+
+  try {
+    if (!window.ethProvider && umdGlobal !== 'none') {
+      const EthereumProvider =
+        (window.Web3ModalEthereum && window.Web3ModalEthereum.EthereumProvider) ||
+        (window['@web3modal/ethereum'] && window['@web3modal/ethereum'].EthereumProvider);
+
+      window.ethProvider = EthereumProvider.init({
+        projectId: window.WC_PROJECT_ID || '9c945cd5bef5c1e1905266cf0219736d',
+        showQrModal: true,
+        chains: [1,137,56,43114]
+      });
+      console.log('[WC DIAG] ethProvider initialisé ✅');
+    }
+  } catch(e){ console.warn('[WC DIAG] tentative d’init: échec', e); }
+})();
+</script>
+
 
   <!-- Initialisation WalletConnect (une seule instance globale, QR intégré) -->
   <script>
