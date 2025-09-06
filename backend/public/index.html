@@ -198,8 +198,31 @@
       .modal-card{ max-height: 84vh; }
     }
   </style>
+  <!-- Web3Modal (WalletConnect) - UMD -->
+<script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
   <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // === WalletConnect minimal ===
+const WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d"; // ton projectId
+
+const { EthereumProvider } = window['@web3modal/ethereum'];
+const { Web3Modal }        = window['@web3modal/standalone'];
+
+// Provider EVM + QR modal (desktop) / deep link (mobile)
+const ethProvider = EthereumProvider.init({
+  projectId: WC_PROJECT_ID,
+  showQrModal: true,
+  chains: [1, 137, 56, 43114] // Ethereum, Polygon, BNB, Avalanche
+});
+
+// UI modale WalletConnect (thème etc.)
+const w3m = new Web3Modal({
+  projectId: WC_PROJECT_ID,
+  themeMode: 'dark',
+  enableAnalytics: false
+});
+
     const s = document.getElementById('splash');
     if (!s) return;
 
@@ -483,7 +506,37 @@
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+    // ---- Bouton "Connecter un wallet" -> WalletConnect
+const connectWalletLink = document.getElementById('connectWalletLink');
+
+connectWalletLink.addEventListener('click', async (e) => {
+  e.preventDefault();
+  try {
+    // Ouvre la modale WalletConnect (QR sur desktop, deep link sur mobile)
+    w3m.openModal({ view: 'Connect' });
+
+    // Attend la connexion (annulable par l’utilisateur)
+    await ethProvider.connect();
+
+    // Récupère l’adresse EVM
+    const accounts = await ethProvider.request({ method: 'eth_accounts' });
+    if (accounts && accounts[0]) {
+      walletInput.value = accounts[0];
+      // petit feedback facultatif
+      // alert((localStorage.getItem('lang')||'fr').startsWith('fr') ? "Wallet connecté ✅" : "Wallet connected ✅");
+    } else {
+      throw new Error('Aucune adresse retournée');
+    }
+  } catch (err) {
+    console.error(err);
+    alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+      ? "Connexion annulée/échouée"
+      : "Connection cancelled/failed");
+  } finally {
+    // Ferme la modale si elle est ouverte
+    try { w3m.closeModal(); } catch {}
+  }
+});
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
