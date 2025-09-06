@@ -393,53 +393,34 @@
   <!-- Toast copie (conservé au cas où) -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
-<script>
-// ===== WalletConnect direct (remplace l'ancienne modale) =====
-document.addEventListener('DOMContentLoaded', () => {
-  const walletInput = document.getElementById('wallet');
-  const connectWalletLink = document.getElementById('connectWalletLink');
+  <!-- Modal choix wallet (inchangée) -->
+  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="walletModalTitle">Connecter un wallet</h3>
+        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
+      </div>
+      <div class="providers">
+        <button class="pv" data-wallet="metamask">
+          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
+          MetaMask <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="walletconnect">
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="coinbase">
+          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
+          Coinbase Wallet <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="phantom">
+          <img src="assets/wallets/phantom.svg" alt="Phantom" />
+          Phantom <span class="tag">Solana</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  // (si l'ancien HTML de modale existe encore, on l'enlève pour être propre)
-  const oldModal = document.getElementById('walletModal');
-  if (oldModal) oldModal.remove();
-
-  const WC_PROJECT_ID = '9c945cd5bef5c1e1905266cf0219736d'; // ton projectId
-  const { EthereumProvider } = window['@web3modal/ethereum'];
-  const { Web3Modal }       = window['@web3modal/standalone'];
-
-  // Init une seule fois
-  const ethProvider = EthereumProvider.init({
-    projectId: WC_PROJECT_ID,
-    showQrModal: true,               // QR sur desktop, deep link sur mobile
-    chains: [1, 137, 56, 43114]      // Ethereum, Polygon, BNB, Avalanche
-  });
-
-  const w3m = new Web3Modal({
-    projectId: WC_PROJECT_ID,
-    themeMode: 'dark',
-    enableAnalytics: false
-  });
-
-  connectWalletLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-      w3m.openModal({ view: 'Connect' });      // ouvre directement WalletConnect
-      await ethProvider.connect();             // attend la connexion dans le wallet
-      const accounts = await ethProvider.request({ method: 'eth_accounts' });
-      if (accounts && accounts[0]) walletInput.value = accounts[0];
-
-      try { w3m.closeModal(); } catch {}
-      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
-        ? 'Wallet connecté ✅' : 'Wallet connected ✅');
-    } catch (err) {
-      console.error(err);
-      try { w3m.closeModal(); } catch {}
-      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
-        ? 'Connexion annulée/échouée' : 'Connection cancelled/failed');
-    }
-  });
-});
-</script>
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
     // ====== Backend ======
