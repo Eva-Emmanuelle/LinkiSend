@@ -326,9 +326,14 @@
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
       <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">
-  <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" style="width:18px;height:18px"/>
+  <span class="wc-icon" aria-hidden="true"></span>
   Connecter un wallet
 </a>
+<style>
+  .wallet-link{display:inline-flex;align-items:center;gap:8px;}
+  .wc-icon{width:18px;height:18px;display:inline-block;
+    background:url('/assets/wallets/walletconnect.svg?v=1') no-repeat center / contain;}
+</style>
       <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
