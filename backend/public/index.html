@@ -59,7 +59,7 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
       background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;
-      box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
+      box-shadow:var(--shadow);margin-top:14px;
     }
     .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
     .btn:active{transform:translateY(1px)}
@@ -480,18 +480,18 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // Helper MetaMask multi-provider
+    // Helpers providers
     function getMetaMaskProvider(){
       if (window.ethereum && Array.isArray(window.ethereum.providers)){
         return window.ethereum.providers.find(p => p && p.isMetaMask) || null;
       }
       return window.ethereum && window.ethereum.isMetaMask ? window.ethereum : null;
     }
-
-    // NEW: Helper Phantom provider (desktop extension ou window.phantom.solana)
     function getPhantomProvider(){
-      const p = (window.phantom && window.phantom.solana) ? window.phantom.solana : (window.solana || null);
-      return (p && (p.isPhantom || p.isPhantom === true)) ? p : null;
+      // priorité à window.phantom.solana (API officielle)
+      if (window.phantom && window.phantom.solana) return window.phantom.solana;
+      if (window.solana && window.solana.isPhantom) return window.solana;
+      return null;
     }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
@@ -503,7 +503,6 @@
             (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
             (window.navigator.standalone === true);
           const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
-
           const eth = getMetaMaskProvider();
 
           if (!eth || !eth.request) {
@@ -530,30 +529,42 @@
           }
 
         } else if (provider === "phantom") {
-          // ===== PHANTOM (Solana) — Ajout/robustesse =====
-          try{
-            const phantom = getPhantomProvider();
+          // ===== PHANTOM (Solana) — robuste =====
+          const phantom = getPhantomProvider();
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
-            if (!phantom) {
-              // Pas de provider détecté (desktop sans extension, ou navigateur intégré)
-              const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
-              if (isMobile) {
-                // Ouvre l’app Phantom si installée, sinon la page de téléchargement
-                // (Deep link minimaliste et non bloquant)
-                window.location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
-              } else {
-                window.open("https://phantom.app/download", "_blank");
+          if (!phantom) {
+            // Pas d’extension/app détectée
+            if (isMobile) {
+              // Deep-link vers Phantom Mobile (ouvre l’app si installée)
+              location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
+            } else {
+              window.open("https://phantom.app/download", "_blank");
+            }
+            return;
+          }
+
+          try{
+            // 1) Si déjà autorisé, cette tentative ne déclenche pas de popup
+            let resp = null;
+            try {
+              resp = await phantom.connect({ onlyIfTrusted: true });
+            } catch(_) { /* ignore */ }
+
+            // 2) Sinon, on demande l’autorisation (doit être dans un gesture utilisateur -> OK ici)
+            if (!resp || !resp.publicKey) {
+              // certaines versions utilisent request({method:'connect'})
+              if (typeof phantom.connect === 'function') {
+                resp = await phantom.connect();
+              } else if (typeof phantom.request === 'function') {
+                resp = await phantom.request({ method: 'connect' });
               }
-              return;
             }
 
-            // Demande de connexion
-            const resp = await phantom.connect({ onlyIfTrusted:false });
-            const walletAddress = resp?.publicKey?.toString?.() || "";
-            if (walletAddress){
+            const walletAddress = resp?.publicKey?.toString?.() || resp?.publicKey || "";
+            if (walletAddress) {
               walletInput.value = walletAddress;
-              // Tip UX : on bascule sur "Solana" si autre réseau sélectionné
-              if (networkSelect && networkSelect.value !== "Solana"){
+              if (networkSelect && networkSelect.value !== "Solana") {
                 networkSelect.value = "Solana";
               }
               closeModal();
@@ -561,9 +572,17 @@
               alert("Échec de la connexion Phantom.");
             }
 
-          }catch(err){
+          } catch (err) {
             console.error(err);
-            alert("Connexion Phantom refusée ou erreur.");
+            // Messages plus utiles selon codes Phantom
+            const code = err && (err.code || err.errorCode);
+            if (code === 4001) {
+              alert("Connexion Phantom annulée.");
+            } else if (code === 4100) {
+              alert("Accès Phantom non autorisé.");
+            } else {
+              alert("Connexion Phantom refusée ou erreur.");
+            }
           }
 
         } else {
