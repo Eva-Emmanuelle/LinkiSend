@@ -481,12 +481,15 @@
 
     // ====== Wallet Modal (inchangé) ======
     const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+const openModal = () => {};   // neutralisé
+const closeModal = () => {};  // neutralisé
 
+// bouton "Connecter un wallet" : on empêche juste la navigation, sans ouvrir la popup
+document.getElementById('connectWalletLink').addEventListener('click', (e)=>{ e.preventDefault(); });
+
+// on peut aussi neutraliser les listeners de fermeture (pas obligatoires)
+document.getElementById('walletModalClose')?.addEventListener('click', ()=>{});
+modal?.addEventListener('click', ()=>{});
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
