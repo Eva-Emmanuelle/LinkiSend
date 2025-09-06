@@ -198,6 +198,10 @@
       .modal-card{ max-height: 84vh; }
     }
   </style>
+
+  <!-- WalletConnect / Web3Modal UMD (ajouté) -->
+  <script src="https://unpkg.com/@web3modal/ethereum@2.7.1/dist/index.umd.js"></script>
+
   <script>
   document.addEventListener("DOMContentLoaded", function () {
     const s = document.getElementById('splash');
@@ -479,7 +483,17 @@
       applyLang();
     });
 
-    // ====== Wallet Modal (inchangé) ======
+    // ====== WalletConnect (ajout) ======
+    const WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
+    const wcProvider = (window.Web3ModalEthereum && window.Web3ModalEthereum.EthereumProvider)
+      ? window.Web3ModalEthereum.EthereumProvider.init({
+          projectId: WC_PROJECT_ID,
+          showQrModal: true,
+          chains: [1,137,56,43114]
+        })
+      : null;
+
+    // ====== Wallet Modal (inchangé sauf branche WalletConnect) ======
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -498,6 +512,16 @@
             if(accounts && accounts[0]) walletInput.value = accounts[0];
             closeModal();
           }catch(e){ alert("Connexion refusée."); }
+        } else if (provider === "walletconnect") {
+          if (!wcProvider){ alert("WalletConnect indisponible."); return; }
+          try{
+            await wcProvider.connect();
+            const accounts = await wcProvider.request({ method:'eth_accounts' });
+            if(accounts && accounts[0]) walletInput.value = accounts[0];
+            closeModal();
+          }catch(e){
+            alert("Connexion annulée/échouée.");
+          }
         } else if (provider === "phantom") {
           // Connexion Phantom
           if (window.solana && window.solana.isPhantom) {
