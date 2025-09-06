@@ -393,43 +393,25 @@
   <!-- Toast copie (conservé au cas où) -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
-// ====== Wallet Modal (inchangé) ======  -->
 <script>
-// ====== WalletConnect direct (remplace l'ancienne modale) ======
-(async () => {
-  const connectWalletLink = document.getElementById('connectWalletLink');
+// ===== WalletConnect direct (remplace l'ancienne modale) =====
+document.addEventListener('DOMContentLoaded', () => {
   const walletInput = document.getElementById('wallet');
+  const connectWalletLink = document.getElementById('connectWalletLink');
 
-  // 1) Désactive l'ancien handler (au cas où) et masque l'ancienne modale si elle existe
-  try {
-    const clone = connectWalletLink.cloneNode(true);
-    connectWalletLink.parentNode.replaceChild(clone, connectWalletLink);
-    // masque/retire le HTML de l'ancienne modale si présent
-    const oldModal = document.getElementById('walletModal');
-    if (oldModal) oldModal.remove();
-  } catch {}
+  // (si l'ancien HTML de modale existe encore, on l'enlève pour être propre)
+  const oldModal = document.getElementById('walletModal');
+  if (oldModal) oldModal.remove();
 
-  // 2) Charge dynamiquement Web3Modal UMD si besoin
-  async function loadScript(src){
-    if ([...document.scripts].some(s => s.src.includes(src))) return;
-    await new Promise((res, rej) => {
-      const el = document.createElement('script');
-      el.src = src; el.onload = res; el.onerror = () => rej(new Error('load '+src));
-      document.head.appendChild(el);
-    });
-  }
-  await loadScript('https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js');
-  await loadScript('https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js');
-
-  // 3) Init WalletConnect
   const WC_PROJECT_ID = '9c945cd5bef5c1e1905266cf0219736d'; // ton projectId
   const { EthereumProvider } = window['@web3modal/ethereum'];
-  const { Web3Modal } = window['@web3modal/standalone'];
+  const { Web3Modal }       = window['@web3modal/standalone'];
 
-  const ethProvider = await EthereumProvider.init({
+  // Init une seule fois
+  const ethProvider = EthereumProvider.init({
     projectId: WC_PROJECT_ID,
-    showQrModal: true,                 // QR sur desktop, deep-link sur mobile
-    chains: [1, 137, 56, 43114]        // Ethereum, Polygon, BNB, Avalanche
+    showQrModal: true,               // QR sur desktop, deep link sur mobile
+    chains: [1, 137, 56, 43114]      // Ethereum, Polygon, BNB, Avalanche
   });
 
   const w3m = new Web3Modal({
@@ -438,26 +420,25 @@
     enableAnalytics: false
   });
 
-  // 4) Nouveau clic = WalletConnect direct
-  document.getElementById('connectWalletLink').addEventListener('click', async (e) => {
+  connectWalletLink.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
-      w3m.openModal({ view: 'Connect' });     // ouvre directement WalletConnect
-      await ethProvider.connect();            // attend la connexion
+      w3m.openModal({ view: 'Connect' });      // ouvre directement WalletConnect
+      await ethProvider.connect();             // attend la connexion dans le wallet
       const accounts = await ethProvider.request({ method: 'eth_accounts' });
       if (accounts && accounts[0]) walletInput.value = accounts[0];
-      // petit feedback facultatif :
-      const isFr = (localStorage.getItem('lang')||'fr').startsWith('fr');
-      alert(isFr ? 'Wallet connecté ✅' : 'Wallet connected ✅');
+
+      try { w3m.closeModal(); } catch {}
+      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+        ? 'Wallet connecté ✅' : 'Wallet connected ✅');
     } catch (err) {
       console.error(err);
-      const isFr = (localStorage.getItem('lang')||'fr').startsWith('fr');
-      alert(isFr ? 'Connexion annulée/échouée' : 'Connection cancelled/failed');
-    } finally {
       try { w3m.closeModal(); } catch {}
+      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+        ? 'Connexion annulée/échouée' : 'Connection cancelled/failed');
     }
   });
-})();
+});
 </script>
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
