@@ -96,7 +96,7 @@
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
     .pv{
       display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
+      border-radius:12px;background:#0e141c;color:#var(--text);cursor:pointer;font-weight:600
     }
     .pv img{width:20px;height:20px}
     .tag{
@@ -132,14 +132,12 @@
     .contacts{margin-top:8px;display:none}
     .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
     .contact-item:hover{background:#101924}
-    /* === Fix mobile header === */
     @media (max-width: 540px){
       .brand{ justify-content:flex-start !important; gap:8px !important; margin:10px 0 20px !important; padding:0 8px; }
       .brand img.arrow{ position:static !important; transform:none !important; max-width:28px !important; height:auto !important; margin-right:6px; }
       .brand img.word{ max-width:170px !important; }
       .lang-toggle{ right:8px !important; font-size:11px; padding:3px 8px; }
     }
-    /* Bouton d'installation PWA (mobile) */
     #installBtn{
       position:fixed;right:14px;bottom:90px;z-index:80;
       display:none;align-items:center;gap:8px;
@@ -148,7 +146,6 @@
       box-shadow:var(--shadow);
     }
     #installBtn:active{transform:translateY(1px)}
-    /* Splash */
     #splash{
       position:fixed; inset:0; z-index:9999;
       display:grid; place-items:center;
@@ -159,7 +156,6 @@
     }
     #splash img{ width:300px; height:auto; filter:drop-shadow(0 12px 30px rgba(0,0,0,.35)); opacity:.96; }
     #splash.hide{ opacity:0; pointer-events:none; }
-    /* --- Fix modal on small screens --- */
     .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
     .modal-card{ width:min(440px, 92vw); max-height:88vh; overflow:auto; }
     @media (max-width: 380px){ .modal-card{ width:94vw; } .providers{ grid-template-columns:1fr !important; } }
@@ -167,51 +163,21 @@
   </style>
 
   <!-- Web3Modal (WalletConnect) - UMD -->
-<script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
-<script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
-<script>
-  // === WalletConnect minimal correct ===
-  const WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
+  <script src="https://unpkg.com/@web3modal/standalone@3.5.5/dist/index.umd.js"></script>
+  <script src="https://unpkg.com/@web3modal/ethereum@3.5.5/dist/index.umd.js"></script>
 
-  const { EthereumProvider } = window['@web3modal/ethereum'];
-  const { Web3Modal }        = window['@web3modal/standalone'];
-
-  // Crée la modale UI
-  const w3m = new Web3Modal({
-    projectId: WC_PROJECT_ID,
-    themeMode: 'dark',
-    enableAnalytics: false
-  });
-
-  // Provider EVM (sans QR intégré)
-  const ethProvider = EthereumProvider.init({
-    projectId: WC_PROJECT_ID,
-    showQrModal: false,           // IMPORTANT: on gère le QR via w3m
-    chains: [1, 137, 56, 43114]   // Ethereum, Polygon, BNB, Avalanche
-  });
-
-  // Quand WalletConnect fournit l’URI, on ouvre la modale avec cet URI
-  ethProvider.on('display_uri', (uri) => {
-    try { w3m.openModal({ uri }); } catch {}
-  });
-</script>
-  <!-- Init WalletConnect en GLOBAL (évite les erreurs de portée) -->
+  <!-- Initialisation WalletConnect (UNE SEULE INSTANCE GLOBALE) -->
   <script>
     window.WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
     (function initWC(){
       try{
-        const Eth = window['@web3modal/ethereum'];
-        const Standalone = window['@web3modal/standalone'];
-        if(!Eth || !Standalone){ console.warn('Web3Modal libs non chargées'); return; }
-        window.ethProvider = Eth.EthereumProvider.init({
+        const { EthereumProvider } = window['@web3modal/ethereum'];
+        if(!EthereumProvider){ console.warn('Web3Modal ethereum non chargé'); return; }
+        // La modale (QR) est gérée automatiquement par le provider
+        window.ethProvider = EthereumProvider.init({
           projectId: window.WC_PROJECT_ID,
           showQrModal: true,
           chains: [1,137,56,43114] // Ethereum, Polygon, BNB, Avalanche
-        });
-        window.w3m = new Standalone.Web3Modal({
-          projectId: window.WC_PROJECT_ID,
-          themeMode: 'dark',
-          enableAnalytics: false
         });
       }catch(e){ console.error('Init WC error:', e); }
     })();
@@ -222,13 +188,10 @@
     document.addEventListener("DOMContentLoaded", function () {
       const s = document.getElementById('splash');
       if (!s) return;
-
       const isStandalone =
         (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
         (window.navigator.standalone === true);
-
       if (isStandalone) { s.remove(); return; }
-
       let done = false;
       function hideSplash() {
         if (done) return;
@@ -471,30 +434,19 @@
         applyLang();
       });
 
-           // ====== WalletConnect: bouton principal ======
+      // ====== WalletConnect: bouton principal ======
       const connectWalletLink = document.getElementById('connectWalletLink');
       connectWalletLink.addEventListener('click', async (e) => {
         e.preventDefault();
-
-        // Utilise UNIQUEMENT les globals initialisés plus haut
-        const w3m = window.w3m;
         const provider = window.ethProvider;
-
-        if (!w3m || !provider) {
+        if (!provider) {
           alert((localStorage.getItem('lang')||'fr').startsWith('fr')
             ? "WalletConnect n'est pas prêt. Recharge la page."
             : "WalletConnect not ready. Reload the page.");
           return;
         }
-
         try {
-          // Ouvre la modale tout de suite (l'event display_uri la mettra à jour)
-          try { w3m.openModal(); } catch {}
-
-          // Démarre la connexion WalletConnect
-          await provider.connect();
-
-          // Récupère l'adresse EVM
+          await provider.connect(); // ouvre la modale QR automatiquement
           const accounts = await provider.request({ method: 'eth_accounts' });
           if (accounts && accounts[0]) {
             walletInput.value = accounts[0];
@@ -506,14 +458,11 @@
           alert((localStorage.getItem('lang')||'fr').startsWith('fr')
             ? "Connexion annulée/échouée"
             : "Connection cancelled/failed");
-        } finally {
-          try { w3m.closeModal(); } catch {}
         }
       });
-      // ====== (le reste est inchangé) ======
+
       // Modal (conserve, mais non utilisée pour WC)
       const modal = document.getElementById('walletModal');
-      const openModal = () => { modal.classList.add('open'); };
       const closeModal = () => { modal.classList.remove('open'); };
       document.getElementById('walletModalClose').addEventListener('click', closeModal);
       modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
