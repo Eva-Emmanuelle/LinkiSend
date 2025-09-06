@@ -471,23 +471,38 @@
         applyLang();
       });
 
-      // ====== WalletConnect: bouton principal ======
+           // ====== WalletConnect: bouton principal ======
       const connectWalletLink = document.getElementById('connectWalletLink');
       connectWalletLink.addEventListener('click', async (e) => {
         e.preventDefault();
-        try {
-          // Lance la connexion (l’event display_uri ouvrira la modale)
-          await ethProvider.connect();
 
-          // Adresse EVM
-          const accounts = await ethProvider.request({ method: 'eth_accounts' });
+        // Utilise UNIQUEMENT les globals initialisés plus haut
+        const w3m = window.w3m;
+        const provider = window.ethProvider;
+
+        if (!w3m || !provider) {
+          alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+            ? "WalletConnect n'est pas prêt. Recharge la page."
+            : "WalletConnect not ready. Reload the page.");
+          return;
+        }
+
+        try {
+          // Ouvre la modale tout de suite (l'event display_uri la mettra à jour)
+          try { w3m.openModal(); } catch {}
+
+          // Démarre la connexion WalletConnect
+          await provider.connect();
+
+          // Récupère l'adresse EVM
+          const accounts = await provider.request({ method: 'eth_accounts' });
           if (accounts && accounts[0]) {
             walletInput.value = accounts[0];
           } else {
             throw new Error('Aucune adresse retournée');
           }
         } catch (err) {
-          console.error(err);
+          console.error('WC connect error:', err);
           alert((localStorage.getItem('lang')||'fr').startsWith('fr')
             ? "Connexion annulée/échouée"
             : "Connection cancelled/failed");
@@ -495,7 +510,6 @@
           try { w3m.closeModal(); } catch {}
         }
       });
-
       // ====== (le reste est inchangé) ======
       // Modal (conserve, mais non utilisée pour WC)
       const modal = document.getElementById('walletModal');
