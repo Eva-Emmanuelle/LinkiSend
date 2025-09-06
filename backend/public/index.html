@@ -52,7 +52,7 @@
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
     select,input{
       width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;
+      border:1px solid var(--stroke);background:#0e141c;color:#var(--text);outline:none;
     }
     select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
@@ -96,7 +96,7 @@
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
     .pv{
       display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
+      border-radius:12px;background:#0e141c;color:#e6edf3;cursor:pointer;font-weight:600
     }
     .pv img{width:20px;height:20px}
     .tag{
@@ -132,7 +132,7 @@
     .contacts{margin-top:8px;display:none}
     .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
     .contact-item:hover{background:#101924}
-
+    /* === Fix mobile header: empêcher le chevauchement logo/texte === */
     @media (max-width: 540px){
       .brand{
         justify-content:flex-start !important;
@@ -147,10 +147,16 @@
         height:auto !important;
         margin-right:6px;
       }
-      .brand img.word{ max-width:170px !important; }
-      .lang-toggle{ right:8px !important; font-size:11px; padding:3px 8px; }
+      .brand img.word{
+        max-width:170px !important;
+      }
+      .lang-toggle{
+        right:8px !important;
+        font-size:11px;
+        padding:3px 8px;
+      }
     }
-
+    /* Bouton d'installation PWA (mobile) */
     #installBtn{
       position:fixed;right:14px;bottom:90px;z-index:80;
       display:none;align-items:center;gap:8px;
@@ -159,7 +165,7 @@
       box-shadow:var(--shadow);
     }
     #installBtn:active{transform:translateY(1px)}
-
+    /* Splash */
     #splash{
       position:fixed; inset:0; z-index:9999;
       display:grid; place-items:center;
@@ -168,37 +174,60 @@
                   var(--bg);
       transition: opacity .35s ease;
     }
-    #splash img{ width: 300px; height: auto; filter: drop-shadow(0 12px 30px rgba(0,0,0,.35)); opacity:.96; }
+    #splash img{
+      width: 300px;
+      height: auto;
+      filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
+      opacity:.96;
+    }
     #splash.hide{ opacity:0; pointer-events:none; }
-
-    .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
-    .modal-card{ width: min(440px, 92vw); max-height: 88vh; overflow: auto; }
-    @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; } }
-    @media (max-height: 640px){ .modal-card{ max-height: 84vh; } }
+    /* --- Fix modal on small screens --- */
+    .modal{
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+    }
+    .modal-card{
+      width: min(440px, 92vw);
+      max-height: 88vh;
+      overflow: auto;
+    }
+    @media (max-width: 380px){
+      .modal-card{ width: 94vw; }
+      .providers{ grid-template-columns: 1fr !important; }
+    }
+    @media (max-height: 640px){
+      .modal-card{ max-height: 84vh; }
+    }
   </style>
   <script>
   document.addEventListener("DOMContentLoaded", function () {
     const s = document.getElementById('splash');
     if (!s) return;
 
+    // Mode standalone (PWA installée) ?
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
 
-    if (isStandalone) { s.remove(); return; }
+    if (isStandalone) {
+      s.remove();
+      return;
+    }
 
     let done = false;
     function hideSplash() {
-      if (done) return; done = true;
-      s.classList.add('hide'); setTimeout(() => s.remove(), 400);
+      if (done) return;
+      done = true;
+      s.classList.add('hide');
+      setTimeout(() => s.remove(), 400);
     }
+
     window.addEventListener('load', hideSplash);
     setTimeout(hideSplash, 1200);
   });
   </script>
 </head>
 <body>
-  <!-- Gate d'installation PWA: mobile uniquement -->
+  <!-- Gate d'installation PWA : **mobile uniquement**, pas sur desktop -->
   <script>
   (function () {
     const isStandalone =
@@ -210,11 +239,15 @@
 
     if (!isStandalone && isMobileUA) {
       function browserHelp() {
-        if (ua.includes('samsungbrowser')) return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        if (ua.includes('firefox'))        return "Sur Firefox Android : menu ⋮ > Installer.";
-        if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad'))
+        if (ua.includes('samsungbrowser')) {
+          return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
+        } else if (ua.includes('firefox')) {
+          return "Sur Firefox Android : menu ⋮ > Installer.";
+        } else if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) {
           return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        if (ua.includes('chrome'))         return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+        } else if (ua.includes('chrome')) {
+          return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+        }
         return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
       }
 
@@ -222,29 +255,50 @@
         <style>body > :not(#install-gate){display:none!important}</style>
         <div id="install-gate" style="
           min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;">
+          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
+          font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
           <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
-          <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
+          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
+            Pour utiliser LinkiSend, installe l’application sur ton téléphone.
+          </p>
+          <button id="installNow" style="
+            display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
+            border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
+            📲 Installer l’app
+          </button>
+          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
+            ${browserHelp()}
+          </div>
         </div>
       `);
 
       let _deferred = null;
-      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferred = e; });
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        _deferred = e;
+      });
 
       window.addEventListener('click', async (ev) => {
         const btn = document.getElementById('installNow');
         if (!btn || ev.target !== btn) return;
-        if (_deferred) { _deferred.prompt(); try { await _deferred.userChoice; } catch {} _deferred = null; }
-        else { alert(document.getElementById('installHint').textContent); }
+
+        if (_deferred) {
+          _deferred.prompt();
+          try { await _deferred.userChoice; } catch {}
+          _deferred = null;
+        } else {
+          alert(document.getElementById('installHint').textContent);
+        }
       });
     }
   })();
   </script>
 
-  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
+  <!-- Splash screen -->
+  <div id="splash">
+    <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" />
+  </div>
 
   <!-- CONFIG (URL backend) -->
   <script src="config.js"></script>
@@ -303,6 +357,7 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
+      <!-- 📖/💾 actions contacts -->
       <div class="contact-actions">
         <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
         <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
@@ -324,14 +379,15 @@
           ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
         </div>
       </div>
-
-      <div id="error" class="error" style="display:none"></div>
+      <!-- Erreurs -->
+      <div id="error"  class="error"  style="display:none"></div>
     </div>
   </div>
 
+  <!-- Toast copie (conservé au cas où) -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
-  <!-- Modal wallet -->
+  <!-- Modal choix wallet (inchangée) -->
   <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-card">
       <div class="modal-head">
@@ -342,6 +398,14 @@
         <button class="pv" data-wallet="metamask">
           <img src="assets/wallets/metamask.svg" alt="MetaMask" />
           MetaMask <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="walletconnect">
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag">Bientôt</span>
+        </button>
+        <button class="pv" data-wallet="coinbase">
+          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
+          Coinbase Wallet <span class="tag">Bientôt</span>
         </button>
         <button class="pv" data-wallet="phantom">
           <img src="assets/wallets/phantom.svg" alt="Phantom" />
@@ -371,7 +435,7 @@
     const dialList = document.getElementById('dialList');
     let currentDial = { iso:"FR", code:"+33" };
 
-    // ====== Langue ======
+    // ====== Langue (FR/EN) ======
     const langToggle = document.getElementById('langToggle');
     const userPref = localStorage.getItem('lang');
     let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
@@ -397,12 +461,17 @@
       document.getElementById("validityText").textContent = t[lang].validity;
       document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
       if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
+      // MAJ textes du mini-formulaire contact
       if (saveNameInput) saveNameInput.placeholder = t[lang].savePh;
       if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
       if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
     }
 
-    langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
+    langToggle.addEventListener('click', ()=>{
+      lang = (lang === 'fr') ? 'en' : 'fr';
+      localStorage.setItem('lang', lang);
+      applyLang();
+    });
 
     // ====== Wallet Modal ======
     const modal = document.getElementById('walletModal');
@@ -412,65 +481,101 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // Helpers: logs discrets
-    const log = (...args) => { try { console.log('[LinkiSend]', ...args); } catch {} };
+    // Helpers robustes pour MetaMask / Phantom
+    const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
+    async function waitForAccounts(eth, timeoutMs=15000){
+      const start = Date.now();
+      while(Date.now()-start < timeoutMs){
+        try{
+          const accs = await eth.request({ method:'eth_accounts' });
+          if (accs && accs[0]) return accs;
+        }catch{}
+        await wait(400);
+      }
+      return [];
+    }
+    function attachEthListeners(eth){
+      try{
+        eth.removeAllListeners?.('accountsChanged');
+        eth.on?.('accountsChanged', (accs)=>{ if(Array.isArray(accs) && accs[0]) walletInput.value = accs[0]; });
+        eth.on?.('disconnect', ()=>{ /* noop */ });
+      }catch{}
+    }
+    async function connectMetaMask(){
+      const eth = window.ethereum;
+      if(!eth){ alert("MetaMask non détecté."); return; }
+      try{
+        // Déjà autorisé ?
+        const existing = await eth.request({ method:'eth_accounts' });
+        if (existing && existing[0]){
+          walletInput.value = existing[0];
+          attachEthListeners(eth);
+          closeModal();
+          return;
+        }
+        // Demande d'accès
+        await eth.request({ method:'eth_requestAccounts' });
+        // Fallback : attendre que les comptes arrivent
+        const accs = await waitForAccounts(eth, 15000);
+        const account = accs && accs[0];
+        if (!account) throw new Error('NO_ACCOUNT');
+        walletInput.value = account;
+        attachEthListeners(eth);
+        closeModal();
+      }catch(e){
+        alert("Connexion refusée.");
+      }
+    }
 
-    // Gestion des boutons
+    function getPhantom(){
+      if (window.solana && window.solana.isPhantom) return window.solana;
+      if (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) return window.phantom.solana;
+      return null;
+    }
+    async function connectPhantom(){
+      const sol = getPhantom();
+      if (!sol){
+        window.open("https://phantom.app/", "_blank");
+        alert("Phantom non détecté.");
+        return;
+      }
+      try{
+        // Si déjà autorisé
+        if (!sol.isConnected) {
+          try { await sol.connect({ onlyIfTrusted:true }); } catch {}
+        }
+        if (!sol.isConnected) {
+          await sol.connect();
+        }
+        const walletAddress = sol.publicKey?.toString();
+        if (!walletAddress) throw new Error("NO_PUBLICKEY");
+
+        walletInput.value = walletAddress;
+        try{
+          sol.removeAllListeners?.('accountChanged');
+          sol.on?.('accountChanged', (pk)=>{ walletInput.value = pk ? pk.toString() : ""; });
+          sol.on?.('disconnect', ()=>{ /* noop */ });
+        }catch{}
+
+        closeModal();
+        alert("Phantom connecté : " + walletAddress);
+      }catch(err){
+        console.error(err);
+        alert("Connexion Phantom refusée ou erreur.");
+      }
+    }
+
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          if(!window.ethereum){ alert("MetaMask non détecté. Installe l’extension puis réessaie."); return; }
-          try{
-            const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) {
-              walletInput.value = accounts[0];
-              log('MetaMask connecté', accounts[0]);
-              // Listeners utiles
-              window.ethereum.removeAllListeners?.('accountsChanged');
-              window.ethereum.on?.('accountsChanged', (accs)=>{ if(Array.isArray(accs) && accs[0]) walletInput.value = accs[0]; });
-              window.ethereum.on?.('disconnect', ()=>{ log('MetaMask disconnect'); });
-              closeModal();
-            } else {
-              alert("Aucun compte MetaMask.");
-            }
-          }catch(e){
-            log('MetaMask error', e);
-            alert("Connexion MetaMask refusée ou erreur.");
-          }
+          await connectMetaMask();
+        } else if (provider === "phantom") {
+          await connectPhantom();
+        } else {
+          alert("Connexion via " + provider + " arrive bientôt.");
         }
-
-        else if (provider === "phantom") {
-          // Connexion Phantom (desktop extension ou mobile in-app browser)
-          const sol = (window.solana && window.solana.isPhantom) ? window.solana
-                    : (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) ? window.phantom.solana
-                    : null;
-
-          if (!sol) {
-            // Si pas détecté: rediriger vers la page d’installation
-            window.open("https://phantom.app/download", "_blank", "noopener");
-            alert("Phantom non détecté. Installe l’extension puis réessaie.");
-            return;
-          }
-          try {
-            // Déverrouille + autorise
-            const resp = await sol.connect({ onlyIfTrusted:false });
-            const addr = (resp && resp.publicKey) ? resp.publicKey.toString() : (sol.publicKey?.toString() || "");
-            if (!addr) throw new Error('No publicKey');
-            walletInput.value = addr;
-            log('Phantom connecté', addr);
-            // Listeners utiles
-            sol.removeAllListeners?.('accountChanged');
-            sol.on?.('accountChanged', (pk)=>{ walletInput.value = (pk ? pk.toString() : ""); });
-            sol.on?.('disconnect', ()=>{ log('Phantom disconnect'); });
-            closeModal();
-          } catch (err) {
-            log('Phantom error', err);
-            alert("Connexion Phantom refusée ou erreur.");
-          }
-        }
-
       });
     });
 
@@ -500,6 +605,7 @@
         });
     }
 
+    // ——— Indics: ouverture/fermeture robuste
     dialBtn.addEventListener('click', (e)=>{
       e.stopPropagation();
       dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
@@ -521,7 +627,9 @@
     const showContacts = document.getElementById("showContacts");
     const saveContact = document.getElementById("saveContact");
     let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+
     if (showContacts) showContacts.textContent = "📖";
+
     function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
 
     function renderContacts(){
@@ -578,6 +686,7 @@
 
     // ====== Mini-formulaire inline pour enregistrer un contact ======
     const actionsBar = document.querySelector('.contact-actions');
+
     const saveInline = document.createElement('div');
     saveInline.style.display = 'none';
     saveInline.style.marginTop = '8px';
@@ -631,22 +740,38 @@
     btnsWrap.appendChild(saveConfirmBtn);
     btnsWrap.appendChild(saveCancelBtn);
     saveInline.appendChild(btnsWrap);
+
     actionsBar.insertAdjacentElement('afterend', saveInline);
 
     function toggleSaveInline(open){
       saveInline.style.display = open ? 'block' : 'none';
-      if (open){ saveNameInput.value = ''; saveNameInput.focus(); }
+      if (open){
+        saveNameInput.value = '';
+        saveNameInput.focus();
+      }
     }
 
-    document.getElementById("showContacts").onclick = ()=>{
+    // clic sur 📖
+    const showContacts = document.getElementById("showContacts");
+    const saveContact = document.getElementById("saveContact");
+    const contactsList = document.getElementById("contactsList");
+
+    showContacts.onclick = ()=>{
       contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
       renderContacts();
     };
-    document.getElementById("saveContact").onclick = ()=>{
+
+    // clic sur 💾
+    saveContact.onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
       toggleSaveInline(true);
     };
+
+    // Enregistrer
+    const saveConfirmBtn = saveInline.querySelector('button:first-of-type');
+    const saveCancelBtn = saveInline.querySelector('button:last-of-type');
+
     saveConfirmBtn.onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
@@ -654,8 +779,12 @@
       if(!pseudo){ saveNameInput.focus(); return; }
       const phone = currentDial.code + num;
       contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
-      persistContacts(); renderContacts(); toggleSaveInline(false);
+      localStorage.setItem("contacts", JSON.stringify(contacts));
+      renderContacts();
+      toggleSaveInline(false);
     };
+
+    // Annuler
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
     // ====== Génération du lien ======
@@ -707,23 +836,37 @@
       });
     }
 
-    // Service Worker
+    // === Service Worker ===
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/service-worker.js")
         .then(() => console.log("SW enregistré ✅"))
         .catch(err => console.error("SW erreur:", err));
     }
 
-    // PWA install prompt
+    // === Bouton d'installation PWA ===
     let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; const b = document.getElementById('installBtn'); if (b) b.style.display = 'inline-flex'; });
+
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'inline-flex';
+    });
+
     document.getElementById('installBtn').addEventListener('click', async ()=>{
       if (!deferredPrompt) return;
-      deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; document.getElementById('installBtn').style.display = 'none';
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
     });
-    window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('installBtn'); if (b) b.style.display = 'none'; });
 
-    // Langue initiale
+    window.addEventListener('appinstalled', ()=>{
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'none';
+    });
+
+    // ---- Appliquer la langue
     applyLang();
   });
   </script>
