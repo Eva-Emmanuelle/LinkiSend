@@ -472,31 +472,29 @@
       });
 
       // ====== WalletConnect: bouton principal ======
-     <script>
-  const connectWalletLink = document.getElementById('connectWalletLink');
-  connectWalletLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-      // Lance la connexion (l’event display_uri ouvrira la modale)
-      await ethProvider.connect();
+      const connectWalletLink = document.getElementById('connectWalletLink');
+      connectWalletLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          // Lance la connexion (l’event display_uri ouvrira la modale)
+          await ethProvider.connect();
 
-      // Adresse EVM
-      const accounts = await ethProvider.request({ method: 'eth_accounts' });
-      if (accounts && accounts[0]) {
-        walletInput.value = accounts[0];
-      } else {
-        throw new Error('Aucune adresse retournée');
-      }
-    } catch (err) {
-      console.error(err);
-      alert((localStorage.getItem('lang')||'fr').startsWith('fr')
-        ? "Connexion annulée/échouée"
-        : "Connection cancelled/failed");
-    } finally {
-      try { w3m.closeModal(); } catch {}
-    }
-  });
-</script>
+          // Adresse EVM
+          const accounts = await ethProvider.request({ method: 'eth_accounts' });
+          if (accounts && accounts[0]) {
+            walletInput.value = accounts[0];
+          } else {
+            throw new Error('Aucune adresse retournée');
+          }
+        } catch (err) {
+          console.error(err);
+          alert((localStorage.getItem('lang')||'fr').startsWith('fr')
+            ? "Connexion annulée/échouée"
+            : "Connection cancelled/failed");
+        } finally {
+          try { w3m.closeModal(); } catch {}
+        }
+      });
 
       // ====== (le reste est inchangé) ======
       // Modal (conserve, mais non utilisée pour WC)
