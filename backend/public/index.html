@@ -325,15 +325,8 @@
       <!-- 1) WALLET -->
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">
-  <span class="wc-icon" aria-hidden="true"></span>
-  Connecter un wallet
-</a>
-<style>
-  .wallet-link{display:inline-flex;align-items:center;gap:8px;}
-  .wc-icon{width:18px;height:18px;display:inline-block;
-    background:url('/assets/wallets/walletconnect.svg?v=1') no-repeat center / contain;}
-</style>
+      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
+
       <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
@@ -488,15 +481,12 @@
 
     // ====== Wallet Modal (inchangé) ======
     const modal = document.getElementById('walletModal');
-const openModal = () => {};   // neutralisé
-const closeModal = () => {};  // neutralisé
+    const openModal = () => { modal.classList.add('open'); };
+    const closeModal = () => { modal.classList.remove('open'); };
+    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+    document.getElementById('walletModalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-// bouton "Connecter un wallet" : on empêche juste la navigation, sans ouvrir la popup
-document.getElementById('connectWalletLink').addEventListener('click', (e)=>{ e.preventDefault(); });
-
-// on peut aussi neutraliser les listeners de fermeture (pas obligatoires)
-document.getElementById('walletModalClose')?.addEventListener('click', ()=>{});
-modal?.addEventListener('click', ()=>{});
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
