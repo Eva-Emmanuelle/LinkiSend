@@ -198,24 +198,6 @@
       .modal-card{ max-height: 84vh; }
     }
   </style>
-
-  <!-- === WalletConnect (UMD) : CDN + fallback === -->
-  <script>
-    window.WC_PROJECT_ID = "9c945cd5bef5c1e1905266cf0219736d";
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js" crossorigin="anonymous"></script>
-  <script>
-    // Fallback si jsDelivr est bloqué
-    (function ensureWC(){
-      if (window.EthereumProvider) return;
-      var s=document.createElement('script');
-      s.src='https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js';
-      s.crossOrigin='anonymous';
-      s.onerror=function(){ console.warn('[LinkiSend] WalletConnect UMD introuvable'); };
-      document.head.appendChild(s);
-    })();
-  </script>
-
   <script>
   document.addEventListener("DOMContentLoaded", function () {
     const s = document.getElementById('splash');
@@ -226,7 +208,11 @@
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
 
-    if (isStandalone) { s.remove(); return; }
+    if (isStandalone) {
+      // Laisse Android/iOS gérer leur propre splash, retire le nôtre
+      s.remove();
+      return;
+    }
 
     let done = false;
     function hideSplash() {
@@ -235,7 +221,11 @@
       s.classList.add('hide');
       setTimeout(() => s.remove(), 400);
     }
+
+    // Normal : masque au chargement
     window.addEventListener('load', hideSplash);
+
+    // Sécurité : force après 1200 ms
     setTimeout(hideSplash, 1200);
   });
   </script>
@@ -248,15 +238,22 @@
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
 
+    // Détection mobile simple (ua)
     const ua = (navigator.userAgent || navigator.vendor || window.opera || "").toLowerCase();
     const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
 
+    // Gate actif SEULEMENT si mobile + pas standalone
     if (!isStandalone && isMobileUA) {
       function browserHelp() {
-        if (ua.includes('samsungbrowser')) return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        else if (ua.includes('firefox'))   return "Sur Firefox Android : menu ⋮ > Installer.";
-        else if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        else if (ua.includes('chrome'))    return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+        if (ua.includes('samsungbrowser')) {
+          return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
+        } else if (ua.includes('firefox')) {
+          return "Sur Firefox Android : menu ⋮ > Installer.";
+        } else if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) {
+          return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
+        } else if (ua.includes('chrome')) {
+          return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+        }
         return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
       }
 
@@ -283,12 +280,22 @@
       `);
 
       let _deferred = null;
-      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferred = e; });
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        _deferred = e;
+      });
+
       window.addEventListener('click', async (ev) => {
         const btn = document.getElementById('installNow');
         if (!btn || ev.target !== btn) return;
-        if (_deferred) { _deferred.prompt(); try { await _deferred.userChoice; } catch {} _deferred = null; }
-        else { alert(document.getElementById('installHint').textContent); }
+
+        if (_deferred) {
+          _deferred.prompt();
+          try { await _deferred.userChoice; } catch {}
+          _deferred = null;
+        } else {
+          alert(document.getElementById('installHint').textContent);
+        }
       });
     }
   })();
@@ -472,7 +479,7 @@
       applyLang();
     });
 
-    // ====== Modal ======
+    // ====== Wallet Modal (inchangé) ======
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -480,24 +487,6 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
-    // === Helper WalletConnect (robuste) ===
-    async function getWcProvider(){
-      const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
-      // Attendre que le script UMD soit dispo (jusqu'à 1500 ms)
-      let tries = 0;
-      while(!window.EthereumProvider && tries < 30){ await wait(50); tries++; }
-      if(!window.EthereumProvider) throw new Error('WalletConnect non chargé');
-      if(!window._wcProvider){
-        window._wcProvider = await window.EthereumProvider.init({
-          projectId: window.WC_PROJECT_ID,
-          showQrModal: true,
-          chains: [1,137,56,43114]
-        });
-      }
-      return window._wcProvider;
-    }
-
-    // Handlers des boutons du modal
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -509,19 +498,8 @@
             if(accounts && accounts[0]) walletInput.value = accounts[0];
             closeModal();
           }catch(e){ alert("Connexion refusée."); }
-
-        } else if (provider === "walletconnect") {
-          try{
-            const wc = await getWcProvider();              // initialisation + QR
-            const accounts = await wc.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            closeModal();
-          }catch(e){
-            console.error(e);
-            alert("WalletConnect indisponible.");
-          }
-
         } else if (provider === "phantom") {
+          // Connexion Phantom
           if (window.solana && window.solana.isPhantom) {
             window.solana.connect()
               .then(resp => {
@@ -537,8 +515,8 @@
           } else {
             window.open("https://phantom.app/", "_blank");
           }
-
         } else {
+          // Tous les autres wallets encore non implémentés
           alert("Connexion via " + provider + " arrive bientôt.");
         }
       });
@@ -570,6 +548,7 @@
         });
     }
 
+    // ——— Indics: ouverture/fermeture robuste
     dialBtn.addEventListener('click', (e)=>{
       e.stopPropagation();
       dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
@@ -586,11 +565,13 @@
       }
     });
 
-    // ====== Contacts ======
+    // ====== Contacts (localStorage) ======
     const contactsList = document.getElementById("contactsList");
     const showContacts = document.getElementById("showContacts");
     const saveContact = document.getElementById("saveContact");
     let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+
+    // Forcer l’emoji agenda 📖
     if (showContacts) showContacts.textContent = "📖";
 
     function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
@@ -598,6 +579,7 @@
     function renderContacts(){
       contactsList.innerHTML = "";
       if(contacts.length === 0){ contactsList.style.display = "none"; return; }
+
       contacts.forEach((c, idx)=>{
         const row = document.createElement("div");
         row.className = "contact-item";
@@ -605,12 +587,14 @@
         row.style.alignItems = "center";
         row.style.justifyContent = "space-between";
         row.style.gap = "8px";
+
         const left = document.createElement("div");
         left.textContent = `${c.name} (${c.phone})`;
         left.style.flex = "1 1 auto";
         left.style.whiteSpace = "nowrap";
         left.style.overflow = "hidden";
         left.style.textOverflow = "ellipsis";
+
         const del = document.createElement("button");
         del.type = "button";
         del.title = (lang==='fr') ? "Supprimer" : "Delete";
@@ -622,18 +606,21 @@
         del.style.padding = "4px 6px";
         del.style.cursor = "pointer";
         del.style.flex = "0 0 auto";
+
         left.onclick = ()=>{
           document.getElementById("phone").value = c.phone.replace(c.code, "");
           currentDial = { iso:c.iso, code:c.code };
           dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
           contactsList.style.display = "none";
         };
+
         del.onclick = (ev)=>{
           ev.stopPropagation();
           contacts.splice(idx, 1);
           persistContacts();
           renderContacts();
         };
+
         row.appendChild(left);
         row.appendChild(del);
         contactsList.appendChild(row);
@@ -641,8 +628,10 @@
     }
     renderContacts();
 
-    // ====== Mini-formulaire contact ======
+    // ====== Mini-formulaire inline pour enregistrer un contact ======
     const actionsBar = document.querySelector('.contact-actions');
+
+    // conteneur
     const saveInline = document.createElement('div');
     saveInline.style.display = 'none';
     saveInline.style.marginTop = '8px';
@@ -654,6 +643,8 @@
     saveInline.style.gap = '8px';
     saveInline.style.alignItems = 'center';
     saveInline.style.justifyContent = 'space-between';
+
+    // champ nom
     const saveNameInput = document.createElement('input');
     saveNameInput.type = 'text';
     saveNameInput.id = 'saveName';
@@ -665,10 +656,13 @@
     saveNameInput.style.background = '#0a1220';
     saveNameInput.style.color = '#e6edf3';
     saveNameInput.style.marginRight = '8px';
+
+    // boutons
     const btnsWrap = document.createElement('div');
     btnsWrap.style.display = 'flex';
     btnsWrap.style.gap = '8px';
     btnsWrap.style.marginTop = '8px';
+
     const saveConfirmBtn = document.createElement('button');
     saveConfirmBtn.type = 'button';
     saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
@@ -678,6 +672,7 @@
     saveConfirmBtn.style.borderRadius = '8px';
     saveConfirmBtn.style.padding = '6px 10px';
     saveConfirmBtn.style.cursor = 'pointer';
+
     const saveCancelBtn = document.createElement('button');
     saveCancelBtn.type = 'button';
     saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
@@ -687,26 +682,37 @@
     saveCancelBtn.style.borderRadius = '8px';
     saveCancelBtn.style.padding = '6px 10px';
     saveCancelBtn.style.cursor = 'pointer';
+
     saveInline.appendChild(saveNameInput);
     btnsWrap.appendChild(saveConfirmBtn);
     btnsWrap.appendChild(saveCancelBtn);
     saveInline.appendChild(btnsWrap);
+
+    // insérer juste après la barre d'actions
     actionsBar.insertAdjacentElement('afterend', saveInline);
 
     function toggleSaveInline(open){
       saveInline.style.display = open ? 'block' : 'none';
-      if (open){ saveNameInput.value = ''; saveNameInput.focus(); }
+      if (open){
+        saveNameInput.value = '';
+        saveNameInput.focus();
+      }
     }
-    document.getElementById('showContacts').onclick = ()=>{
-      document.getElementById("contactsList").style.display =
-        (document.getElementById("contactsList").style.display === "block" ? "none" : "block");
+
+    // clic sur 📖 : aucune incidence
+    showContacts.onclick = ()=>{
+      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
       renderContacts();
     };
-    document.getElementById('saveContact').onclick = ()=>{
+
+    // clic sur 💾 : ouvrir le mini-formulaire
+    saveContact.onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
       toggleSaveInline(true);
     };
+
+    // Enregistrer
     saveConfirmBtn.onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
@@ -718,6 +724,8 @@
       renderContacts();
       toggleSaveInline(false);
     };
+
+    // Annuler
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
     // ====== Génération du lien ======
@@ -758,7 +766,7 @@
       }
     });
 
-    // Copier le lien
+    // Icône "Copier le lien"
     const copyBtn = document.getElementById('copyLinkBtn');
     if (copyBtn) {
       copyBtn.addEventListener('click', ()=>{
@@ -769,21 +777,23 @@
       });
     }
 
-    // Service Worker
+    // === Service Worker ===
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/service-worker.js")
         .then(() => console.log("SW enregistré ✅"))
         .catch(err => console.error("SW erreur:", err));
     }
 
-    // PWA install
+    // === Bouton d'installation PWA ===
     let deferredPrompt = null;
+
     window.addEventListener('beforeinstallprompt', (e)=>{
       e.preventDefault();
       deferredPrompt = e;
       const b = document.getElementById('installBtn');
       if (b) b.style.display = 'inline-flex';
     });
+
     document.getElementById('installBtn').addEventListener('click', async ()=>{
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -791,12 +801,13 @@
       deferredPrompt = null;
       document.getElementById('installBtn').style.display = 'none';
     });
+
     window.addEventListener('appinstalled', ()=>{
       const b = document.getElementById('installBtn');
       if (b) b.style.display = 'none';
     });
 
-    // Langue
+    // ---- Appliquer la langue
     applyLang();
   });
   </script>
