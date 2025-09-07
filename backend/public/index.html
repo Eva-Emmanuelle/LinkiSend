@@ -6,118 +6,56 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <!-- PWA iOS (splash & mode app) -->
+  <!-- PWA iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
   <style>
-    :root{
-      --bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;
-      --text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;
-      --shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px;
-    }
+    :root{--bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;--text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;--shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px}
     *,*:before,*:after{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
-      background:
-        radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
-        radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),
-        var(--bg);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-    }
-    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px;}
-    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative;}
-    .brand img.word{max-width:240px;height:auto;display:block;}
-    .brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto;}
-    .lang-toggle{
-      position:absolute;right:0;top:50%;transform:translateY(-50%);
-      font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);
-      padding:4px 8px;border-radius:999px;background:#0e141c;
-    }
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}
+    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}
+    .brand img.word{max-width:240px;height:auto;display:block}
+    .brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto}
+    .lang-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);padding:4px 8px;border-radius:999px;background:#0e141c}
     .lang-toggle:hover{background:#101924}
-
-    .card{
-      background:linear-gradient(180deg,var(--card),var(--card-2));
-      border:1px solid var(--stroke);border-radius:var(--radius);
-      box-shadow:var(--shadow);padding:18px 16px;
-    }
-    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750;}
-    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px;}
-    .row{display:flex;gap:var(--gap)}
-    .col{flex:1}
-    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
-    select,input{
-      width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;
-    }
-    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
+    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
+    .row{display:flex;gap:var(--gap)} .col{flex:1}
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
+    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none}
+    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{
-      width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
-      background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;
-      box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
-    }
-    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
-    .btn:active{transform:translateY(1px)}
-    .wallet-link{
-      display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
-      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content;
-    }
+    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px}
+    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)} .btn:active{transform:translateY(1px)}
+    .wallet-link{display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content}
     .wallet-link:hover{background:#0d1729}
-
-    .result,.error{
-      margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke);
-    }
-    .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171;}
-    .result-cta{
-      margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none;
-    }
+    .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke)}
+    .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
+    .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .linkbox{flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;border-radius:10px;padding:12px 14px;display:flex;align-items:center}
-    .linkbox code{font-family:ui-monospace,Menlo,Consolas,"Roboto Mono",monospace;font-size:16px;color:#065f46;white-space:nowrap;overflow:auto}
-
-    .toast{
-      position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;
-      box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
-    }
+    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}
     .toast.show{opacity:1;transform:translateY(0)}
-
-    /* Modal */
-    .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
-    .modal.open{display:grid;}
-    .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}
+    .modal.open{display:grid}
+    .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
     .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .modal-head h3{margin:0;font-size:18px}
     .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-    .pv{
-      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
-    }
+    .pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}
-    .tag{
-      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
-      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);
-      color:#fff;border:0;font-weight:600;
-    }
+    .tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
     .pv:hover{background:#101924}
-
-    /* Phone & contacts */
     .phone-row{display:flex;gap:8px;align-items:center}
     .dial{position:relative;display:flex}
-    .dial-btn{
-      height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;
-      display:inline-flex;align-items:center;gap:6px;cursor:pointer;
-    }
+    .dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
     .dial-btn:hover{background:#0d1729}
-    .dial-panel{
-      position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);
-      border-radius:10px;box-shadow:var(--shadow);display:none;
-    }
+    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
     .dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
     .dial-list{max-height:260px;overflow:auto}
@@ -126,188 +64,63 @@
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}
     .dialcode{color:#cfe1ff}
     .country{color:#9fb0c0;font-size:12px}
-
-    .contact-actions{display:flex;gap:8px;margin-top:6px}
-    .emoji-btn{cursor:pointer;font-size:18px}
-    .contacts{margin-top:8px;display:none}
-    .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
-    .contact-item:hover{background:#101924}
-    /* === Fix mobile header === */
-    @media (max-width: 540px){
-      .brand{
-        justify-content:flex-start !important;
-        gap:8px !important;
-        margin:10px 0 20px !important;
-        padding:0 8px;
-      }
-      .brand img.arrow{
-        position:static !important;
-        transform:none !important;
-        max-width:28px !important;
-        height:auto !important;
-        margin-right:6px;
-      }
-      .brand img.word{
-        max-width:170px !important;
-      }
-      .lang-toggle{
-        right:8px !important;
-        font-size:11px;
-        padding:3px 8px;
-      }
-    }
-    /* Bouton d'installation PWA (mobile) */
-    #installBtn{
-      position:fixed;right:14px;bottom:90px;z-index:80;
-      display:none;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);
-      background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;
-      box-shadow:var(--shadow);
-    }
+    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
+    #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
     #installBtn:active{transform:translateY(1px)}
-    /* Splash */
-    #splash{
-      position:fixed; inset:0; z-index:9999;
-      display:grid; place-items:center;
-      background: radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
-                  radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),
-                  var(--bg);
-      transition: opacity .35s ease;
-    }
-    #splash img{
-      width: 300px;
-      height: auto;
-      filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
-      opacity:.96;
-    }
-    #splash.hide{ opacity:0; pointer-events:none; }
-    /* --- Fix modal on small screens --- */
-    .modal{
-      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
-    }
-    .modal-card{
-      width: min(440px, 92vw);
-      max-height: 88vh;
-      overflow: auto;
-    }
-    @media (max-width: 380px){
-      .modal-card{ width: 94vw; }
-      .providers{ grid-template-columns: 1fr !important; }
-    }
-    @media (max-height: 640px){
-      .modal-card{ max-height: 84vh; }
-    }
+    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
+    #splash img{width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96}
+    #splash.hide{opacity:0;pointer-events:none}
+    .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}
+    .modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
+    @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
+    @media (max-height:640px){.modal-card{max-height:84vh}}
   </style>
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", () => {
     const s = document.getElementById('splash');
     if (!s) return;
-
-    const isStandalone =
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-      (window.navigator.standalone === true);
-
-    if (isStandalone) {
-      s.remove();
-      return;
-    }
-
-    let done = false;
-    function hideSplash() {
-      if (done) return;
-      done = true;
-      s.classList.add('hide');
-      setTimeout(() => s.remove(), 400);
-    }
-
-    window.addEventListener('load', hideSplash);
-    setTimeout(hideSplash, 1200);
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
+    if (isStandalone){ s.remove(); return; }
+    let done=false; const hide=()=>{ if(done) return; done=true; s.classList.add('hide'); setTimeout(()=>s.remove(),400) };
+    window.addEventListener('load', hide); setTimeout(hide, 1200);
   });
   </script>
 </head>
 <body>
-  <!-- Gate d'installation PWA : mobile uniquement -->
+  <!-- Gate PWA mobile -->
   <script>
-  (function () {
-    const isStandalone =
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-      (window.navigator.standalone === true);
-
-    const ua = (navigator.userAgent || navigator.vendor || window.opera || "").toLowerCase();
-    const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
-
-    if (!isStandalone && isMobileUA) {
-      function browserHelp() {
-        if (ua.includes('samsungbrowser')) {
-          return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        } else if (ua.includes('firefox')) {
-          return "Sur Firefox Android : menu ⋮ > Installer.";
-        } else if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) {
-          return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        } else if (ua.includes('chrome')) {
-          return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
-        }
-        return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
-      }
-
-      document.write(`
-        <style>body > :not(#install-gate){display:none!important}</style>
-        <div id="install-gate" style="
-          min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
-          font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
-          <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
+  (function(){
+    const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
+    const ua=(navigator.userAgent||navigator.vendor||window.opera||"").toLowerCase();
+    const isMobile=/android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
+    if(!isStandalone && isMobile){
+      function help(){ if(ua.includes('samsungbrowser')) return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil."; if(ua.includes('firefox')) return "Sur Firefox Android : menu ⋮ > Installer."; if(ua.includes('crios')||ua.includes('iphone')||ua.includes('ipad')) return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil."; if(ua.includes('chrome')) return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil)."; return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application »." }
+      document.write(`<style>body > :not(#install-gate){display:none!important}</style>
+        <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
+          <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
-            Pour utiliser LinkiSend, installe l’application sur ton téléphone.
-          </p>
-          <button id="installNow" style="
-            display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
-            border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
-            📲 Installer l’app
-          </button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
-            ${browserHelp()}
-          </div>
-        </div>
-      `);
-
-      let _deferred = null;
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        _deferred = e;
-      });
-
-      window.addEventListener('click', async (ev) => {
-        const btn = document.getElementById('installNow');
-        if (!btn || ev.target !== btn) return;
-
-        if (_deferred) {
-          _deferred.prompt();
-          try { await _deferred.userChoice; } catch {}
-          _deferred = null;
-        } else {
-          alert(document.getElementById('installHint').textContent);
-        }
-      });
+          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
+          <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
+          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${help()}</div>
+        </div>`);
+      let _def=null; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_def=e});
+      window.addEventListener('click',async(ev)=>{const b=document.getElementById('installNow');if(!b||ev.target!==b) return;if(_def){_def.prompt();try{await _def.userChoice;}catch{} _def=null}else{alert(document.getElementById('installHint').textContent)}})
     }
   })();
   </script>
 
-  <!-- Splash screen -->
-  <div id="splash">
-    <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" />
-  </div>
+  <!-- Splash -->
+  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend"/></div>
 
-  <!-- CONFIG (URL backend) -->
+  <!-- CONFIG -->
   <script src="config.js"></script>
-  <!-- Pays + indicatifs (EN/FR) -->
+  <!-- Countries -->
   <script src="countries.js"></script>
 
   <div class="wrap">
     <div class="brand">
-      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
-      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
+      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow"/>
+      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word"/>
       <span id="langToggle" class="lang-toggle">FR / EN</span>
     </div>
 
@@ -315,12 +128,12 @@
       <h2 id="title">Envoyer des cryptos</h2>
       <p class="sub" id="subtitle">Génère un lien en 10&nbsp;secondes.</p>
 
-      <!-- 1) WALLET -->
+      <!-- wallet -->
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
-      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
+      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off"/>
       <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
 
-      <!-- 2) TOKEN & MONTANT -->
+      <!-- token + amount -->
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
@@ -332,18 +145,18 @@
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
-          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01"/>
         </div>
       </div>
 
-      <!-- 3) RÉSEAU -->
+      <!-- network -->
       <label for="network" id="lbl-network">Réseau</label>
       <select id="network">
         <option>Ethereum</option><option>BNB Chain</option>
         <option>Polygon</option><option>Solana</option><option>Avalanche</option>
       </select>
 
-      <!-- 4) TÉLÉPHONE -->
+      <!-- phone -->
       <label id="lbl-phone">Numéro du destinataire</label>
       <div class="phone-row">
         <div class="dial">
@@ -356,7 +169,6 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
-      <!-- 📖/💾 actions contacts -->
       <div class="contact-actions">
         <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
         <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
@@ -364,10 +176,9 @@
       <div class="contacts" id="contactsList"></div>
 
       <button id="generateBtn" class="btn">Générer le lien</button>
-
       <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
-      <!-- Bloc résultat -->
+      <!-- result -->
       <div id="result" class="result-cta" aria-live="polite">
         <h3 id="resultTitle" style="margin:0 0 10px;font-size:18px;">Lien prêt ✅</h3>
         <div class="row-cta" style="display:inline-flex;align-items:center;">
@@ -378,15 +189,14 @@
           ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
         </div>
       </div>
-      <!-- Erreurs -->
-      <div id="error"  class="error"  style="display:none"></div>
+
+      <div id="error" class="error" style="display:none"></div>
     </div>
   </div>
 
-  <!-- Toast copie -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
-  <!-- Modal choix wallet -->
+  <!-- modal -->
   <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-card">
       <div class="modal-head">
@@ -395,56 +205,43 @@
       </div>
       <div class="providers">
         <button class="pv" data-wallet="metamask">
-          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
-          MetaMask <span class="tag">EVM</span>
+          <img src="assets/wallets/metamask.svg" alt="MetaMask"/> MetaMask <span class="tag">EVM</span>
         </button>
         <button class="pv" data-wallet="walletconnect">
-          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
-          WalletConnect <span class="tag">Bientôt</span>
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect"/> WalletConnect <span class="tag">Bientôt</span>
         </button>
         <button class="pv" data-wallet="coinbase">
-          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet" />
-          Coinbase Wallet <span class="tag">Bientôt</span>
+          <img src="assets/wallets/coinbase.svg" alt="Coinbase Wallet"/> Coinbase Wallet <span class="tag">Bientôt</span>
         </button>
         <button class="pv" data-wallet="phantom">
-          <img src="assets/wallets/phantom.svg" alt="Phantom" />
-          Phantom <span class="tag">Solana</span>
+          <img src="assets/wallets/phantom.svg" alt="Phantom"/> Phantom <span class="tag">Solana</span>
         </button>
       </div>
     </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=> {
-    // ====== Backend ======
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // ===== Backend =====
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
       ? window.LINKISEND_CONFIG.BACKEND_BASE
       : `${location.protocol}//${location.hostname}:8000`;
 
-    // ====== Elements ======
+    // ===== Elements =====
     const resultDiv = document.getElementById('result');
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
     const linkEl  = document.getElementById('the-link');
     const networkSelect = document.getElementById('network');
 
-    // ====== Indicatifs ======
-    const dialBtn = document.getElementById('dialBtn');
-    const dialPanel = document.getElementById('dialPanel');
-    const dialSearch = document.getElementById('dialSearch');
-    const dialList = document.getElementById('dialList');
-    let currentDial = { iso:"FR", code:"+33" };
-
-    // ====== Langue (FR/EN) ======
+    // ===== Langues =====
     const langToggle = document.getElementById('langToggle');
     const userPref = localStorage.getItem('lang');
     let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
-
     const t = {
       fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},
       en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",needNumber:"Enter a number first."}
     };
-
     function applyLang(){
       document.getElementById("title").textContent = t[lang].title;
       document.getElementById("subtitle").textContent = t[lang].subtitle;
@@ -456,163 +253,115 @@
       document.getElementById("hint").textContent = t[lang].hint;
       document.getElementById("generateBtn").textContent = t[lang].generate;
       document.getElementById("connectWalletLink").textContent = t[lang].connectWallet;
-      document.getElementById("dialSearch").placeholder = t[lang].search;
+      document.getElementById("dialSearch")?.setAttribute('placeholder', t[lang].search);
       document.getElementById("resultTitle").textContent = t[lang].resultTitle;
       document.getElementById("validityText").textContent = t[lang].validity;
       document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
-      if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
-      if (saveNameInput) saveNameInput.placeholder = t[lang].savePh;
-      if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
-      if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
     }
+    langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
 
-    langToggle.addEventListener('click', ()=>{
-      lang = (lang === 'fr') ? 'en' : 'fr';
-      localStorage.setItem('lang', lang);
-      applyLang();
-    });
-
-    // ====== Wallet Modal ======
+    // ===== Modal =====
     const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+    const openModal = () => modal.classList.add('open');
+    const closeModal = () => modal.classList.remove('open');
+    document.getElementById('connectWalletLink').addEventListener('click', e=>{e.preventDefault(); openModal();});
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+    modal.addEventListener('click', e=>{ if (e.target === modal) closeModal(); });
 
-    // Helpers providers
+    // ===== Providers helpers =====
     function getMetaMaskProvider(){
       if (window.ethereum && Array.isArray(window.ethereum.providers)){
         return window.ethereum.providers.find(p => p && p.isMetaMask) || null;
       }
-      return window.ethereum && window.ethereum.isMetaMask ? window.ethereum : null;
-    }
-    function getPhantomProvider(){
-      if (window.phantom && window.phantom.solana) return window.phantom.solana;
-      if (window.solana && window.solana.isPhantom) return window.solana;
-      return null;
+      return (window.ethereum && window.ethereum.isMetaMask) ? window.ethereum : null;
     }
 
-    // Utilitaires Phantom
-    function onceConnect(provider){
-      return new Promise((resolve)=> {
-        try {
-          provider.once && provider.once('connect', () => resolve(provider));
-        } catch { resolve(provider); }
-        // Sécurité: fallback si l'événement ne vient pas
-        setTimeout(()=> resolve(provider), 1500);
+    // ⬇️ Phantom : attendre l’injection + corriger état “coincé”
+    function waitPhantom(timeout=1500){
+      return new Promise(resolve=>{
+        const p = (window.phantom && window.phantom.solana) ? window.phantom.solana :
+                  (window.solana && window.solana.isPhantom ? window.solana : null);
+        if (p) return resolve(p);
+        const onInit = () => { resolve((window.phantom && window.phantom.solana) || (window.solana && window.solana.isPhantom ? window.solana : null)); };
+        window.addEventListener('phantom#initialized', onInit, { once:true });
+        setTimeout(()=>{ resolve((window.phantom && window.phantom.solana) || (window.solana && window.solana.isPhantom ? window.solana : null)); }, timeout);
       });
     }
 
-    async function robustPhantomConnect(){
-      const provider = getPhantomProvider();
-      const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+    let phantomLock = false; // empêche les doubles requêtes
+    async function connectPhantomOnce(){
+      if (phantomLock){ alert("Regarde la popup Phantom en haut à droite."); return null; }
+      phantomLock = true;
+      try{
+        const phantom = await waitPhantom(2000);
+        const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
 
-      if (!provider) {
-        if (isMobile) {
-          location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
-        } else {
-          window.open("https://phantom.app/download", "_blank");
+        if (!phantom) {
+          if (isMobile) location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
+          else window.open("https://phantom.app/download", "_blank");
+          return null;
         }
-        throw new Error("PHANTOM_NOT_FOUND");
-      }
 
-      // Déjà connecté ?
-      if ((provider.isConnected || provider.connected) && provider.publicKey) {
-        return provider.publicKey.toString();
-      }
+        // cas “coincé” : connecté mais sans clé -> reset
+        if ((phantom.isConnected || phantom.connected) && !phantom.publicKey){
+          try{ await phantom.disconnect(); }catch{}
 
-      // 1) Essai silencieux si déjà autorisé
-      try { await provider.connect({ onlyIfTrusted: true }); } catch {}
+          // léger yield pour laisser l’extension se réinitialiser
+          await new Promise(r=>setTimeout(r, 100));
+        }
 
-      if (provider.publicKey) {
-        return provider.publicKey.toString();
-      }
+        // 1) tentative silencieuse
+        try{ await phantom.connect({ onlyIfTrusted:true }); }catch{}
 
-      // 2) Connexion interactive (une seule requête à la fois)
-      try {
-        // certaines versions gèrent mieux l'événement 'connect'
-        await Promise.race([
-          provider.connect(),
-          onceConnect(provider)
-        ]);
-      } catch (e) {
-        const code = e && (e.code || e.errorCode);
-        if (code === -32002) {
-          alert("Phantom est en train d’afficher une demande. Vérifie la popup de l’extension en haut à droite.");
-        } else if (code === 4001) {
-          alert("Connexion Phantom annulée.");
-        } else if (code === 4100) {
-          alert("Accès Phantom non autorisé.");
-        } else {
-          // reset possible si l'extension est restée bloquée
-          try { await provider.disconnect(); } catch {}
-          try {
-            await Promise.race([provider.connect(), onceConnect(provider)]);
-          } catch (e2) {
-            throw e2;
+        // 2) si toujours pas de clé -> demande interactive (une seule fois)
+        if (!phantom.publicKey){
+          try{
+            await phantom.connect(); // (doit être dans le geste utilisateur : on est dans le click)
+          }catch(e){
+            const code = e && (e.code || e.errorCode);
+            if (code === -32002){ alert("Une demande Phantom est déjà en attente. Ouvre la popup Phantom."); return null; }
+            if (code === 4001){ alert("Connexion Phantom annulée."); return null; }
+            // dernier recours : reset + retente 1 fois
+            try{ await phantom.disconnect(); }catch{}
+            await new Promise(r=>setTimeout(r, 120));
+            await phantom.connect();
           }
         }
-      }
 
-      if (!provider.publicKey) {
-        throw new Error("NO_PUBLIC_KEY");
+        if (!phantom.publicKey){ alert("Échec de la connexion Phantom."); return null; }
+        return phantom.publicKey.toString();
+
+      } finally {
+        phantomLock = false;
       }
-      return provider.publicKey.toString();
     }
 
+    // ===== Click providers =====
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
 
-        if(provider === 'metamask'){
-          const isStandaloneApp =
-            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-            (window.navigator.standalone === true);
-          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+        if (provider === 'metamask'){
+          const isStandaloneApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
           const eth = getMetaMaskProvider();
-
-          if (!eth || !eth.request) {
-            if (isStandaloneApp && !isMobile) {
-              window.open(window.location.href, '_blank');
-              return;
-            }
-            if (isMobile) {
-              const path = location.host + location.pathname + location.search;
-              location.href = `https://metamask.app.link/dapp/${path}`;
-              return;
-            }
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
-            return;
+          if (!eth || !eth.request){
+            if (isStandaloneApp && !isMobile){ window.open(window.location.href, '_blank'); return; }
+            if (isMobile){ const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
+            alert("MetaMask non détecté. Installe l’extension puis recharge la page."); return;
           }
-
           try{
             const accounts = await eth.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
+            if (accounts && accounts[0]) walletInput.value = accounts[0];
             closeModal();
-          }catch(e){
-            console.error(e);
-            alert("Connexion MetaMask refusée ou erreur.");
-          }
+          }catch(e){ console.error(e); alert("Connexion MetaMask refusée ou erreur."); }
 
-        } else if (provider === "phantom") {
-          // ===== PHANTOM (Solana) — robuste =====
-          try{
-            const address = await robustPhantomConnect();
-            walletInput.value = address;
-            if (networkSelect && networkSelect.value !== "Solana") networkSelect.value = "Solana";
-            closeModal();
-          }catch(err){
-            console.error(err);
-            const code = err && (err.code || err.message || err.errorCode) || "";
-            if (code === "PHANTOM_NOT_FOUND") {
-              alert("Phantom n’est pas détecté. Installe l’extension/app Phantom puis réessaie.");
-            } else if (code === "NO_PUBLIC_KEY") {
-              alert("Connexion Phantom effectuée mais aucune clé publique renvoyée.");
-            } else {
-              alert("Connexion Phantom refusée ou erreur.");
-            }
-          }
+        } else if (provider === 'phantom'){
+          const address = await connectPhantomOnce();
+          if (!address) return;
+          walletInput.value = address;
+          if (networkSelect && networkSelect.value !== "Solana") networkSelect.value = "Solana";
+          closeModal();
 
         } else {
           alert("Connexion via " + provider + " arrive bientôt.");
@@ -620,203 +369,66 @@
       });
     });
 
-    // ====== Indicatifs (COUNTRIES) ======
+    // ===== Indicatifs =====
+    const dialBtn = document.getElementById('dialBtn');
+    const dialPanel = document.getElementById('dialPanel');
+    const dialSearch = document.getElementById('dialSearch');
+    const dialList = document.getElementById('dialList');
+    let currentDial = { iso:"FR", code:"+33" };
+
     function renderDialList(f=""){
       dialList.innerHTML="";
       const filter = f.toLowerCase();
       COUNTRIES
-        .filter(d =>
-          !filter ||
-          d.en.toLowerCase().includes(filter) ||
-          d.fr.toLowerCase().includes(filter) ||
-          d.code.includes(filter) ||
-          d.iso.toLowerCase().includes(filter)
-        )
+        .filter(d => !filter || d.en.toLowerCase().includes(filter) || d.fr.toLowerCase().includes(filter) || d.code.includes(filter) || d.iso.toLowerCase().includes(filter))
         .forEach(d=>{
           const name = (lang === "fr") ? d.fr : d.en;
           const row = document.createElement("div");
           row.className = "dial-item";
           row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
-          row.onclick = ()=>{
-            currentDial = { iso:d.iso, code:d.code };
-            dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
-            dialPanel.style.display = "none";
-          };
+          row.onclick = ()=>{ currentDial = { iso:d.iso, code:d.code }; dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`; dialPanel.style.display="none"; };
           dialList.appendChild(row);
         });
     }
-
-    dialBtn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
-      if (dialPanel.style.display === "block"){
-        renderDialList("");
-        dialSearch.value = "";
-        dialSearch.focus();
-      }
-    });
+    dialBtn.addEventListener('click', e=>{ e.stopPropagation(); dialPanel.style.display = (dialPanel.style.display==="block"?"none":"block"); if (dialPanel.style.display==="block"){ renderDialList(""); dialSearch.value=""; dialSearch.focus(); }});
     dialSearch.oninput = ()=> renderDialList(dialSearch.value);
-    document.addEventListener("click", e=>{
-      if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
-        dialPanel.style.display="none";
-      }
-    });
+    document.addEventListener('click', e=>{ if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)) dialPanel.style.display="none"; });
 
-    // ====== Contacts (localStorage) ======
+    // ===== Contacts (localStorage) =====
     const contactsList = document.getElementById("contactsList");
     const showContacts = document.getElementById("showContacts");
     const saveContact = document.getElementById("saveContact");
     let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
-
     if (showContacts) showContacts.textContent = "📖";
-
-    function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
-
+    const persistContacts = ()=> localStorage.setItem("contacts", JSON.stringify(contacts));
     function renderContacts(){
-      contactsList.innerHTML = "";
-      if(contacts.length === 0){ contactsList.style.display = "none"; return; }
-
-      contacts.forEach((c, idx)=>{
-        const row = document.createElement("div");
-        row.className = "contact-item";
-        row.style.display = "flex";
-        row.style.alignItems = "center";
-        row.style.justifyContent = "space-between";
-        row.style.gap = "8px";
-
-        const left = document.createElement("div");
-        left.textContent = `${c.name} (${c.phone})`;
-        left.style.flex = "1 1 auto";
-        left.style.whiteSpace = "nowrap";
-        left.style.overflow = "hidden";
-        left.style.textOverflow = "ellipsis";
-
-        const del = document.createElement("button");
-        del.type = "button";
-        del.title = (lang==='fr') ? "Supprimer" : "Delete";
-        del.textContent = "🗑️";
-        del.style.border = "1px solid var(--stroke)";
-        del.style.background = "#0a1220";
-        del.style.color = "#ffffff";
-        del.style.borderRadius = "6px";
-        del.style.padding = "4px 6px";
-        del.style.cursor = "pointer";
-        del.style.flex = "0 0 auto";
-
-        left.onclick = ()=>{
-          document.getElementById("phone").value = c.phone.replace(c.code, "");
-          currentDial = { iso:c.iso, code:c.code };
-          dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
-          contactsList.style.display = "none";
-        };
-
-        del.onclick = (ev)=>{
-          ev.stopPropagation();
-          contacts.splice(idx, 1);
-          persistContacts();
-          renderContacts();
-        };
-
-        row.appendChild(left);
-        row.appendChild(del);
-        contactsList.appendChild(row);
+      contactsList.innerHTML=""; if(contacts.length===0){ contactsList.style.display="none"; return; }
+      contacts.forEach((c,idx)=>{
+        const row=document.createElement("div"); row.className="contact-item"; row.style.display="flex"; row.style.alignItems="center"; row.style.justifyContent="space-between"; row.style.gap="8px";
+        const left=document.createElement("div"); left.textContent = `${c.name} (${c.phone})`; left.style.flex="1 1 auto"; left.style.whiteSpace="nowrap"; left.style.overflow="hidden"; left.style.textOverflow="ellipsis";
+        const del=document.createElement("button"); del.type="button"; del.title=(lang==='fr')?"Supprimer":"Delete"; del.textContent="🗑️"; del.style.border="1px solid var(--stroke)"; del.style.background="#0a1220"; del.style.color="#fff"; del.style.borderRadius="6px"; del.style.padding="4px 6px"; del.style.cursor="pointer"; del.style.flex="0 0 auto";
+        left.onclick = ()=>{ document.getElementById("phone").value = c.phone.replace(c.code,""); currentDial={iso:c.iso, code:c.code}; dialBtn.innerHTML=`<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`; contactsList.style.display="none"; };
+        del.onclick = (ev)=>{ ev.stopPropagation(); contacts.splice(idx,1); persistContacts(); renderContacts(); };
+        row.appendChild(left); row.appendChild(del); contactsList.appendChild(row);
       });
     }
     renderContacts();
 
-    // ====== Mini-formulaire inline pour enregistrer un contact ======
+    // mini save form
     const actionsBar = document.querySelector('.contact-actions');
-
-    const saveInline = document.createElement('div');
-    saveInline.style.display = 'none';
-    saveInline.style.marginTop = '8px';
-    saveInline.style.padding = '10px';
-    saveInline.style.border = '1px solid var(--stroke)';
-    saveInline.style.borderRadius = '8px';
-    saveInline.style.background = '#0e1420';
-    saveInline.style.boxShadow = 'var(--shadow)';
-    saveInline.style.gap = '8px';
-    saveInline.style.alignItems = 'center';
-    saveInline.style.justifyContent = 'space-between';
-
-    const saveNameInput = document.createElement('input');
-    saveNameInput.type = 'text';
-    saveNameInput.id = 'saveName';
-    saveNameInput.placeholder = t[lang].savePh;
-    saveNameInput.style.width = '100%';
-    saveNameInput.style.padding = '8px 10px';
-    saveNameInput.style.border = '1px solid var(--stroke)';
-    saveNameInput.style.borderRadius = '6px';
-    saveNameInput.style.background = '#0a1220';
-    saveNameInput.style.color = '#e6edf3';
-    saveNameInput.style.marginRight = '8px';
-
-    const btnsWrap = document.createElement('div');
-    btnsWrap.style.display = 'flex';
-    btnsWrap.style.gap = '8px';
-    btnsWrap.style.marginTop = '8px';
-
-    const saveConfirmBtn = document.createElement('button');
-    saveConfirmBtn.type = 'button';
-    saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
-    saveConfirmBtn.style.border = '1px solid var(--stroke)';
-    saveConfirmBtn.style.background = '#0a1220';
-    saveConfirmBtn.style.color = '#ffffff';
-    saveConfirmBtn.style.borderRadius = '8px';
-    saveConfirmBtn.style.padding = '6px 10px';
-    saveConfirmBtn.style.cursor = 'pointer';
-
-    const saveCancelBtn = document.createElement('button');
-    saveCancelBtn.type = 'button';
-    saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
-    saveCancelBtn.style.border = '1px solid var(--stroke)';
-    saveCancelBtn.style.background = '#0a1220';
-    saveCancelBtn.style.color = '#ffffff';
-    saveCancelBtn.style.borderRadius = '8px';
-    saveCancelBtn.style.padding = '6px 10px';
-    saveCancelBtn.style.cursor = 'pointer';
-
-    saveInline.appendChild(saveNameInput);
-    btnsWrap.appendChild(saveConfirmBtn);
-    btnsWrap.appendChild(saveCancelBtn);
-    saveInline.appendChild(btnsWrap);
-
-    actionsBar.insertAdjacentElement('afterend', saveInline);
-
-    function toggleSaveInline(open){
-      saveInline.style.display = open ? 'block' : 'none';
-      if (open){
-        saveNameInput.value = '';
-        saveNameInput.focus();
-      }
-    }
-
-    showContacts.onclick = ()=>{
-      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
-      renderContacts();
-    };
-
-    saveContact.onclick = ()=>{
-      const num = document.getElementById("phone").value.trim();
-      if(!num){ alert(t[lang].needNumber); return; }
-      toggleSaveInline(true);
-    };
-
-    saveConfirmBtn.onclick = ()=>{
-      const num = document.getElementById("phone").value.trim();
-      if(!num){ alert(t[lang].needNumber); return; }
-      const pseudo = saveNameInput.value.trim();
-      if(!pseudo){ saveNameInput.focus(); return; }
-      const phone = currentDial.code + num;
-      contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
-      persistContacts();
-      renderContacts();
-      toggleSaveInline(false);
-    };
-
+    const saveInline = document.createElement('div'); saveInline.style.display='none'; saveInline.style.marginTop='8px'; saveInline.style.padding='10px'; saveInline.style.border='1px solid var(--stroke)'; saveInline.style.borderRadius='8px'; saveInline.style.background='#0e1420'; saveInline.style.boxShadow='var(--shadow)'; saveInline.style.gap='8px'; saveInline.style.alignItems='center'; saveInline.style.justifyContent='space-between';
+    const saveNameInput = document.createElement('input'); saveNameInput.type='text'; saveNameInput.id='saveName'; saveNameInput.placeholder=t[lang].savePh; saveNameInput.style.width='100%'; saveNameInput.style.padding='8px 10px'; saveNameInput.style.border='1px solid var(--stroke)'; saveNameInput.style.borderRadius='6px'; saveNameInput.style.background='#0a1220'; saveNameInput.style.color='#e6edf3'; saveNameInput.style.marginRight='8px';
+    const btnsWrap = document.createElement('div'); btnsWrap.style.display='flex'; btnsWrap.style.gap='8px'; btnsWrap.style.marginTop='8px';
+    const saveConfirmBtn = document.createElement('button'); saveConfirmBtn.type='button'; saveConfirmBtn.textContent=`✅ ${t[lang].save}`; saveConfirmBtn.style.border='1px solid var(--stroke)'; saveConfirmBtn.style.background='#0a1220'; saveConfirmBtn.style.color='#fff'; saveConfirmBtn.style.borderRadius='8px'; saveConfirmBtn.style.padding='6px 10px'; saveConfirmBtn.style.cursor='pointer';
+    const saveCancelBtn = document.createElement('button'); saveCancelBtn.type='button'; saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`; saveCancelBtn.style.border='1px solid var(--stroke)'; saveCancelBtn.style.background='#0a1220'; saveCancelBtn.style.color='#fff'; saveCancelBtn.style.borderRadius='8px'; saveCancelBtn.style.padding='6px 10px'; saveCancelBtn.style.cursor='pointer';
+    saveInline.appendChild(saveNameInput); btnsWrap.appendChild(saveConfirmBtn); btnsWrap.appendChild(saveCancelBtn); saveInline.appendChild(btnsWrap); actionsBar.insertAdjacentElement('afterend', saveInline);
+    function toggleSaveInline(open){ saveInline.style.display = open ? 'block' : 'none'; if(open){ saveNameInput.value=''; saveNameInput.focus(); } }
+    document.getElementById('showContacts').onclick = ()=>{ const list=document.getElementById("contactsList"); list.style.display = (list.style.display==="block"?"none":"block"); renderContacts(); };
+    document.getElementById('saveContact').onclick = ()=>{ const num=document.getElementById("phone").value.trim(); if(!num){ alert(t[lang].needNumber); return; } toggleSaveInline(true); };
+    saveConfirmBtn.onclick = ()=>{ const num=document.getElementById("phone").value.trim(); if(!num){ alert(t[lang].needNumber); return; } const pseudo=saveNameInput.value.trim(); if(!pseudo){ saveNameInput.focus(); return; } const phone=currentDial.code+num; contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code }); persistContacts(); renderContacts(); toggleSaveInline(false); };
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
-    // ====== Génération du lien ======
+    // ===== Lien =====
     document.getElementById('generateBtn').addEventListener('click', async ()=>{
       const amount = parseFloat(document.getElementById('amount').value);
       const currency = document.getElementById('currency').value;
@@ -825,26 +437,19 @@
       const recipient_phone = `${currentDial.code}${localPhone}`;
       const network = document.getElementById('network').value;
 
-      resultDiv.style.display='none';
-      errorDiv.style.display='none';
-
+      resultDiv.style.display='none'; errorDiv.style.display='none';
       if (!amount || !currency || !sender_wallet || !localPhone || !network){
-        errorDiv.textContent = (lang==='fr')
-          ? "Merci de remplir tous les champs obligatoires."
-          : "Please fill in all required fields.";
-        errorDiv.style.display='block';
-        return;
+        errorDiv.textContent = (lang==='fr') ? "Merci de remplir tous les champs obligatoires." : "Please fill in all required fields.";
+        errorDiv.style.display='block'; return;
       }
 
       try{
         const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
         });
         const data = await res.json();
         if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
-
         const lien = `https://linkisend.io/${data.short_id}`;
         linkEl.textContent = lien;
         resultDiv.style.display='block';
@@ -854,48 +459,22 @@
       }
     });
 
-    // Icône "Copier le lien"
+    // copie
     const copyBtn = document.getElementById('copyLinkBtn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', ()=>{
-        navigator.clipboard.writeText(linkEl.textContent).then(()=>{
-          copyBtn.textContent = "✅";
-          setTimeout(()=> copyBtn.textContent = "📋", 1500);
-        });
-      });
-    }
+    if (copyBtn) copyBtn.addEventListener('click', ()=>{ navigator.clipboard.writeText(linkEl.textContent).then(()=>{ copyBtn.textContent="✅"; setTimeout(()=> copyBtn.textContent="📋", 1500); }); });
 
-    // === Service Worker ===
+    // SW
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/service-worker.js")
-        .then(() => console.log("SW enregistré ✅"))
-        .catch(err => console.error("SW erreur:", err));
+      navigator.serviceWorker.register("/service-worker.js").then(()=>console.log("SW enregistré ✅")).catch(e=>console.error("SW erreur:",e));
     }
 
-    // === Bouton d'installation PWA ===
+    // PWA install button
     let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; const b=document.getElementById('installBtn'); if(b) b.style.display='inline-flex'; });
+    document.getElementById('installBtn').addEventListener('click', async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; document.getElementById('installBtn').style.display='none'; });
+    window.addEventListener('appinstalled', ()=>{ const b=document.getElementById('installBtn'); if(b) b.style.display='none'; });
 
-    window.addEventListener('beforeinstallprompt', (e)=>{
-      e.preventDefault();
-      deferredPrompt = e;
-      const b = document.getElementById('installBtn');
-      if (b) b.style.display = 'inline-flex';
-    });
-
-    document.getElementById('installBtn').addEventListener('click', async ()=>{
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('installBtn').style.display = 'none';
-    });
-
-    window.addEventListener('appinstalled', ()=>{
-      const b = document.getElementById('installBtn');
-      if (b) b.style.display = 'none';
-    });
-
-    // ---- Appliquer la langue
+    // init
     applyLang();
   });
   </script>
