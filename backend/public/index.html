@@ -52,7 +52,7 @@
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
     select,input{
       width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;outline:none;
+      border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;
     }
     select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
@@ -96,7 +96,7 @@
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
     .pv{
       display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
-      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
+      border-radius:12px;background:#0e141c;color:#var(--text);cursor:pointer;font-weight:600
     }
     .pv img{width:20px;height:20px}
     .tag{
@@ -126,12 +126,6 @@
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}
     .dialcode{color:#cfe1ff}
     .country{color:#9fb0c0;font-size:12px}
-
-    .contact-actions{display:flex;gap:8px;margin-top:6px}
-    .emoji-btn{cursor:pointer;font-size:18px}
-    .contacts{margin-top:8px;display:none}
-    .contact-item{padding:6px 8px;border:1px solid var(--stroke);border-radius:8px;margin-top:6px;cursor:pointer;font-size:13px;}
-    .contact-item:hover{background:#101924}
 
     /* === Fix mobile header === */
     @media (max-width: 540px){
@@ -363,7 +357,7 @@
     </div>
   </div>
 
-  <!-- Toast copie (conservé au cas où) -->
+  <!-- Toast copie -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
   <!-- Modal choix wallet -->
@@ -382,7 +376,7 @@
           <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
           WalletConnect <span class="tag">Bientôt</span>
         </button>
-        <!-- █████ remplacé Coinbase → Uniswap █████ -->
+        <!-- remplacé Coinbase → Uniswap -->
         <button class="pv" data-wallet="uniswap">
           <img src="assets/wallets/uniswap.svg" alt="Uniswap" />
           Uniswap <span class="tag">DEX</span>
@@ -412,7 +406,7 @@
     const dialBtn = document.getElementById('dialBtn');
     const dialPanel = document.getElementById('dialPanel');
     const dialSearch = document.getElementById('dialSearch');
-    const dialList = document.getElementById('dialList');
+    const dialList = document.getElementById('dialList'); // ← unique, pas de 2e déclaration
     let currentDial = { iso:"FR", code:"+33" };
 
     // ====== Langue (FR/EN) ======
@@ -441,7 +435,7 @@
       document.getElementById("validityText").textContent = t[lang].validity;
       document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
       if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
-      // MAJ textes du mini-formulaire contact
+      // Mini-formulaire contact
       if (saveNameInput) saveNameInput.placeholder = t[lang].savePh;
       if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
       if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
@@ -453,7 +447,7 @@
       applyLang();
     });
 
-    // ====== Wallet Modal (inchangé sauf Coinbase→Uniswap) ======
+    // ====== Wallet Modal ======
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -466,7 +460,6 @@
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          // === MetaMask robuste (comme avant) ===
           const isStandaloneApp =
             (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
             (window.navigator.standalone === true);
@@ -477,15 +470,8 @@
             : window.ethereum;
 
           if (!eth || !eth.request) {
-            if (isStandaloneApp && !isMobile) {
-              window.open(window.location.href, '_blank'); // ouvrir dans un onglet "normal"
-              return;
-            }
-            if (isMobile) {
-              const path = location.host + location.pathname + location.search;
-              location.href = `https://metamask.app.link/dapp/${path}`;
-              return;
-            }
+            if (isStandaloneApp && !isMobile) { window.open(window.location.href, '_blank'); return; }
+            if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
             return;
           }
@@ -500,7 +486,6 @@
           }
 
         } else if (provider === "phantom") {
-          // === Phantom (comme avant) ===
           if (window.solana && window.solana.isPhantom) {
             window.solana.connect()
               .then(resp => {
@@ -517,7 +502,7 @@
           }
 
         } else if (provider === "uniswap") {
-          // === Uniswap simple : ouvrir l'app dans un nouvel onglet (pas de connexion intégrée ici)
+          // Ouvrir Uniswap dans un onglet selon le réseau sélectionné
           const net = (document.getElementById('network') || {}).value || "Ethereum";
           const chain =
             net === "Polygon"    ? "polygon"   :
@@ -534,14 +519,12 @@
           closeModal();
 
         } else {
-          // Les autres restent "Bientôt"
           alert("Connexion via " + provider + " arrive bientôt.");
         }
       });
     });
 
     // ====== Indicatifs (COUNTRIES) ======
-    const dialList = document.getElementById('dialList');
     function renderDialList(f=""){
       dialList.innerHTML="";
       const filter = f.toLowerCase();
@@ -648,7 +631,6 @@
 
     // ====== Mini-formulaire inline pour enregistrer un contact ======
     const actionsBar = document.querySelector('.contact-actions');
-
     const saveInline = document.createElement('div');
     saveInline.style.display = 'none';
     saveInline.style.marginTop = '8px';
@@ -712,17 +694,20 @@
       }
     }
 
-    showContacts.onclick = ()=>{
+    // clic sur 📖 : aucune incidence
+    document.getElementById('showContacts').onclick = ()=>{
       contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
       renderContacts();
     };
 
-    saveContact.onclick = ()=>{
+    // clic sur 💾 : ouvrir le mini-formulaire
+    document.getElementById('saveContact').onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
       toggleSaveInline(true);
     };
 
+    // Enregistrer
     saveConfirmBtn.onclick = ()=>{
       const num = document.getElementById("phone").value.trim();
       if(!num){ alert(t[lang].needNumber); return; }
@@ -735,6 +720,7 @@
       toggleSaveInline(false);
     };
 
+    // Annuler
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
     // ====== Génération du lien ======
