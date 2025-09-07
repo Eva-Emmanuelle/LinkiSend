@@ -487,6 +487,48 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
+    // === Phantom helpers : lancer connect() en premier, gérer -32002/4001, reset 1x ===
+function getPhantom(){
+  return (window.phantom && window.phantom.solana)
+    || (window.solana && window.solana.isPhantom ? window.solana : null);
+}
+let phantomBusy = false;
+async function connectPhantomNowFromClick(){
+  if (phantomBusy){ alert("Ouvre la popup Phantom : une demande est déjà en cours."); return null; }
+  phantomBusy = true;
+  try{
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
+    const phantom = getPhantom();
+
+    if (!phantom){
+      if (isStandalone && !isMobile){ window.open(window.location.href, "_blank"); return null; }
+      if (isMobile){ location.href = "https://phantom.app/ul/browse/"+encodeURIComponent(location.href); return null; }
+      window.open("https://phantom.app/download", "_blank"); return null;
+    }
+
+    // 1) lancer la popup immédiatement (préserve le geste utilisateur)
+    try{
+      await phantom.connect();
+    }catch(e){
+      const code = e && (e.code || e.errorCode);
+      if (code === -32002){ alert("Demande Phantom déjà ouverte. Vérifie la popup de l’extension."); return null; }
+      if (code === 4001){ alert("Connexion Phantom annulée."); return null; }
+      // “Unexpected error” ou état coincé → reset + 2ᵉ essai unique
+      try{ await phantom.disconnect(); }catch{}
+      await new Promise(r=>setTimeout(r,120));
+      await phantom.connect();
+    }
+
+    if (!phantom.publicKey){ alert("Connexion Phantom effectuée sans clé publique."); return null; }
+    return phantom.publicKey.toString();
+  }catch(err){
+    alert("Connexion Phantom refusée ou erreur.");
+    return null;
+  }finally{
+    phantomBusy = false;
+  }
+
     // ===== Helpers Phantom (détection + attente d’injection) =====
     function getPhantomProvider(){
       if (window.phantom && window.phantom.solana) return window.phantom.solana;
@@ -592,7 +634,13 @@
             alert("Connexion MetaMask refusée ou erreur.");
           }
 
-        } else if (provider === "phantom") {
+       } else if (provider === "phantom") {
+  const address = await connectPhantomNowFromClick();  // ← nouveau flux robuste
+  if (!address) return;
+  walletInput.value = address;
+  const networkSel = document.getElementById('network');
+  if (networkSel && networkSel.value !== "Solana") networkSel.value = "Solana";
+  closeModal();
           // ===== Phantom (Solana) — solution unique robuste =====
           const address = await connectPhantomOnce();
           if (!address) return;
