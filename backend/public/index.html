@@ -479,7 +479,7 @@
       applyLang();
     });
 
-    // ====== Wallet Modal (inchangé sauf MetaMask) ======
+    // ====== Wallet Modal ======
     const modal = document.getElementById('walletModal');
     const openModal = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -487,12 +487,79 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
+    // ===== Helpers Phantom (détection + attente d’injection) =====
+    function getPhantomProvider(){
+      if (window.phantom && window.phantom.solana) return window.phantom.solana;
+      if (window.solana && window.solana.isPhantom) return window.solana;
+      return null;
+    }
+    function waitPhantom(timeout=2000){
+      return new Promise(resolve=>{
+        const p = getPhantomProvider();
+        if (p) return resolve(p);
+        const onInit = () => resolve(getPhantomProvider());
+        window.addEventListener('phantom#initialized', onInit, { once:true });
+        setTimeout(()=> resolve(getPhantomProvider()), timeout);
+      });
+    }
+
+    // ===== Connexion Phantom robuste (verrou + reset + erreurs) =====
+    let phantomLock = false;
+    async function connectPhantomOnce(){
+      if (phantomLock) { alert("Regarde la popup Phantom (une demande est déjà en cours)."); return null; }
+      phantomLock = true;
+      try{
+        const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
+        const phantom = await waitPhantom(2000);
+
+        if (!phantom){
+          if (isMobile) location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
+          else window.open("https://phantom.app/download", "_blank");
+          return null;
+        }
+
+        // État coincé : connecté mais sans clé -> reset
+        if ((phantom.isConnected || phantom.connected) && !phantom.publicKey){
+          try{ await phantom.disconnect(); }catch{}
+          await new Promise(r=>setTimeout(r, 120));
+        }
+
+        // Tentative silencieuse si autorisé
+        try{ await phantom.connect({ onlyIfTrusted:true }); }catch{}
+
+        // Sinon demande interactive (geste utilisateur)
+        if (!phantom.publicKey){
+          try{
+            await phantom.connect();
+          }catch(e){
+            const code = e && (e.code || e.errorCode);
+            if (code === -32002){ alert("Demande Phantom déjà ouverte. Vérifie la popup de l’extension."); return null; }
+            if (code === 4001){ alert("Connexion Phantom annulée."); return null; }
+            // Dernier recours : reset + second essai
+            try{ await phantom.disconnect(); }catch{}
+            await new Promise(r=>setTimeout(r, 120));
+            await phantom.connect();
+          }
+        }
+
+        if (!phantom.publicKey){ alert("Connexion Phantom effectuée sans clé publique."); return null; }
+        return phantom.publicKey.toString();
+      }catch(err){
+        console.error("Phantom error:", err);
+        alert("Connexion Phantom refusée ou erreur.");
+        return null;
+      }finally{
+        phantomLock = false;
+      }
+    }
+
+    // ====== Providers (MetaMask existant inchangé + Phantom robuste) ======
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          // === MetaMask robuste : standalone PWA, mobile, multi-providers ===
+          // === MetaMask (inchangé) ===
           const isStandaloneApp =
             (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
             (window.navigator.standalone === true);
@@ -504,7 +571,7 @@
 
           if (!eth || !eth.request) {
             if (isStandaloneApp && !isMobile) {
-              window.open(window.location.href, '_blank'); // ouvrir dans un onglet "normal"
+              window.open(window.location.href, '_blank');
               return;
             }
             if (isMobile) {
@@ -524,23 +591,16 @@
             console.error(e);
             alert("Connexion MetaMask refusée ou erreur.");
           }
+
         } else if (provider === "phantom") {
-          // Connexion Phantom (inchangée)
-          if (window.solana && window.solana.isPhantom) {
-            window.solana.connect()
-              .then(resp => {
-                const walletAddress = resp.publicKey.toString();
-                walletInput.value = walletAddress;
-                closeModal();
-                alert("Phantom connecté : " + walletAddress);
-              })
-              .catch(err => {
-                console.error(err);
-                alert("Connexion Phantom refusée ou erreur.");
-              });
-          } else {
-            window.open("https://phantom.app/", "_blank");
-          }
+          // ===== Phantom (Solana) — solution unique robuste =====
+          const address = await connectPhantomOnce();
+          if (!address) return;
+          walletInput.value = address;
+          const networkSel = document.getElementById('network');
+          if (networkSel && networkSel.value !== "Solana") networkSel.value = "Solana";
+          closeModal();
+
         } else {
           // Tous les autres wallets encore non implémentés
           alert("Connexion via " + provider + " arrive bientôt.");
