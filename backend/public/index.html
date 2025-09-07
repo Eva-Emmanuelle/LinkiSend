@@ -59,7 +59,7 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
       background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;
-      box-shadow:var(--shadow);margin-top:14px;
+      box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
     }
     .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
     .btn:active{transform:translateY(1px)}
@@ -488,10 +488,77 @@
       return window.ethereum && window.ethereum.isMetaMask ? window.ethereum : null;
     }
     function getPhantomProvider(){
-      // priorité à window.phantom.solana (API officielle)
       if (window.phantom && window.phantom.solana) return window.phantom.solana;
       if (window.solana && window.solana.isPhantom) return window.solana;
       return null;
+    }
+
+    // Utilitaires Phantom
+    function onceConnect(provider){
+      return new Promise((resolve)=> {
+        try {
+          provider.once && provider.once('connect', () => resolve(provider));
+        } catch { resolve(provider); }
+        // Sécurité: fallback si l'événement ne vient pas
+        setTimeout(()=> resolve(provider), 1500);
+      });
+    }
+
+    async function robustPhantomConnect(){
+      const provider = getPhantomProvider();
+      const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+
+      if (!provider) {
+        if (isMobile) {
+          location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
+        } else {
+          window.open("https://phantom.app/download", "_blank");
+        }
+        throw new Error("PHANTOM_NOT_FOUND");
+      }
+
+      // Déjà connecté ?
+      if ((provider.isConnected || provider.connected) && provider.publicKey) {
+        return provider.publicKey.toString();
+      }
+
+      // 1) Essai silencieux si déjà autorisé
+      try { await provider.connect({ onlyIfTrusted: true }); } catch {}
+
+      if (provider.publicKey) {
+        return provider.publicKey.toString();
+      }
+
+      // 2) Connexion interactive (une seule requête à la fois)
+      try {
+        // certaines versions gèrent mieux l'événement 'connect'
+        await Promise.race([
+          provider.connect(),
+          onceConnect(provider)
+        ]);
+      } catch (e) {
+        const code = e && (e.code || e.errorCode);
+        if (code === -32002) {
+          alert("Phantom est en train d’afficher une demande. Vérifie la popup de l’extension en haut à droite.");
+        } else if (code === 4001) {
+          alert("Connexion Phantom annulée.");
+        } else if (code === 4100) {
+          alert("Accès Phantom non autorisé.");
+        } else {
+          // reset possible si l'extension est restée bloquée
+          try { await provider.disconnect(); } catch {}
+          try {
+            await Promise.race([provider.connect(), onceConnect(provider)]);
+          } catch (e2) {
+            throw e2;
+          }
+        }
+      }
+
+      if (!provider.publicKey) {
+        throw new Error("NO_PUBLIC_KEY");
+      }
+      return provider.publicKey.toString();
     }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
@@ -530,56 +597,18 @@
 
         } else if (provider === "phantom") {
           // ===== PHANTOM (Solana) — robuste =====
-          const phantom = getPhantomProvider();
-          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
-
-          if (!phantom) {
-            // Pas d’extension/app détectée
-            if (isMobile) {
-              // Deep-link vers Phantom Mobile (ouvre l’app si installée)
-              location.href = "https://phantom.app/ul/browse/" + encodeURIComponent(location.href);
-            } else {
-              window.open("https://phantom.app/download", "_blank");
-            }
-            return;
-          }
-
           try{
-            // 1) Si déjà autorisé, cette tentative ne déclenche pas de popup
-            let resp = null;
-            try {
-              resp = await phantom.connect({ onlyIfTrusted: true });
-            } catch(_) { /* ignore */ }
-
-            // 2) Sinon, on demande l’autorisation (doit être dans un gesture utilisateur -> OK ici)
-            if (!resp || !resp.publicKey) {
-              // certaines versions utilisent request({method:'connect'})
-              if (typeof phantom.connect === 'function') {
-                resp = await phantom.connect();
-              } else if (typeof phantom.request === 'function') {
-                resp = await phantom.request({ method: 'connect' });
-              }
-            }
-
-            const walletAddress = resp?.publicKey?.toString?.() || resp?.publicKey || "";
-            if (walletAddress) {
-              walletInput.value = walletAddress;
-              if (networkSelect && networkSelect.value !== "Solana") {
-                networkSelect.value = "Solana";
-              }
-              closeModal();
-            } else {
-              alert("Échec de la connexion Phantom.");
-            }
-
-          } catch (err) {
+            const address = await robustPhantomConnect();
+            walletInput.value = address;
+            if (networkSelect && networkSelect.value !== "Solana") networkSelect.value = "Solana";
+            closeModal();
+          }catch(err){
             console.error(err);
-            // Messages plus utiles selon codes Phantom
-            const code = err && (err.code || err.errorCode);
-            if (code === 4001) {
-              alert("Connexion Phantom annulée.");
-            } else if (code === 4100) {
-              alert("Accès Phantom non autorisé.");
+            const code = err && (err.code || err.message || err.errorCode) || "";
+            if (code === "PHANTOM_NOT_FOUND") {
+              alert("Phantom n’est pas détecté. Installe l’extension/app Phantom puis réessaie.");
+            } else if (code === "NO_PUBLIC_KEY") {
+              alert("Connexion Phantom effectuée mais aucune clé publique renvoyée.");
             } else {
               alert("Connexion Phantom refusée ou erreur.");
             }
