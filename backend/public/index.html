@@ -615,5 +615,66 @@
   </script>
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
+  <script>
+(function () {
+  function qs(s){ return document.querySelector(s); }
+  function on(el, ev, fn){ if(el) el.addEventListener(ev, fn); }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const link = qs('#connectWalletLink');
+    const modal = qs('#walletModal');
+    const closeBtn = qs('#walletModalClose');
+    const walletInput = qs('#wallet');
+    const networkSel = qs('#network');
+
+    // Ouvrir / fermer la modale (fallback)
+    on(link, 'click', (e)=>{ e.preventDefault(); modal.classList.add('open'); });
+    on(closeBtn, 'click', ()=> modal.classList.remove('open'));
+    on(modal, 'click', (e)=>{ if (e.target === modal) modal.classList.remove('open'); });
+
+    // === Phantom (Solana)
+    const phantomBtn = modal.querySelector('.pv[data-wallet="phantom"]');
+    on(phantomBtn, 'click', async () => {
+      const phantom = (window.phantom && window.phantom.solana) ||
+                      (window.solana && window.solana.isPhantom ? window.solana : null);
+      if (!phantom) { window.open('https://phantom.app/download', '_blank'); return; }
+      try{
+        await phantom.connect(); // popup Phantom
+        const addr = phantom.publicKey && phantom.publicKey.toString ? phantom.publicKey.toString() : '';
+        if (addr){
+          walletInput.value = addr;
+          if (networkSel && networkSel.value !== 'Solana') networkSel.value = 'Solana';
+          modal.classList.remove('open');
+        } else {
+          alert('Connexion Phantom effectuée sans clé publique.');
+        }
+      }catch(e){
+        if (e && e.code === 4001) alert('Connexion Phantom annulée.');
+        else alert('Connexion Phantom refusée ou erreur.');
+        console.error(e);
+      }
+    });
+
+    // === MetaMask (EVM)
+    const mmBtn = modal.querySelector('.pv[data-wallet="metamask"]');
+    on(mmBtn, 'click', async () => {
+      const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+        ? window.ethereum.providers.find(p => p && p.isMetaMask)
+        : window.ethereum;
+      if (!eth || !eth.request){ alert('MetaMask non détecté.'); return; }
+      try{
+        const accounts = await eth.request({ method:'eth_requestAccounts' });
+        if (accounts && accounts[0]) {
+          walletInput.value = accounts[0];
+          modal.classList.remove('open');
+        }
+      }catch(e){
+        alert('Connexion MetaMask refusée ou erreur.');
+        console.error(e);
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
