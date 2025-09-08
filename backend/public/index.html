@@ -585,19 +585,47 @@
           closeModal();
 
         } else if (provider === "walletconnect") {
-          try{
-            // Charge le provider (UMD -> ESM) et normalise window.EthereumProvider
-            const EP = await loadWalletConnectProvider();
-            if (!EP) throw new Error("Provider WalletConnect indisponible (chargement)");
+            try{
+    // Anti double-clic / double init
+    if (window.__wcConnecting) return;
+    window.__wcConnecting = true;
 
-            const opts = {
-              projectId: "9c945cd5bef5c1e1905266cf0219736d",
-              showQrModal: true,
-              chains: [1],
-              optionalChains: [137, 10, 42161, 56, 43114],
-              methods: ["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData","eth_signTypedData_v4","eth_sign"],
-              events: ["chainChanged","accountsChanged"]
-            };
+    // 1) Charger le provider via ta fonction
+    const EP = await loadWalletConnectProvider();
+    if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
+
+    // 2) Initialiser UNE SEULE FOIS
+    if (!window.__wcProvider) {
+      window.__wcProvider = await EP.init({
+        projectId: "9c945cd5bef5c1e1905266cf0219736d",
+        showQrModal: true,
+        chains: [1],
+        optionalChains: [137, 10, 42161, 56, 43114],
+        methods: [
+          "eth_requestAccounts","eth_sendTransaction","personal_sign",
+          "eth_signTypedData","eth_signTypedData_v4","eth_sign"
+        ],
+        events: ["chainChanged","accountsChanged"]
+      });
+    }
+
+    // 3) Établir la session (ouvre le QR si besoin)
+    await window.__wcProvider.connect();
+
+    // 4) Lire les comptes APRÈS connect()
+    const accounts = (window.__wcProvider.accounts && window.__wcProvider.accounts.length)
+      ? window.__wcProvider.accounts
+      : await window.__wcProvider.request({ method: "eth_accounts" });
+
+    if (accounts && accounts[0]) walletInput.value = accounts[0];
+    closeModal();
+
+  } catch (err) {
+    console.error(err);
+    alert("Connexion WalletConnect refusée ou erreur.");
+  } finally {
+    window.__wcConnecting = false;
+  }
 
             // v2 (init) / legacy (constructeur + enable) / ESM default
             let wc = null;
