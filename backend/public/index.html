@@ -165,10 +165,8 @@
     /* --- Fix modal on small screens --- */
     .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
     .modal-card{ width: min(440px, 92vw); max-height: 88vh; overflow: auto; }
-    @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; }
-    }
-    @media (max-height: 640px){ .modal-card{ max-height: 84vh; }
-    }
+    @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; } }
+    @media (max-height: 640px){ .modal-card{ max-height: 84vh; } }
   </style>
 
   <script>
@@ -176,14 +174,12 @@
     const s = document.getElementById('splash');
     if (!s) return;
 
+    // Mode standalone (PWA installée) ?
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
 
-    if (isStandalone) {
-      s.remove();
-      return;
-    }
+    if (isStandalone) { s.remove(); return; }
 
     let done = false;
     function hideSplash() {
@@ -199,7 +195,7 @@
   </script>
 </head>
 <body>
-  <!-- Gate d’installation PWA (mobile seulement) -->
+  <!-- Gate d'installation PWA : mobile uniquement -->
   <script>
   (function () {
     const isStandalone =
@@ -245,8 +241,14 @@
       window.addEventListener('click', async (ev) => {
         const btn = document.getElementById('installNow');
         if (!btn || ev.target !== btn) return;
-        if (_deferred) { _deferred.prompt(); try { await _deferred.userChoice; } catch {} _deferred = null; }
-        else { alert(document.getElementById('installHint').textContent); }
+
+        if (_deferred) {
+          _deferred.prompt();
+          try { await _deferred.userChoice; } catch {}
+          _deferred = null;
+        } else {
+          alert(document.getElementById('installHint').textContent);
+        }
       });
     }
   })();
@@ -374,21 +376,25 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
+    // ====== Backend ======
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
       ? window.LINKISEND_CONFIG.BACKEND_BASE
       : `${location.protocol}//${location.hostname}:8000`;
 
+    // ====== Elements ======
     const resultDiv = document.getElementById('result');
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
     const linkEl  = document.getElementById('the-link');
 
+    // ====== Indicatifs ======
     const dialBtn = document.getElementById('dialBtn');
     const dialPanel = document.getElementById('dialPanel');
     const dialSearch = document.getElementById('dialSearch');
     const dialList = document.getElementById('dialList');
     let currentDial = { iso:"FR", code:"+33" };
 
+    // ====== Langue ======
     const langToggle = document.getElementById('langToggle');
     const userPref = localStorage.getItem('lang');
     let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
@@ -421,33 +427,41 @@
 
     langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
 
-    // Modal wallets
+    // ====== Wallet Modal ======
     const modal = document.getElementById('walletModal');
-    const openModal = () => { modal.classList.add('open'); };
+    const openModal  = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
     document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+
+    function isStandaloneApp(){
+      return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
+    }
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+
+    function pickInjectedProvider(predicate){
+      if (!window.ethereum) return null;
+      if (Array.isArray(window.ethereum.providers)) {
+        return window.ethereum.providers.find(p => {
+          try { return predicate(p); } catch { return false; }
+        }) || null;
+      }
+      return predicate(window.ethereum) ? window.ethereum : null;
+    }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          const isStandaloneApp =
-            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-            (window.navigator.standalone === true);
-          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
-          const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
-            ? window.ethereum.providers.find(p => p && p.isMetaMask)
-            : window.ethereum;
-
+          const eth = pickInjectedProvider(p => !!p.isMetaMask);
           if (!eth || !eth.request) {
-            if (isStandaloneApp && !isMobile) { window.open(window.location.href, '_blank'); return; }
+            if (isStandaloneApp() && !isMobile) { window.open(window.location.href, '_blank'); return; }
             if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page."); return;
+            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
+            return;
           }
-
           try{
             const accounts = await eth.request({ method:'eth_requestAccounts' });
             if(accounts && accounts[0]) walletInput.value = accounts[0];
@@ -459,106 +473,241 @@
             window.solana.connect()
               .then(resp => { walletInput.value = resp.publicKey.toString(); closeModal(); })
               .catch(err => { console.error(err); alert("Connexion Phantom refusée ou erreur."); });
-          } else { window.open("https://phantom.app/", "_blank"); }
+          } else {
+            window.open("https://phantom.app/", "_blank");
+          }
 
         } else if (provider === "uniswap") {
-          const net = (document.getElementById('network') || {}).value || "Ethereum";
-          const chain =
-            net === "Polygon"    ? "polygon"   :
-            net === "BNB Chain"  ? "bsc"       :
-            net === "Avalanche"  ? "avalanche" :
-            "ethereum";
-          if (net === "Solana") alert("Uniswap n’est pas disponible sur Solana. Ouverture sur Ethereum.");
-          window.open(`https://app.uniswap.org/#/swap?chain=${chain}`, "_blank", "noopener,noreferrer");
+          // 1) Essayer le provider injecté par l’extension Uniswap (desktop)
+          const uni = pickInjectedProvider(p => !!p.isUniswap || p?.providerName === 'uniswap');
+          if (uni && uni.request) {
+            try{
+              const accounts = await uni.request({ method:'eth_requestAccounts' });
+              if (accounts && accounts[0]) walletInput.value = accounts[0];
+              closeModal();
+              return;
+            }catch(err){
+              console.error(err);
+              alert("Connexion Uniswap refusée ou erreur.");
+              return;
+            }
+          }
+
+          // 2) Sinon, bons fallbacks selon le contexte
+          if (isMobile) {
+            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas disponible sans WalletConnect. J’ouvre l’app web pour trader, mais l’adresse ne peut pas être lue ici.");
+            window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
+            closeModal();
+            return;
+          }
+
+          if (isStandaloneApp()) {
+            // Cas PWA desktop : ouvrir un onglet du navigateur normal
+            window.open(window.location.href, '_blank');
+            return;
+          }
+
+          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
+          window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
           closeModal();
+
         } else {
           alert("Connexion via " + provider + " arrive bientôt.");
         }
       });
     });
 
-    // Indicatifs
+    // ====== Indicatifs ======
     function renderDialList(f=""){
       dialList.innerHTML="";
       const filter = f.toLowerCase();
       COUNTRIES
-        .filter(d => !filter || d.en.toLowerCase().includes(filter) || d.fr.toLowerCase().includes(filter) || d.code.includes(filter) || d.iso.toLowerCase().includes(filter))
+        .filter(d =>
+          !filter ||
+          d.en.toLowerCase().includes(filter) ||
+          d.fr.toLowerCase().includes(filter) ||
+          d.code.includes(filter) ||
+          d.iso.toLowerCase().includes(filter)
+        )
         .forEach(d=>{
           const name = (lang === "fr") ? d.fr : d.en;
           const row = document.createElement("div");
           row.className = "dial-item";
           row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
-          row.onclick = ()=>{ currentDial = { iso:d.iso, code:d.code }; dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`; dialPanel.style.display = "none"; };
+          row.onclick = ()=>{
+            currentDial = { iso:d.iso, code:d.code };
+            dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+            dialPanel.style.display = "none";
+          };
           dialList.appendChild(row);
         });
     }
-    dialBtn.addEventListener('click', (e)=>{ e.stopPropagation(); dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block"); if (dialPanel.style.display === "block"){ renderDialList(""); dialSearch.value = ""; dialSearch.focus(); } });
-    dialSearch.oninput = ()=> renderDialList(dialSearch.value);
-    document.addEventListener("click", e=>{ if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)) dialPanel.style.display="none"; });
 
-    // Contacts (localStorage)
+    dialBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
+      if (dialPanel.style.display === "block"){
+        renderDialList("");
+        dialSearch.value = "";
+        dialSearch.focus();
+      }
+    });
+    dialSearch.oninput = ()=> renderDialList(dialSearch.value);
+    document.addEventListener("click", e=>{
+      if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
+        dialPanel.style.display="none";
+      }
+    });
+
+    // ====== Contacts (localStorage) ======
     const contactsList = document.getElementById("contactsList");
     const showContacts = document.getElementById("showContacts");
     const saveContact = document.getElementById("saveContact");
     let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
     if (showContacts) showContacts.textContent = "📖";
-    const persistContacts = ()=> localStorage.setItem("contacts", JSON.stringify(contacts));
+
+    function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
 
     function renderContacts(){
       contactsList.innerHTML = "";
       if(contacts.length === 0){ contactsList.style.display = "none"; return; }
+
       contacts.forEach((c, idx)=>{
         const row = document.createElement("div");
         row.className = "contact-item";
-        row.style.display = "flex"; row.style.alignItems = "center"; row.style.justifyContent = "space-between"; row.style.gap = "8px";
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "8px";
+
         const left = document.createElement("div");
         left.textContent = `${c.name} (${c.phone})`;
-        left.style.flex = "1 1 auto"; left.style.whiteSpace = "nowrap"; left.style.overflow = "hidden"; left.style.textOverflow = "ellipsis";
+        left.style.flex = "1 1 auto";
+        left.style.whiteSpace = "nowrap";
+        left.style.overflow = "hidden";
+        left.style.textOverflow = "ellipsis";
+
         const del = document.createElement("button");
-        del.type = "button"; del.title = (lang==='fr') ? "Supprimer" : "Delete"; del.textContent = "🗑️";
-        del.style.border = "1px solid var(--stroke)"; del.style.background = "#0a1220"; del.style.color = "#ffffff"; del.style.borderRadius = "6px"; del.style.padding = "4px 6px"; del.style.cursor = "pointer"; del.style.flex = "0 0 auto";
-        left.onclick = ()=>{ document.getElementById("phone").value = c.phone.replace(c.code, ""); currentDial = { iso:c.iso, code:c.code }; dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`; contactsList.style.display = "none"; };
-        del.onclick = (ev)=>{ ev.stopPropagation(); contacts.splice(idx, 1); persistContacts(); renderContacts(); };
-        row.appendChild(left); row.appendChild(del); contactsList.appendChild(row);
+        del.type = "button";
+        del.title = (lang==='fr') ? "Supprimer" : "Delete";
+        del.textContent = "🗑️";
+        del.style.border = "1px solid var(--stroke)";
+        del.style.background = "#0a1220";
+        del.style.color = "#ffffff";
+        del.style.borderRadius = "6px";
+        del.style.padding = "4px 6px";
+        del.style.cursor = "pointer";
+        del.style.flex = "0 0 auto";
+
+        left.onclick = ()=>{
+          document.getElementById("phone").value = c.phone.replace(c.code, "");
+          currentDial = { iso:c.iso, code:c.code };
+          dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+          contactsList.style.display = "none";
+        };
+
+        del.onclick = (ev)=>{
+          ev.stopPropagation();
+          contacts.splice(idx, 1);
+          persistContacts();
+          renderContacts();
+        };
+
+        row.appendChild(left);
+        row.appendChild(del);
+        contactsList.appendChild(row);
       });
     }
     renderContacts();
 
-    // Mini-form pour enregistrer un contact
+    // ====== Mini-formulaire contact ======
     const actionsBar = document.querySelector('.contact-actions');
     const saveInline = document.createElement('div');
-    saveInline.style.display = 'none'; saveInline.style.marginTop = '8px'; saveInline.style.padding = '10px';
-    saveInline.style.border = '1px solid var(--stroke)'; saveInline.style.borderRadius = '8px';
-    saveInline.style.background = '#0e1420'; saveInline.style.boxShadow = 'var(--shadow)';
-    saveInline.style.gap = '8px'; saveInline.style.alignItems = 'center'; saveInline.style.justifyContent = 'space-between';
+    saveInline.style.display = 'none';
+    saveInline.style.marginTop = '8px';
+    saveInline.style.padding = '10px';
+    saveInline.style.border = '1px solid var(--stroke)';
+    saveInline.style.borderRadius = '8px';
+    saveInline.style.background = '#0e1420';
+    saveInline.style.boxShadow = 'var(--shadow)';
+    saveInline.style.gap = '8px';
+    saveInline.style.alignItems = 'center';
+    saveInline.style.justifyContent = 'space-between';
 
     const saveNameInput = document.createElement('input');
-    saveNameInput.type = 'text'; saveNameInput.id = 'saveName'; saveNameInput.placeholder = t[lang].savePh;
-    saveNameInput.style.width = '100%'; saveNameInput.style.padding = '8px 10px';
-    saveNameInput.style.border = '1px solid var(--stroke)'; saveNameInput.style.borderRadius = '6px';
-    saveNameInput.style.background = '#0a1220'; saveNameInput.style.color = '#e6edf3'; saveNameInput.style.marginRight = '8px';
+    saveNameInput.type = 'text';
+    saveNameInput.id = 'saveName';
+    saveNameInput.placeholder = t[lang].savePh;
+    saveNameInput.style.width = '100%';
+    saveNameInput.style.padding = '8px 10px';
+    saveNameInput.style.border = '1px solid var(--stroke)';
+    saveNameInput.style.borderRadius = '6px';
+    saveNameInput.style.background = '#0a1220';
+    saveNameInput.style.color = '#e6edf3';
+    saveNameInput.style.marginRight = '8px';
 
-    const btnsWrap = document.createElement('div'); btnsWrap.style.display = 'flex'; btnsWrap.style.gap = '8px'; btnsWrap.style.marginTop = '8px';
+    const btnsWrap = document.createElement('div');
+    btnsWrap.style.display = 'flex';
+    btnsWrap.style.gap = '8px';
+    btnsWrap.style.marginTop = '8px';
+
     const saveConfirmBtn = document.createElement('button');
-    saveConfirmBtn.type = 'button'; saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
-    saveConfirmBtn.style.border = '1px solid var(--stroke)'; saveConfirmBtn.style.background = '#0a1220'; saveConfirmBtn.style.color = '#ffffff';
-    saveConfirmBtn.style.borderRadius = '8px'; saveConfirmBtn.style.padding = '6px 10px'; saveConfirmBtn.style.cursor = 'pointer';
-    const saveCancelBtn = document.createElement('button');
-    saveCancelBtn.type = 'button'; saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
-    saveCancelBtn.style.border = '1px solid var(--stroke)'; saveCancelBtn.style.background = '#0a1220'; saveCancelBtn.style.color = '#ffffff';
-    saveCancelBtn.style.borderRadius = '8px'; saveCancelBtn.style.padding = '6px 10px'; saveCancelBtn.style.cursor = 'pointer';
+    saveConfirmBtn.type = 'button';
+    saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+    saveConfirmBtn.style.border = '1px solid var(--stroke)';
+    saveConfirmBtn.style.background = '#0a1220';
+    saveConfirmBtn.style.color = '#ffffff';
+    saveConfirmBtn.style.borderRadius = '8px';
+    saveConfirmBtn.style.padding = '6px 10px';
+    saveConfirmBtn.style.cursor = 'pointer';
 
-    saveInline.appendChild(saveNameInput); btnsWrap.appendChild(saveConfirmBtn); btnsWrap.appendChild(saveCancelBtn); saveInline.appendChild(btnsWrap);
+    const saveCancelBtn = document.createElement('button');
+    saveCancelBtn.type = 'button';
+    saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
+    saveCancelBtn.style.border = '1px solid var(--stroke)';
+    saveCancelBtn.style.background = '#0a1220';
+    saveCancelBtn.style.color = '#ffffff';
+    saveCancelBtn.style.borderRadius = '8px';
+    saveCancelBtn.style.padding = '6px 10px';
+    saveCancelBtn.style.cursor = 'pointer';
+
+    saveInline.appendChild(saveNameInput);
+    btnsWrap.appendChild(saveConfirmBtn);
+    btnsWrap.appendChild(saveCancelBtn);
+    saveInline.appendChild(btnsWrap);
     actionsBar.insertAdjacentElement('afterend', saveInline);
 
-    const toggleSaveInline = (open)=>{ saveInline.style.display = open ? 'block' : 'none'; if (open){ saveNameInput.value = ''; saveNameInput.focus(); } };
+    function toggleSaveInline(open){
+      saveInline.style.display = open ? 'block' : 'none';
+      if (open){
+        saveNameInput.value = '';
+        saveNameInput.focus();
+      }
+    }
 
-    document.getElementById('showContacts').onclick = ()=>{ contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block"); renderContacts(); };
-    document.getElementById('saveContact').onclick = ()=>{ const num = document.getElementById("phone").value.trim(); if(!num){ alert(t[lang].needNumber); return; } toggleSaveInline(true); };
-    saveConfirmBtn.onclick = ()=>{ const num = document.getElementById("phone").value.trim(); if(!num){ alert(t[lang].needNumber); return; } const pseudo = saveNameInput.value.trim(); if(!pseudo){ saveNameInput.focus(); return; } const phone = currentDial.code + num; contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code }); persistContacts(); renderContacts(); toggleSaveInline(false); };
+    document.getElementById('showContacts').onclick = ()=>{
+      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
+      renderContacts();
+    };
+    document.getElementById('saveContact').onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      toggleSaveInline(true);
+    };
+    saveConfirmBtn.onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      const pseudo = saveNameInput.value.trim();
+      if(!pseudo){ saveNameInput.focus(); return; }
+      const phone = currentDial.code + num;
+      contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
+      persistContacts();
+      renderContacts();
+      toggleSaveInline(false);
+    };
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
-    // Génération du lien
+    // ====== Génération du lien ======
     document.getElementById('generateBtn').addEventListener('click', async ()=>{
       const amount = parseFloat(document.getElementById('amount').value);
       const currency = document.getElementById('currency').value;
@@ -571,7 +720,9 @@
       errorDiv.style.display='none';
 
       if (!amount || !currency || !sender_wallet || !localPhone || !network){
-        errorDiv.textContent = (lang==='fr') ? "Merci de remplir tous les champs obligatoires." : "Please fill in all required fields.";
+        errorDiv.textContent = (lang==='fr')
+          ? "Merci de remplir tous les champs obligatoires."
+          : "Please fill in all required fields.";
         errorDiv.style.display='block';
         return;
       }
@@ -596,19 +747,46 @@
 
     // Copier le lien
     const copyBtn = document.getElementById('copyLinkBtn');
-    if (copyBtn) copyBtn.addEventListener('click', ()=>{ navigator.clipboard.writeText(linkEl.textContent).then(()=>{ copyBtn.textContent = "✅"; setTimeout(()=> copyBtn.textContent = "📋", 1500); }); });
-
-    // Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/service-worker.js").catch(err => console.error("SW erreur:", err));
+    if (copyBtn) {
+      copyBtn.addEventListener('click', ()=>{
+        navigator.clipboard.writeText(linkEl.textContent).then(()=>{
+          copyBtn.textContent = "✅";
+          setTimeout(()=> copyBtn.textContent = "📋", 1500);
+        });
+      });
     }
 
-    // Bouton d’installation PWA
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; const b = document.getElementById('installBtn'); if (b) b.style.display = 'inline-flex'; });
-    document.getElementById('installBtn').addEventListener('click', async ()=>{ if (!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; document.getElementById('installBtn').style.display = 'none'; });
-    window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('installBtn'); if (b) b.style.display = 'none'; });
+    // === Service Worker ===
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("SW enregistré ✅"))
+        .catch(err => console.error("SW erreur:", err));
+    }
 
+    // === Bouton d'installation PWA ===
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'inline-flex';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async ()=>{
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', ()=>{
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'none';
+    });
+
+    // ---- Appliquer la langue
     applyLang();
   });
   </script>
