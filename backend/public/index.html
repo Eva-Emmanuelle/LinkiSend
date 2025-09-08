@@ -358,7 +358,7 @@
         </button>
         <button class="pv" data-wallet="walletconnect">
           <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
-          WalletConnect <span class="tag">Bientôt</span>
+          WalletConnect <span class="tag">EVM</span>
         </button>
         <button class="pv" data-wallet="uniswap">
           <img src="assets/wallets/uniswap.svg" alt="Uniswap" />
@@ -371,6 +371,9 @@
       </div>
     </div>
   </div>
+
+  <!-- (Optionnel) WalletConnect modal UMD — utile pour certains navigateurs -->
+  <script defer src="https://unpkg.com/@walletconnect/modal/dist/umd/index.min.js"></script>
 
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
@@ -438,7 +441,6 @@
     window.addEventListener('eip6963:announceProvider', (event) => {
       try { discovered.push(event.detail); } catch {}
     });
-    // Demande aux wallets de s'annoncer (chrome >= 119)
     try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch {}
 
     function isStandaloneApp(){
@@ -447,10 +449,8 @@
     const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
     function getProviderBy(match6963, matchLegacy){
-      // 1) EIP-6963
       const d = discovered.find(x => { try { return match6963(x); } catch { return false; } });
       if (d && d.provider) return d.provider;
-      // 2) Legacy window.ethereum
       if (window.ethereum) {
         if (Array.isArray(window.ethereum.providers)) {
           const p = window.ethereum.providers.find(p => { try { return matchLegacy(p); } catch { return false; } });
@@ -459,6 +459,15 @@
         if (matchLegacy(window.ethereum)) return window.ethereum;
       }
       return null;
+    }
+
+    // ---- Loader utilitaire (scripts UMD)
+    function loadScript(src){
+      return new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src=src; s.async=true; s.onload=resolve; s.onerror=()=>reject(new Error("Échec chargement "+src));
+        document.head.appendChild(s);
+      });
     }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
@@ -492,7 +501,6 @@
           }
 
         } else if (provider === "uniswap") {
-          // Tenter d'abord via EIP-6963 (rdns ou nom contenant 'uniswap'), puis legacy flags
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
             p => !!p.isUniswap || p?.providerName === 'uniswap'
@@ -509,10 +517,8 @@
               return;
             }
           }
-
-          // Fallbacks si aucun provider utilisable
           if (isMobile) {
-            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas disponible sans WalletConnect. J’ouvre l’app web pour trader, mais l’adresse ne peut pas être lue ici.");
+            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
             window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
             closeModal();
             return;
@@ -522,6 +528,34 @@
           window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
           closeModal();
 
+        } else if (provider === "walletconnect") {
+          try{
+            // Charger le provider WalletConnect (UMD)
+            if (!window.EthereumProvider) {
+              await loadScript("https://unpkg.com/@walletconnect/ethereum-provider/dist/umd/index.min.js");
+            }
+            // (le modal est chargé en haut en <script defer>, mais on tolère qu’il n’existe pas)
+            const EP = window.EthereumProvider;
+            if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible");
+
+            const wc = await EP.init({
+              projectId: "9c945cd5bef5c1e1905266cf0219736d",
+              showQrModal: true,
+              // Réseaux autorisés — on démarre sur Ethereum mainnet
+              chains: [1],
+              optionalChains: [137, 10, 42161, 56, 43114],
+              methods: ["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData","eth_signTypedData_v4","eth_sign"],
+              events: ["chainChanged","accountsChanged"]
+            });
+
+            // Ouvre le QR et récupère les comptes
+            const accounts = await wc.request({ method:"eth_requestAccounts" });
+            if (accounts && accounts[0]) walletInput.value = accounts[0];
+            closeModal();
+          } catch(err){
+            console.error(err);
+            alert("Connexion WalletConnect refusée ou erreur.");
+          }
         } else {
           alert("Connexion via " + provider + " arrive bientôt.");
         }
