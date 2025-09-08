@@ -478,6 +478,18 @@
       );
     }
 
+    async function ensureWcModal() {
+      if (window.WalletConnectModal || window.walletConnectModal) return true;
+      const urls = [
+        "https://unpkg.com/@walletconnect/modal/dist/umd/index.min.js",
+        "https://cdn.jsdelivr.net/npm/@walletconnect/modal/dist/umd/index.min.js"
+      ];
+      for (const u of urls){
+        try { await loadScript(u); return true; } catch(e){ console.warn("WC Modal fail:", u, e); }
+      }
+      return false;
+    }
+
     async function loadWalletConnectProvider() {
       // déjà présent ?
       let EP = getWcGlobal();
@@ -488,7 +500,7 @@
         "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js",
         "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/umd/index.min.js",
         "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js",
-        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/umd/index.min.js",
+        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/umd/index.min.js"
       ];
       for (const u of umdUrls) {
         try {
@@ -505,7 +517,7 @@
       const esmUrls = [
         "https://esm.sh/@walletconnect/ethereum-provider@2?bundle&target=es2020",
         "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.js",
-        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.js?module",
+        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.js?module"
       ];
       for (const src of esmUrls) {
         try {
@@ -523,6 +535,7 @@
     }
     // ===============================================================
 
+    // ====== Clicks providers dans le modal ======
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -582,10 +595,327 @@
           closeModal();
 
         } else if (provider === "walletconnect") {
-          // === Branche WalletConnect nettoyée ===
+          // === Branche WalletConnect fiabilisée ===
           try {
-            // Anti double-clic / double init
             if (window.__wcConnecting) return;
             window.__wcConnecting = true;
 
-            //
+            // Charger provider + modal si besoin
+            const EP = await loadWalletConnectProvider();
+            if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
+            await ensureWcModal();
+
+            // Init unique
+            if (!window.__wcProvider) {
+              window.__wcProvider = await EP.init({
+                projectId: "9c945cd5bef5c1e1905266cf0219736d",
+                showQrModal: true,
+                chains: [1],
+                optionalChains: [137, 10, 42161, 56, 43114],
+                methods: [
+                  "eth_requestAccounts","eth_sendTransaction","personal_sign",
+                  "eth_signTypedData","eth_signTypedData_v4","eth_sign"
+                ],
+                events: ["chainChanged","accountsChanged"]
+              });
+            }
+
+            // Établir la session (QR si nécessaire)
+            await window.__wcProvider.connect();
+
+            // Récup des comptes
+            const accounts = (window.__wcProvider.accounts && window.__wcProvider.accounts.length)
+              ? window.__wcProvider.accounts
+              : await window.__wcProvider.request({ method: "eth_accounts" });
+
+            if (accounts && accounts[0]) walletInput.value = accounts[0];
+            closeModal();
+          } catch (err) {
+            console.error(err);
+            alert("Connexion WalletConnect refusée ou erreur.");
+          } finally {
+            window.__wcConnecting = false;
+          }
+        } else {
+          alert("Connexion via " + provider + " arrive bientôt.");
+        }
+      });
+    });
+
+    // ====== Indicatifs ======
+    function renderDialList(f=""){
+      dialList.innerHTML="";
+      const filter = f.toLowerCase();
+      COUNTRIES
+        .filter(d =>
+          !filter ||
+          d.en.toLowerCase().includes(filter) ||
+          d.fr.toLowerCase().includes(filter) ||
+          d.code.includes(filter) ||
+          d.iso.toLowerCase().includes(filter)
+        )
+        .forEach(d=>{
+          const name = (lang === "fr") ? d.fr : d.en;
+          const row = document.createElement("div");
+          row.className = "dial-item";
+          row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
+          row.onclick = ()=>{
+            currentDial = { iso:d.iso, code:d.code };
+            dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+            dialPanel.style.display = "none";
+          };
+          dialList.appendChild(row);
+        });
+    }
+
+    dialBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
+      if (dialPanel.style.display === "block"){
+        renderDialList("");
+        dialSearch.value = "";
+        dialSearch.focus();
+      }
+    });
+    dialSearch.oninput = ()=> renderDialList(dialSearch.value);
+    document.addEventListener("click", e=>{
+      if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
+        dialPanel.style.display="none";
+      }
+    });
+
+    // ====== Contacts (localStorage) ======
+    const contactsList = document.getElementById("contactsList");
+    const showContacts = document.getElementById("showContacts");
+    const saveContact = document.getElementById("saveContact");
+    let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+    if (showContacts) showContacts.textContent = "📖";
+
+    function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
+
+    function renderContacts(){
+      contactsList.innerHTML = "";
+      if(contacts.length === 0){ contactsList.style.display = "none"; return; }
+
+      contacts.forEach((c, idx)=>{
+        const row = document.createElement("div");
+        row.className = "contact-item";
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "8px";
+
+        const left = document.createElement("div");
+        left.textContent = `${c.name} (${c.phone})`;
+        left.style.flex = "1 1 auto";
+        left.style.whiteSpace = "nowrap";
+        left.style.overflow = "hidden";
+        left.style.textOverflow = "ellipsis";
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.title = (lang==='fr') ? "Supprimer" : "Delete";
+        del.textContent = "🗑️";
+        del.style.border = "1px solid var(--stroke)";
+        del.style.background = "#0a1220";
+        del.style.color = "#ffffff";
+        del.style.borderRadius = "6px";
+        del.style.padding = "4px 6px";
+        del.style.cursor = "pointer";
+        del.style.flex = "0 0 auto";
+
+        left.onclick = ()=>{
+          document.getElementById("phone").value = c.phone.replace(c.code, "");
+          currentDial = { iso:c.iso, code:c.code };
+          dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+          contactsList.style.display = "none";
+        };
+
+        del.onclick = (ev)=>{
+          ev.stopPropagation();
+          contacts.splice(idx, 1);
+          persistContacts();
+          renderContacts();
+        };
+
+        row.appendChild(left);
+        row.appendChild(del);
+        contactsList.appendChild(row);
+      });
+    }
+    renderContacts();
+
+    // ====== Mini-formulaire contact ======
+    const actionsBar = document.querySelector('.contact-actions');
+    const saveInline = document.createElement('div');
+    saveInline.style.display = 'none';
+    saveInline.style.marginTop = '8px';
+    saveInline.style.padding = '10px';
+    saveInline.style.border = '1px solid var(--stroke)';
+    saveInline.style.borderRadius = '8px';
+    saveInline.style.background = '#0e1420';
+    saveInline.style.boxShadow = 'var(--shadow)';
+    saveInline.style.gap = '8px';
+    saveInline.style.alignItems = 'center';
+    saveInline.style.justifyContent = 'space-between';
+
+    const saveNameInput = document.createElement('input');
+    saveNameInput.type = 'text';
+    saveNameInput.id = 'saveName';
+    saveNameInput.placeholder = t[lang].savePh;
+    saveNameInput.style.width = '100%';
+    saveNameInput.style.padding = '8px 10px';
+    saveNameInput.style.border = '1px solid var(--stroke)';
+    saveNameInput.style.borderRadius = '6px';
+    saveNameInput.style.background = '#0a1220';
+    saveNameInput.style.color = '#e6edf3';
+    saveNameInput.style.marginRight = '8px';
+
+    const btnsWrap = document.createElement('div');
+    btnsWrap.style.display = 'flex';
+    btnsWrap.style.gap = '8px';
+    btnsWrap.style.marginTop = '8px';
+
+    const saveConfirmBtn = document.createElement('button');
+    saveConfirmBtn.type = 'button';
+    saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+    saveConfirmBtn.style.border = '1px solid var(--stroke)';
+    saveConfirmBtn.style.background = '#0a1220';
+    saveConfirmBtn.style.color = '#ffffff';
+    saveConfirmBtn.style.borderRadius = '8px';
+    saveConfirmBtn.style.padding = '6px 10px';
+    saveConfirmBtn.style.cursor = 'pointer';
+
+    const saveCancelBtn = document.createElement('button');
+    saveCancelBtn.type = 'button';
+    saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
+    saveCancelBtn.style.border = '1px solid var(--stroke)';
+    saveCancelBtn.style.background = '#0a1220';
+    saveCancelBtn.style.color = '#ffffff';
+    saveCancelBtn.style.borderRadius = '8px';
+    saveCancelBtn.style.padding = '6px 10px';
+    saveCancelBtn.style.cursor = 'pointer';
+
+    saveInline.appendChild(saveNameInput);
+    btnsWrap.appendChild(saveConfirmBtn);
+    btnsWrap.appendChild(saveCancelBtn);
+    saveInline.appendChild(btnsWrap);
+    actionsBar.insertAdjacentElement('afterend', saveInline);
+
+    function toggleSaveInline(open){
+      saveInline.style.display = open ? 'block' : 'none';
+      if (open){
+        saveNameInput.value = '';
+        saveNameInput.focus();
+      }
+    }
+
+    document.getElementById('showContacts').onclick = ()=>{
+      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
+      renderContacts();
+    };
+    document.getElementById('saveContact').onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      toggleSaveInline(true);
+    };
+    saveConfirmBtn.onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      const pseudo = saveNameInput.value.trim();
+      if(!pseudo){ saveNameInput.focus(); return; }
+      const phone = currentDial.code + num;
+      contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
+      persistContacts();
+      renderContacts();
+      toggleSaveInline(false);
+    };
+    saveCancelBtn.onclick = ()=> toggleSaveInline(false);
+
+    // ====== Génération du lien ======
+    document.getElementById('generateBtn').addEventListener('click', async ()=>{
+      const amount = parseFloat(document.getElementById('amount').value);
+      const currency = document.getElementById('currency').value;
+      const sender_wallet = walletInput.value.trim();
+      const localPhone = document.getElementById('phone').value.trim();
+      const recipient_phone = `${currentDial.code}${localPhone}`;
+      const network = document.getElementById('network').value;
+
+      resultDiv.style.display='none';
+      errorDiv.style.display='none';
+
+      if (!amount || !currency || !sender_wallet || !localPhone || !network){
+        errorDiv.textContent = (lang==='fr')
+          ? "Merci de remplir tous les champs obligatoires."
+          : "Please fill in all required fields.";
+        errorDiv.style.display='block';
+        return;
+      }
+
+      try{
+        const res = await fetch(`${BACKEND}/create-link`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+
+        const lien = `https://linkisend.io/${data.short_id}`;
+        linkEl.textContent = lien;
+        resultDiv.style.display='block';
+      }catch(err){
+        errorDiv.textContent = err.message || (lang==='fr'?'Erreur réseau':'Network error');
+        errorDiv.style.display='block';
+      }
+    });
+
+    // Copier le lien
+    const copyBtn = document.getElementById('copyLinkBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', ()=>{
+        navigator.clipboard.writeText(linkEl.textContent).then(()=>{
+          copyBtn.textContent = "✅";
+          setTimeout(()=> copyBtn.textContent = "📋", 1500);
+        });
+      });
+    }
+
+    // === Service Worker ===
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("SW enregistré ✅"))
+        .catch(err => console.error("SW erreur:", err));
+    }
+
+    // === Bouton d'installation PWA ===
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'inline-flex';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async ()=>{
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', ()=>{
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'none';
+    });
+
+    // ---- Appliquer la langue
+    applyLang();
+  });
+  </script>
+
+  <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
+</body>
+</html>
