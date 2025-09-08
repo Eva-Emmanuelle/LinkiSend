@@ -11,6 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
+
   <style>
     :root{
       --bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;
@@ -39,7 +40,6 @@
       padding:4px 8px;border-radius:999px;background:#0e141c;
     }
     .lang-toggle:hover{background:#101924}
-
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);border-radius:var(--radius);
@@ -68,7 +68,6 @@
       padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content;
     }
     .wallet-link:hover{background:#0d1729}
-
     .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke);}
     .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171;}
     .result-cta{
@@ -77,14 +76,11 @@
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
     .linkbox{flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;border-radius:10px;padding:12px 14px;display:flex;align-items:center}
     .linkbox code{font-family:ui-monospace,Menlo,Consolas,"Roboto Mono",monospace;font-size:16px;color:#065f46;white-space:nowrap;overflow:auto}
-
     .toast{
       position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;
       box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
     }
     .toast.show{opacity:1;transform:translateY(0)}
-
-    /* Modal */
     .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
     .modal.open{display:grid;}
     .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
@@ -103,8 +99,6 @@
       color:#fff;border:0;font-weight:600;
     }
     .pv:hover{background:#101924}
-
-    /* Phone & contacts */
     .phone-row{display:flex;gap:8px;align-items:center}
     .dial{position:relative;display:flex}
     .dial-btn{
@@ -124,16 +118,12 @@
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}
     .dialcode{color:#cfe1ff}
     .country{color:#9fb0c0;font-size:12px}
-
-    /* === Fix mobile header === */
     @media (max-width: 540px){
       .brand{justify-content:flex-start !important;gap:8px !important;margin:10px 0 20px !important;padding:0 8px;}
       .brand img.arrow{position:static !important;transform:none !important;max-width:28px !important;height:auto !important;margin-right:6px;}
       .brand img.word{max-width:170px !important;}
       .lang-toggle{right:8px !important;font-size:11px;padding:3px 8px;}
     }
-
-    /* Bouton d'installation PWA (mobile) */
     #installBtn{
       position:fixed;right:14px;bottom:90px;z-index:80;
       display:none;align-items:center;gap:8px;
@@ -142,8 +132,6 @@
       box-shadow:var(--shadow);
     }
     #installBtn:active{transform:translateY(1px)}
-
-    /* Splash */
     #splash{
       position:fixed; inset:0; z-index:9999;
       display:grid; place-items:center;
@@ -152,49 +140,39 @@
                   var(--bg);
       transition: opacity .35s ease;
     }
-    #splash img{
-      width: 300px;
-      height: auto;
-      filter: drop-shadow(0 12px 30px rgba(0,0,0,.35));
-      opacity:.96;
-    }
+    #splash img{ width:300px; height:auto; filter:drop-shadow(0 12px 30px rgba(0,0,0,.35)); opacity:.96; }
     #splash.hide{ opacity:0; pointer-events:none; }
-
-    /* --- Fix modal on small screens --- */
     .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
     .modal-card{ width: min(440px, 92vw); max-height: 88vh; overflow: auto; }
     @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; } }
     @media (max-height: 640px){ .modal-card{ max-height: 84vh; } }
   </style>
 
+  <!-- Splash auto-hide -->
   <script>
   document.addEventListener("DOMContentLoaded", function () {
     const s = document.getElementById('splash');
     if (!s) return;
-
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
-
     if (isStandalone) { s.remove(); return; }
-
     let done = false;
-    function hideSplash() {
-      if (done) return;
-      done = true;
-      s.classList.add('hide');
-      setTimeout(() => s.remove(), 400);
-    }
+    function hideSplash(){ if(done) return; done = true; s.classList.add('hide'); setTimeout(()=>s.remove(), 400); }
     window.addEventListener('load', hideSplash);
     setTimeout(hideSplash, 1200);
   });
   </script>
 
-  <!-- ✅ WalletConnect local (à héberger dans /assets/vendor/wc/) -->
-  <!-- WalletConnect local -->
-<script defer src="/assets/vendor/wc/ethereum-provider.bundle.min.js"></script>
-<script defer src="/assets/vendor/wc/modal-ui/index.js"></script>
+  <!-- CONFIG + pays -->
+  <script src="config.js"></script>
+  <script src="countries.js"></script>
+
+  <!-- WalletConnect local (hébergé dans /assets/vendor/wc/) -->
+  <script defer src="/assets/vendor/wc/ethereum-provider.bundle.min.js"></script>
+  <script defer src="/assets/vendor/wc/modal-ui/index.js"></script>
 </head>
+
 <body>
   <!-- Gate d’installation PWA (mobile) -->
   <script>
@@ -202,7 +180,6 @@
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
-
     const ua = (navigator.userAgent || navigator.vendor || window.opera || "").toLowerCase();
     const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
 
@@ -214,7 +191,6 @@
         if (ua.includes('chrome')) return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
         return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
       }
-
       document.write(`
         <style>body > :not(#install-gate){display:none!important}</style>
         <div id="install-gate" style="
@@ -236,13 +212,11 @@
           </div>
         </div>
       `);
-
       let _deferred = null;
       window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferred = e; });
       window.addEventListener('click', async (ev) => {
         const btn = document.getElementById('installNow');
         if (!btn || ev.target !== btn) return;
-
         if (_deferred) {
           _deferred.prompt();
           try { await _deferred.userChoice; } catch {}
@@ -256,14 +230,7 @@
   </script>
 
   <!-- Splash -->
-  <div id="splash">
-    <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" />
-  </div>
-
-  <!-- CONFIG -->
-  <script src="config.js"></script>
-  <!-- Pays + indicatifs -->
-  <script src="countries.js"></script>
+  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
 
   <div class="wrap">
     <div class="brand">
@@ -276,12 +243,10 @@
       <h2 id="title">Envoyer des cryptos</h2>
       <p class="sub" id="subtitle">Génère un lien en 10&nbsp;secondes.</p>
 
-      <!-- 1) WALLET -->
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
       <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
 
-      <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
@@ -297,14 +262,12 @@
         </div>
       </div>
 
-      <!-- 3) RÉSEAU -->
       <label for="network" id="lbl-network">Réseau</label>
       <select id="network">
         <option>Ethereum</option><option>BNB Chain</option>
         <option>Polygon</option><option>Solana</option><option>Avalanche</option>
       </select>
 
-      <!-- 4) TÉLÉPHONE -->
       <label id="lbl-phone">Numéro du destinataire</label>
       <div class="phone-row">
         <div class="dial">
@@ -317,7 +280,6 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
-      <!-- 📖/💾 actions contacts -->
       <div class="contact-actions">
         <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
         <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
@@ -328,7 +290,6 @@
 
       <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
-      <!-- Bloc résultat -->
       <div id="result" class="result-cta" aria-live="polite">
         <h3 id="resultTitle" style="margin:0 0 10px;font-size:18px;">Lien prêt ✅</h3>
         <div class="row-cta" style="display:inline-flex;align-items:center;">
@@ -339,12 +300,11 @@
           ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
         </div>
       </div>
-      <!-- Erreurs -->
-      <div id="error"  class="error"  style="display:none"></div>
+
+      <div id="error" class="error" style="display:none"></div>
     </div>
   </div>
 
-  <!-- Toast copie -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
   <!-- Modal choix wallet -->
@@ -425,16 +385,7 @@
       if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
       if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
     }
-
     langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
-
-    // ====== Wallet Modal ======
-    const modal = document.getElementById('walletModal');
-    const openModal  = () => { modal.classList.add('open'); };
-    const closeModal = () => { modal.classList.remove('open'); };
-    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
-    document.getElementById('walletModalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
     // ====== Providers (EIP-6963 + legacy) ======
     const discovered = [];
@@ -461,24 +412,61 @@
       return null;
     }
 
-    // ================== WalletConnect (local only) ==================
+    // ---- Loader utilitaire (scripts UMD)
+    function loadScript(src){
+      return new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src=src; s.async=true; s.onload=resolve; s.onerror=()=>reject(new Error("Échec chargement "+src));
+        document.head.appendChild(s);
+      });
+    }
+
+    // ================== WalletConnect helpers ==================
     function getWcGlobal() {
       return (
         window.EthereumProvider ||
         window.WalletConnectEthereumProvider ||
+        (window.WalletConnectProvider &&
+          (window.WalletConnectProvider.init
+            ? window.WalletConnectProvider
+            : window.WalletConnectProvider.default)) ||
         (window.WalletConnect && window.WalletConnect.EthereumProvider)
       );
     }
+    async function ensureWcModal() {
+      if (window.WalletConnectModal || window.walletConnectModal) return true;
+      // fallback CDN seulement si vraiment absent
+      const urls = [
+        "https://cdn.jsdelivr.net/npm/@walletconnect/modal-ui@2/dist/index.min.js",
+        "https://unpkg.com/@walletconnect/modal-ui@2/dist/index.min.js"
+      ];
+      for (const u of urls){ try { await loadScript(u); return true; } catch(e){} }
+      return false;
+    }
     async function loadWalletConnectProvider() {
-      // Utilise uniquement le script local déjà chargé
-      return getWcGlobal() || null;
+      // déjà présent ? (normalement oui grâce au script local)
+      let EP = getWcGlobal();
+      if (EP) return EP;
+      // sinon, fallback CDNs
+      const umd = [
+        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js",
+        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"
+      ];
+      for (const u of umd) {
+        try { await loadScript(u); EP = getWcGlobal(); if (EP) return EP; } catch(e){}
+      }
+      return null;
     }
-    function hasWcModal() {
-      return !!(window.WalletConnectModal || window.walletConnectModal);
-    }
-    // ===============================================================
+    // ===========================================================
 
     // ====== Clicks providers dans le modal ======
+    const modal = document.getElementById('walletModal');
+    const openModal  = () => { modal.classList.add('open'); };
+    const closeModal = () => { modal.classList.remove('open'); };
+    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+    document.getElementById('walletModalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -538,22 +526,19 @@
           closeModal();
 
         } else if (provider === "walletconnect") {
-          // === Branche WalletConnect fiabilisée (local only) ===
           try {
             if (window.__wcConnecting) return;
             window.__wcConnecting = true;
 
             const EP = await loadWalletConnectProvider();
-            if (!EP || !EP.init) {
-              alert("WalletConnect n’est pas chargé. Vérifie /assets/vendor/wc/ethereum-provider.bundle.min.js");
-              return;
-            }
+            if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
 
-            // Init unique
+            await ensureWcModal();
+
             if (!window.__wcProvider) {
               window.__wcProvider = await EP.init({
                 projectId: "9c945cd5bef5c1e1905266cf0219736d",
-                showQrModal: hasWcModal(),   // nécessite /assets/vendor/wc/walletconnect-modal.min.js
+                showQrModal: true,
                 chains: [1],
                 optionalChains: [137, 10, 42161, 56, 43114],
                 methods: [
@@ -564,10 +549,8 @@
               });
             }
 
-            // Établir la session (QR si modal présente)
             await window.__wcProvider.connect();
 
-            // Récup des comptes
             const accounts = (window.__wcProvider.accounts && window.__wcProvider.accounts.length)
               ? window.__wcProvider.accounts
               : await window.__wcProvider.request({ method: "eth_accounts" });
@@ -748,10 +731,7 @@
 
     function toggleSaveInline(open){
       saveInline.style.display = open ? 'block' : 'none';
-      if (open){
-        saveNameInput.value = '';
-        saveNameInput.focus();
-      }
+      if (open){ saveNameInput.value=''; saveNameInput.focus(); }
     }
 
     document.getElementById('showContacts').onclick = ()=>{
@@ -798,13 +778,11 @@
 
       try{
         const res = await fetch(`${BACKEND}/create-link`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
         });
         const data = await res.json();
         if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
-
         const lien = `https://linkisend.io/${data.short_id}`;
         linkEl.textContent = lien;
         resultDiv.style.display='block';
@@ -825,37 +803,27 @@
       });
     }
 
-    // === Service Worker ===
+    // Service Worker
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/service-worker.js")
         .then(() => console.log("SW enregistré ✅"))
         .catch(err => console.error("SW erreur:", err));
     }
 
-    // === Bouton d'installation PWA ===
+    // Bouton d'installation PWA
     let deferredPrompt = null;
-
     window.addEventListener('beforeinstallprompt', (e)=>{
-      e.preventDefault();
-      deferredPrompt = e;
-      const b = document.getElementById('installBtn');
-      if (b) b.style.display = 'inline-flex';
+      e.preventDefault(); deferredPrompt = e;
+      const b = document.getElementById('installBtn'); if (b) b.style.display = 'inline-flex';
     });
-
     document.getElementById('installBtn').addEventListener('click', async ()=>{
       if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('installBtn').style.display = 'none';
+      deferredPrompt.prompt(); await deferredPrompt.userChoice;
+      deferredPrompt = null; document.getElementById('installBtn').style.display = 'none';
     });
+    window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('installBtn'); if (b) b.style.display = 'none'; });
 
-    window.addEventListener('appinstalled', ()=>{
-      const b = document.getElementById('installBtn');
-      if (b) b.style.display = 'none';
-    });
-
-    // ---- Appliquer la langue
+    // Appliquer la langue
     applyLang();
   });
   </script>
