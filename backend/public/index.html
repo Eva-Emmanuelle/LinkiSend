@@ -532,7 +532,7 @@
           try{
             // Charger le provider WalletConnect (UMD)
             if (!window.EthereumProvider) {
-              await loadScript("https://unpkg.com/@walletconnect/ethereum-provider/dist/umd/index.min.js");
+              await loadScript("https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js");
             }
             // (le modal est chargé en haut en <script defer>, mais on tolère qu’il n’existe pas)
             const EP = window.EthereumProvider;
