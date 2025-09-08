@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <title>LinkiSend — Envoyer des cryptos</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <!-- PWA iOS (splash & mode app) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
+  <link rel="icon" href="assets/favicon.ico">
 
   <style>
     :root{
@@ -40,6 +39,7 @@
       padding:4px 8px;border-radius:999px;background:#0e141c;
     }
     .lang-toggle:hover{background:#101924}
+
     .card{
       background:linear-gradient(180deg,var(--card),var(--card-2));
       border:1px solid var(--stroke);border-radius:var(--radius);
@@ -68,6 +68,7 @@
       padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content;
     }
     .wallet-link:hover{background:#0d1729}
+
     .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke);}
     .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171;}
     .result-cta{
@@ -76,11 +77,14 @@
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
     .linkbox{flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;border-radius:10px;padding:12px 14px;display:flex;align-items:center}
     .linkbox code{font-family:ui-monospace,Menlo,Consolas,"Roboto Mono",monospace;font-size:16px;color:#065f46;white-space:nowrap;overflow:auto}
+
     .toast{
       position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;
       box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
     }
     .toast.show{opacity:1;transform:translateY(0)}
+
+    /* Modal */
     .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
     .modal.open{display:grid;}
     .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
@@ -99,6 +103,8 @@
       color:#fff;border:0;font-weight:600;
     }
     .pv:hover{background:#101924}
+
+    /* Phone & contacts */
     .phone-row{display:flex;gap:8px;align-items:center}
     .dial{position:relative;display:flex}
     .dial-btn{
@@ -118,12 +124,15 @@
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}
     .dialcode{color:#cfe1ff}
     .country{color:#9fb0c0;font-size:12px}
+
     @media (max-width: 540px){
       .brand{justify-content:flex-start !important;gap:8px !important;margin:10px 0 20px !important;padding:0 8px;}
       .brand img.arrow{position:static !important;transform:none !important;max-width:28px !important;height:auto !important;margin-right:6px;}
       .brand img.word{max-width:170px !important;}
       .lang-toggle{right:8px !important;font-size:11px;padding:3px 8px;}
     }
+
+    /* Bouton d'installation PWA (mobile) */
     #installBtn{
       position:fixed;right:14px;bottom:90px;z-index:80;
       display:none;align-items:center;gap:8px;
@@ -132,6 +141,8 @@
       box-shadow:var(--shadow);
     }
     #installBtn:active{transform:translateY(1px)}
+
+    /* Splash */
     #splash{
       position:fixed; inset:0; z-index:9999;
       display:grid; place-items:center;
@@ -142,6 +153,8 @@
     }
     #splash img{ width:300px; height:auto; filter:drop-shadow(0 12px 30px rgba(0,0,0,.35)); opacity:.96; }
     #splash.hide{ opacity:0; pointer-events:none; }
+
+    /* --- Fix modal on small screens --- */
     .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
     .modal-card{ width: min(440px, 92vw); max-height: 88vh; overflow: auto; }
     @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; } }
@@ -150,18 +163,18 @@
 
   <!-- Splash auto-hide -->
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const s = document.getElementById('splash');
-    if (!s) return;
-    const isStandalone =
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-      (window.navigator.standalone === true);
-    if (isStandalone) { s.remove(); return; }
-    let done = false;
-    function hideSplash(){ if(done) return; done = true; s.classList.add('hide'); setTimeout(()=>s.remove(), 400); }
-    window.addEventListener('load', hideSplash);
-    setTimeout(hideSplash, 1200);
-  });
+    document.addEventListener("DOMContentLoaded", function () {
+      const s = document.getElementById('splash');
+      if (!s) return;
+      const isStandalone =
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        (window.navigator.standalone === true);
+      if (isStandalone) { s.remove(); return; }
+      let done = false;
+      function hideSplash(){ if(done) return; done = true; s.classList.add('hide'); setTimeout(()=>s.remove(), 400); }
+      window.addEventListener('load', hideSplash);
+      setTimeout(hideSplash, 1200);
+    });
   </script>
 
   <!-- CONFIG + pays -->
@@ -174,60 +187,8 @@
 </head>
 
 <body>
-  <!-- Gate d’installation PWA (mobile) -->
-  <script>
-  (function () {
-    const isStandalone =
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-      (window.navigator.standalone === true);
-    const ua = (navigator.userAgent || navigator.vendor || window.opera || "").toLowerCase();
-    const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
-
-    if (!isStandalone && isMobileUA) {
-      function browserHelp() {
-        if (ua.includes('samsungbrowser')) return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        if (ua.includes('firefox')) return "Sur Firefox Android : menu ⋮ > Installer.";
-        if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        if (ua.includes('chrome')) return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
-        return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
-      }
-      document.write(`
-        <style>body > :not(#install-gate){display:none!important}</style>
-        <div id="install-gate" style="
-          min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
-          font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
-          <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
-          <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
-            Pour utiliser LinkiSend, installe l’application sur ton téléphone.
-          </p>
-          <button id="installNow" style="
-            display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
-            border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
-            📲 Installer l’app
-          </button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
-            ${browserHelp()}
-          </div>
-        </div>
-      `);
-      let _deferred = null;
-      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferred = e; });
-      window.addEventListener('click', async (ev) => {
-        const btn = document.getElementById('installNow');
-        if (!btn || ev.target !== btn) return;
-        if (_deferred) {
-          _deferred.prompt();
-          try { await _deferred.userChoice; } catch {}
-          _deferred = null;
-        } else {
-          alert(document.getElementById('installHint').textContent);
-        }
-      });
-    }
-  })();
-  </script>
+  <!-- Sécurité: si un ancien style “install-gate” traîne, on le neutralise -->
+  <style>body > * { display: revert !important; }</style>
 
   <!-- Splash -->
   <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
@@ -435,7 +396,6 @@
     }
     async function ensureWcModal() {
       if (window.WalletConnectModal || window.walletConnectModal) return true;
-      // fallback CDN seulement si vraiment absent
       const urls = [
         "https://cdn.jsdelivr.net/npm/@walletconnect/modal-ui@2/dist/index.min.js",
         "https://unpkg.com/@walletconnect/modal-ui@2/dist/index.min.js"
@@ -444,10 +404,8 @@
       return false;
     }
     async function loadWalletConnectProvider() {
-      // déjà présent ? (normalement oui grâce au script local)
       let EP = getWcGlobal();
       if (EP) return EP;
-      // sinon, fallback CDNs
       const umd = [
         "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js",
         "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"
@@ -532,7 +490,6 @@
 
             const EP = await loadWalletConnectProvider();
             if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
-
             await ensureWcModal();
 
             if (!window.__wcProvider) {
