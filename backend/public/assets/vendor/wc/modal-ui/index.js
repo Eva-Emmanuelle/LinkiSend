@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
-  <link rel="icon" href="assets/favicon.ico">
 
   <style>
     :root{
@@ -187,8 +186,17 @@
 </head>
 
 <body>
-  <!-- Sécurité: si un ancien style “install-gate” traîne, on le neutralise -->
-  <style>body > * { display: revert !important; }</style>
+  <!-- 🔧 TEMPORAIRE: purge Service Workers & caches pour casser l’ancienne version -->
+  <script>
+  (function(){
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister()));
+    }
+    if (window.caches && caches.keys) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    }
+  })();
+  </script>
 
   <!-- Splash -->
   <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
@@ -355,9 +363,7 @@
     });
     try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch {}
 
-    function isStandaloneApp(){
-      return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
-    }
+    function isStandaloneApp(){ return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true); }
     const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
     function getProviderBy(match6963, matchLegacy){
@@ -373,7 +379,7 @@
       return null;
     }
 
-    // ---- Loader utilitaire (scripts UMD)
+    // ---- Loader utilitaire
     function loadScript(src){
       return new Promise((resolve,reject)=>{
         const s=document.createElement('script');
@@ -387,10 +393,7 @@
       return (
         window.EthereumProvider ||
         window.WalletConnectEthereumProvider ||
-        (window.WalletConnectProvider &&
-          (window.WalletConnectProvider.init
-            ? window.WalletConnectProvider
-            : window.WalletConnectProvider.default)) ||
+        (window.WalletConnectProvider && (window.WalletConnectProvider.init ? window.WalletConnectProvider : window.WalletConnectProvider.default)) ||
         (window.WalletConnect && window.WalletConnect.EthereumProvider)
       );
     }
@@ -532,11 +535,8 @@
       const filter = f.toLowerCase();
       COUNTRIES
         .filter(d =>
-          !filter ||
-          d.en.toLowerCase().includes(filter) ||
-          d.fr.toLowerCase().includes(filter) ||
-          d.code.includes(filter) ||
-          d.iso.toLowerCase().includes(filter)
+          !filter || d.en.toLowerCase().includes(filter) || d.fr.toLowerCase().includes(filter) ||
+          d.code.includes(filter) || d.iso.toLowerCase().includes(filter)
         )
         .forEach(d=>{
           const name = (lang === "fr") ? d.fr : d.en;
@@ -760,25 +760,8 @@
       });
     }
 
-    // Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/service-worker.js")
-        .then(() => console.log("SW enregistré ✅"))
-        .catch(err => console.error("SW erreur:", err));
-    }
-
-    // Bouton d'installation PWA
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e)=>{
-      e.preventDefault(); deferredPrompt = e;
-      const b = document.getElementById('installBtn'); if (b) b.style.display = 'inline-flex';
-    });
-    document.getElementById('installBtn').addEventListener('click', async ()=>{
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt(); await deferredPrompt.userChoice;
-      deferredPrompt = null; document.getElementById('installBtn').style.display = 'none';
-    });
-    window.addEventListener('appinstalled', ()=>{ const b = document.getElementById('installBtn'); if (b) b.style.display = 'none'; });
+    // (On ne ré-enregistre PAS de SW tant que tout n'est pas OK)
+    // // if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/service-worker.js"); }
 
     // Appliquer la langue
     applyLang();
