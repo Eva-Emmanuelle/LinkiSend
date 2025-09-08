@@ -62,7 +62,7 @@
     .btn{
       width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
       background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;
-      box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
+      box-shadow:var(--shadow);margin-top:14px;
     }
     .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
     .btn:active{transform:translateY(1px)}
@@ -478,11 +478,12 @@
       );
     }
 
+    // ⚠️ Charger le **bon** modal (package @walletconnect/modal)
     async function ensureWcModal() {
       if (window.WalletConnectModal || window.walletConnectModal) return true;
       const urls = [
-        "https://cdn.jsdelivr.net/npm/@walletconnect/modal-ui@2/dist/index.min.js",
-        "https://unpkg.com/@walletconnect/modal-ui@2/dist/index.min.js"
+        "https://unpkg.com/@walletconnect/modal@2/dist/index.umd.js",
+        "https://cdn.jsdelivr.net/npm/@walletconnect/modal@2/dist/index.umd.js"
       ];
       for (const u of urls){
         try { await loadScript(u + "?v=" + Date.now()); return true; } catch(e){}
@@ -493,10 +494,10 @@
     async function loadWalletConnectProvider() {
       let EP = getWcGlobal(); // devrait être dispo via le bundle local
       if (EP) return EP;
-      // Fallback CDN si le bundle local n'est pas chargé pour une raison X
+      // Fallback CDN si le bundle local n'est pas chargé
       const umd = [
-        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js",
-        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"
+        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js",
+        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js"
       ];
       for (const u of umd) {
         try { await loadScript(u + "?v=" + Date.now()); EP = getWcGlobal(); if (EP) return EP; } catch(e){}
@@ -576,21 +577,34 @@
               window.__wcProvider = await EP.init({
                 projectId: "9c945cd5bef5c1e1905266cf0219736d",
                 showQrModal: true,
-                chains: [1],
+                qrModalOptions: { themeMode: "dark" },
+                chains: [1],                          // mainnet requis
                 optionalChains: [137, 10, 42161, 56, 43114],
                 methods: [
                   "eth_requestAccounts","eth_sendTransaction","personal_sign",
                   "eth_signTypedData","eth_signTypedData_v4","eth_sign"
                 ],
-                events: ["chainChanged","accountsChanged"]
+                events: ["chainChanged","accountsChanged"],
+                metadata: {
+                  name: "LinkiSend",
+                  description: "Envoyer des cryptos par lien",
+                  url: "https://linkisend.io",
+                  icons: ["https://linkisend.io/assets/branding/logo-arrow.png"]
+                }
               });
             }
 
+            // Ouvre le QR et attend la session
             await window.__wcProvider.connect();
 
-            const accounts = (window.__wcProvider.accounts && window.__wcProvider.accounts.length)
-              ? window.__wcProvider.accounts
-              : await window.__wcProvider.request({ method: "eth_accounts" });
+            // Toujours demander explicitement les comptes (plus fiable selon les wallets)
+            let accounts = null;
+            try {
+              accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" });
+            } catch(e) {
+              // fallback si le wallet ne supporte pas encore eth_requestAccounts
+              accounts = await window.__wcProvider.request({ method: "eth_accounts" });
+            }
 
             if (accounts && accounts[0]) walletInput.value = accounts[0];
             closeModal();
