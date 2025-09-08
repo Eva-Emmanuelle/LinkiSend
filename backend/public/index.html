@@ -174,7 +174,6 @@
     const s = document.getElementById('splash');
     if (!s) return;
 
-    // Mode standalone (PWA installée) ?
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
@@ -188,14 +187,13 @@
       s.classList.add('hide');
       setTimeout(() => s.remove(), 400);
     }
-
     window.addEventListener('load', hideSplash);
     setTimeout(hideSplash, 1200);
   });
   </script>
 </head>
 <body>
-  <!-- Gate d'installation PWA : mobile uniquement -->
+  <!-- Gate d’installation PWA (mobile) -->
   <script>
   (function () {
     const isStandalone =
@@ -435,19 +433,32 @@
     document.getElementById('walletModalClose').addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
 
+    // ====== Providers (EIP-6963 + legacy) ======
+    const discovered = [];
+    window.addEventListener('eip6963:announceProvider', (event) => {
+      try { discovered.push(event.detail); } catch {}
+    });
+    // Demande aux wallets de s'annoncer (chrome >= 119)
+    try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch {}
+
     function isStandaloneApp(){
       return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
     }
     const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
-    function pickInjectedProvider(predicate){
-      if (!window.ethereum) return null;
-      if (Array.isArray(window.ethereum.providers)) {
-        return window.ethereum.providers.find(p => {
-          try { return predicate(p); } catch { return false; }
-        }) || null;
+    function getProviderBy(match6963, matchLegacy){
+      // 1) EIP-6963
+      const d = discovered.find(x => { try { return match6963(x); } catch { return false; } });
+      if (d && d.provider) return d.provider;
+      // 2) Legacy window.ethereum
+      if (window.ethereum) {
+        if (Array.isArray(window.ethereum.providers)) {
+          const p = window.ethereum.providers.find(p => { try { return matchLegacy(p); } catch { return false; } });
+          if (p) return p;
+        }
+        if (matchLegacy(window.ethereum)) return window.ethereum;
       }
-      return predicate(window.ethereum) ? window.ethereum : null;
+      return null;
     }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
@@ -455,7 +466,10 @@
         const provider = btn.getAttribute('data-wallet');
 
         if(provider === 'metamask'){
-          const eth = pickInjectedProvider(p => !!p.isMetaMask);
+          const eth = getProviderBy(
+            d => /metamask/i.test(d?.info?.rdns || '') || /metamask/i.test(d?.info?.name || ''),
+            p => !!p.isMetaMask
+          );
           if (!eth || !eth.request) {
             if (isStandaloneApp() && !isMobile) { window.open(window.location.href, '_blank'); return; }
             if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
@@ -478,8 +492,11 @@
           }
 
         } else if (provider === "uniswap") {
-          // 1) Essayer le provider injecté par l’extension Uniswap (desktop)
-          const uni = pickInjectedProvider(p => !!p.isUniswap || p?.providerName === 'uniswap');
+          // Tenter d'abord via EIP-6963 (rdns ou nom contenant 'uniswap'), puis legacy flags
+          const uni = getProviderBy(
+            d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
+            p => !!p.isUniswap || p?.providerName === 'uniswap'
+          );
           if (uni && uni.request) {
             try{
               const accounts = await uni.request({ method:'eth_requestAccounts' });
@@ -493,20 +510,14 @@
             }
           }
 
-          // 2) Sinon, bons fallbacks selon le contexte
+          // Fallbacks si aucun provider utilisable
           if (isMobile) {
             alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas disponible sans WalletConnect. J’ouvre l’app web pour trader, mais l’adresse ne peut pas être lue ici.");
             window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
             closeModal();
             return;
           }
-
-          if (isStandaloneApp()) {
-            // Cas PWA desktop : ouvrir un onglet du navigateur normal
-            window.open(window.location.href, '_blank');
-            return;
-          }
-
+          if (isStandaloneApp()) { window.open(window.location.href, '_blank'); return; }
           alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
           window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
           closeModal();
