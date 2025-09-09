@@ -269,27 +269,56 @@
           if(isStandaloneApp()){window.open(window.location.href,'_blank');return}
           alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");window.open(`https://app.uniswap.org/#/swap?chain=ethereum`,"_blank","noopener,noreferrer");closeModal()
 
-        }else if(provider==='walletconnect'){
-          try{
-            if(window.__wcConnecting)return; window.__wcConnecting=true;
-            const EP=await loadWalletConnectProvider(); if(!EP||!EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
-            if(!window.__wcProvider){
-              window.__wcProvider=await EP.init({
-                projectId:"9c945cd5bef5c1e1905266cf0219736d",
-                showQrModal:true,
-                chains:[1],
-                optionalChains:[137,10,42161,56,43114],
-                methods:["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData","eth_signTypedData_v4","eth_sign"],
-                events:["chainChanged","accountsChanged"]
+                } else if (provider === "walletconnect") {
+          try {
+            if (window.__wcConnecting) return;
+            window.__wcConnecting = true;
+
+            const EP = await loadWalletConnectProvider();
+            if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
+
+            if (!window.__wcProvider) {
+              window.__wcProvider = await EP.init({
+                projectId: "9c945cd5bef5c1e1905266cf0219736d",
+                showQrModal: true,
+                chains: [1],
+                optionalChains: [137, 10, 42161, 56, 43114],
+                methods: [
+                  "eth_requestAccounts","eth_sendTransaction","personal_sign",
+                  "eth_signTypedData","eth_signTypedData_v4","eth_sign"
+                ],
+                events: ["chainChanged","accountsChanged"]
+              });
+
+              // 🔗 Auto-remplissage du champ au changement de compte
+              window.__wcProvider.on("accountsChanged", (acc) => {
+                if (Array.isArray(acc) && acc[0]) {
+                  walletInput.value = acc[0];
+                }
               });
             }
+
+            // ✅ Connexion (affiche le QR si nécessaire)
             await window.__wcProvider.connect();
-            let accounts=null;
-            try{accounts=await window.__wcProvider.request({method:"eth_requestAccounts"})}catch{accounts=await window.__wcProvider.request({method:"eth_accounts"})}
-            if(accounts&&accounts[0])walletInput.value=accounts[0];
+
+            // 🧾 Récupère et place l’adresse
+            let accounts = null;
+            try {
+              accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" });
+            } catch {
+              accounts = await window.__wcProvider.request({ method: "eth_accounts" });
+            }
+            if (accounts && accounts[0]) {
+              walletInput.value = accounts[0];
+            }
+
             closeModal();
-          }catch(err){console.error("WalletConnect connect error:",err);alert("Connexion WalletConnect refusée ou erreur.")}
-          finally{window.__wcConnecting=false}
+          } catch (err) {
+            console.error("WalletConnect connect error:", err);
+            alert("Connexion WalletConnect refusée ou erreur.");
+          } finally {
+            window.__wcConnecting = false;
+          }
         }else{
           alert("Connexion via "+provider+" arrive bientôt.");
         }
