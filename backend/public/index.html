@@ -258,16 +258,66 @@
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 
-        }else if(provider==='phantom'){
-          if(window.solana&&window.solana.isPhantom){window.solana.connect().then(r=>{walletInput.value=r.publicKey.toString();closeModal()}).catch(err=>{console.error(err);alert("Connexion Phantom refusée ou erreur.")})}
-          else{window.open("https://phantom.app/","_blank")}
+                } else if (provider === "phantom") {
+          const ph = window.solana;
+          if (ph && ph.isPhantom) {
+            try {
+              const resp = await ph.connect();
+              walletInput.value = resp.publicKey.toString();
+              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
+              if (typeof ph.on === "function") {
+                ph.on("accountChanged", (pubKey) => {
+                  walletInput.value = pubKey ? pubKey.toString() : "";
+                });
+              }
+              closeModal();
+            } catch (err) {
+              console.error(err);
+              alert("Connexion Phantom refusée ou erreur.");
+            }
+          } else {
+            window.open("https://phantom.app/", "_blank");
+          }
 
-        }else if(provider==='uniswap'){
-          const uni=getProviderBy(d=>/uniswap/i.test(d?.info?.rdns||'')||/uniswap/i.test(d?.info?.name||''),p=>!!p.isUniswap||p?.providerName==='uniswap');
-          if(uni&&uni.request){try{const accounts=await uni.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal();return}catch(err){console.error(err);alert("Connexion Uniswap refusée ou erreur.");return}}
-          if(isMobile){alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");window.open(`https://app.uniswap.org/#/swap?chain=ethereum`,"_blank","noopener,noreferrer");closeModal();return}
-          if(isStandaloneApp()){window.open(window.location.href,'_blank');return}
-          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");window.open(`https://app.uniswap.org/#/swap?chain=ethereum`,"_blank","noopener,noreferrer");closeModal()
+                } else if (provider === "uniswap") {
+          const uni = getProviderBy(
+            d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
+            p => !!p.isUniswap || p?.providerName === 'uniswap'
+          );
+
+          // Extension détectée
+          if (uni && typeof uni.request === "function") {
+            try {
+              const accounts = await uni.request({ method: "eth_requestAccounts" });
+              if (accounts && accounts[0]) walletInput.value = accounts[0];
+
+              // 🔄 garde le champ à jour si le compte change
+              if (typeof uni.on === "function") {
+                uni.on("accountsChanged", (acc) => {
+                  if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
+                });
+              }
+
+              closeModal();
+              return;
+            } catch (err) {
+              console.error(err);
+              alert("Connexion Uniswap refusée ou erreur.");
+              return;
+            }
+          }
+
+          // Pas d’extension : on ouvre l’app Uniswap
+          if (isMobile) {
+            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
+            window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
+            closeModal();
+            return;
+          }
+          if (isStandaloneApp()) { window.open(window.location.href, '_blank'); return; }
+          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
+          window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
+          closeModal();
 
                 } else if (provider === "walletconnect") {
           try {
