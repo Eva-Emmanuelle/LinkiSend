@@ -251,13 +251,59 @@
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider=btn.getAttribute('data-wallet');
-        if(provider==='metamask'){
-          const eth=getProviderBy(d=>/metamask/i.test(d?.info?.rdns||'')||/metamask/i.test(d?.info?.name||''),p=>!!p.isMetaMask);
-          if(!eth||!eth.request){if(isStandaloneApp()&&!isMobile){window.open(window.location.href,'_blank');return}
-            if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
-          try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
+        if(provider === 'metamask'){
+  // === MetaMask robuste : standalone PWA, mobile, multi-providers + écoute des changements ===
+  const isStandaloneApp =
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator.standalone === true);
+  const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
+  const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+    ? window.ethereum.providers.find(p => p && p.isMetaMask)
+    : window.ethereum;
+
+  if (!eth || !eth.request) {
+    if (isStandaloneApp && !isMobile) {
+      window.open(window.location.href, '_blank'); // ouvrir dans un onglet "normal"
+      return;
+    }
+    if (isMobile) {
+      const path = location.host + location.pathname + location.search;
+      location.href = `https://metamask.app.link/dapp/${path}`;
+      return;
+    }
+    alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
+    return;
+  }
+
+  try{
+    // ✅ connexion (MetaMask demandera le mot de passe si verrouillé)
+    const accounts = await eth.request({ method:'eth_requestAccounts' });
+    if(accounts && accounts[0]) walletInput.value = accounts[0];
+
+    // 🔄 Mets à jour automatiquement si l’utilisateur change de compte APRÈS la connexion
+    if (typeof eth.on === 'function') {
+      // évite les doublons si l’utilisateur reclique plusieurs fois
+      if (window.__onMMAccChanged) eth.removeListener?.('accountsChanged', window.__onMMAccChanged);
+      window.__onMMAccChanged = (acc) => {
+        walletInput.value = (Array.isArray(acc) && acc[0]) ? acc[0] : '';
+      };
+      eth.on('accountsChanged', window.__onMMAccChanged);
+
+      // (optionnel) écoute du changement de réseau si tu veux adapter la liste des tokens
+      if (window.__onMMChainChanged) eth.removeListener?.('chainChanged', window.__onMMChainChanged);
+      window.__onMMChainChanged = (_chainId) => {
+        // Tu pourras rafraîchir ici la liste de cryptos selon le réseau
+      };
+      eth.on('chainChanged', window.__onMMChainChanged);
+    }
+
+    closeModal();
+  }catch(e){
+    console.error(e);
+    alert("Connexion MetaMask refusée ou erreur.");
+  }
+}
                 } else if (provider === "phantom") {
           const ph = window.solana;
           if (ph && ph.isPhantom) {
