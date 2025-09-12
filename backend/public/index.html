@@ -681,6 +681,7 @@
             if(accounts && accounts[0]) walletInput.value = accounts[0];
             currentProvider = eth;
             currentAccount  = accounts[0];
+            console.log("MetaMask accounts renvoyés:", accounts);
 
             // chain -> tokens/balances
             const chainId = await eth.request({ method:'eth_chainId' });
