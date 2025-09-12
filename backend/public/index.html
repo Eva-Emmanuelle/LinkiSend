@@ -614,5 +614,86 @@
 </script>
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
+  <script>
+/* === LinkiSend: Liste de tokens dynamique (jamais vide) === */
+(function(){
+  const currencySelect = document.getElementById('currency');
+  const walletInput    = document.getElementById('wallet');
+  if (!currencySelect || !walletInput) return;
+
+  function setCurrencyOptions(list){
+    currencySelect.innerHTML = '';
+    list.forEach(sym=>{
+      const o=document.createElement('option');
+      o.value=sym; o.textContent=sym;
+      currencySelect.appendChild(o);
+    });
+  }
+
+  // ---- Registres
+  const EVM_REGISTRY = {
+    '0x1': { native:'ETH', tokens:['USDC','USDT','DAI','WBTC','LINK'] },
+    '0x38':{ native:'BNB', tokens:['USDC','USDT','DAI','WBTC','LINK'] },
+    '0x89':{ native:'MATIC', tokens:['USDC','USDT','DAI','WBTC','LINK'] },
+    '0xa86a':{ native:'AVAX', tokens:['USDC','USDT','DAI','WBTC','LINK'] }
+  };
+  const SOLANA_DEFAULT = ['SOL','USDC','USDT','BONK','RAY'];
+
+  // ---- Scanner EVM
+  async function scanEvm(eth, account){
+    const chainId = await eth.request({method:'eth_chainId'});
+    const reg = EVM_REGISTRY[chainId];
+    if(!reg){ setCurrencyOptions([account ? 'ETH' : '']); return; }
+
+    const symbols = new Set();
+    // natif toujours inclus
+    symbols.add(reg.native);
+
+    // on ne filtre pas par solde, on remonte juste ceux >0
+    async function hasBalance(addr, data){
+      try{
+        const res = await eth.request({ method:'eth_call', params:[{to:addr,data},'latest'] });
+        return BigInt(res||'0x0')>0n;
+      }catch{return false;}
+    }
+    const balanceOfData = (addr)=>'0x70a08231'+account.replace(/^0x/,'').padStart(64,'0');
+
+    // ordre: >0 en haut
+    const withBal=[], withoutBal=[];
+    for(const sym of reg.tokens){
+      const addr = Object.values(EVM_REGISTRY).flatMap(r=>r.tokens).includes(sym)?null:null; // simplifié
+      // ici on pourrait tester l’adresse du token, mais pour l’instant on ne filtre pas
+      withoutBal.push(sym);
+    }
+
+    const finalList=[reg.native,...withBal,...withoutBal];
+    setCurrencyOptions(Array.from(new Set(finalList)));
+  }
+
+  // ---- Scanner Solana
+  async function scanSolana(addr){
+    // toujours afficher la liste par défaut
+    setCurrencyOptions(SOLANA_DEFAULT);
+  }
+
+  // ---- Déclencheur
+  function refresh(){
+    const val=walletInput.value.trim();
+    if(val.startsWith('0x') && window.ethereum){
+      scanEvm(window.ethereum,val);
+    } else if(val && window.solana){
+      scanSolana(val);
+    }
+  }
+
+  // ré-essai quand l’adresse change
+  let last='';
+  setInterval(()=>{
+    const cur=walletInput.value.trim();
+    if(cur!==last){ last=cur; refresh(); }
+  },1000);
+
+})();
+</script>
 </body>
 </html>
