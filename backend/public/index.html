@@ -9,122 +9,224 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
-  <link rel="icon" href="assets/icons/icon-maskable-512.png" />
-
   <style>
-    :root{--bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;--text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;--shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px}
-    *,*:before,*:after{box-sizing:border-box}html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}.brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}.brand img.word{max-width:240px;height:auto;display:block}.brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto}
-    .lang-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);padding:4px 8px;border-radius:999px;background:#0e141c}.lang-toggle:hover{background:#101924}
-    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}.card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}.sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
-    .row{display:flex;gap:var(--gap)}.col{flex:1}label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
-    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none}
-    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
+    :root{
+      --bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;
+      --text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;
+      --shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px;
+    }
+    *,*:before,*:after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
+        radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),
+        var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px;}
+    .brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative;}
+    .brand img.word{max-width:240px;height:auto;display:block;}
+    .brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto;}
+    .lang-toggle{
+      position:absolute;right:0;top:50%;transform:translateY(-50%);
+      font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);
+      padding:4px 8px;border-radius:999px;background:#0e141c;
+    }
+    .lang-toggle:hover{background:#101924}
+
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card-2));
+      border:1px solid var(--stroke);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:18px 16px;
+    }
+    .card h2{margin:4px 2px 2px;font-size:22px;font-weight:750;}
+    .sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px;}
+    .row{display:flex;gap:var(--gap)}
+    .col{flex:1}
+    label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
+    select,input{
+      width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
+      border:1px solid var(--stroke);background:#0e141c;color:#text;outline:none;color:var(--text);
+    }
+    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px}
-    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}.btn:active{transform:translateY(1px)}
-    .wallet-link{display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content}
+    .btn{
+      width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;
+      background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;
+      box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px;
+    }
+    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}
+    .btn:active{transform:translateY(1px)}
+    .wallet-link{
+      display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;
+      padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content;
+    }
     .wallet-link:hover{background:#0d1729}
-    .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke)}.error{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
-    .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
+
+    .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke);}
+    .error{background:#fee2e2;color:#991b1b;border:1px solid #f87171;}
+    .result-cta{
+      margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none;
+    }
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
-    .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
-    .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-    .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
-    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
-    .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
-    .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}.dialcode{color:#cfe1ff}.country{color:#9fb0c0;font-size:12px}
-    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
-    #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+    .linkbox{flex:1 1 auto;min-width:260px;background:#ffffff;border:1px dashed #a7f3d0;border-radius:10px;padding:12px 14px;display:flex;align-items:center}
+    .linkbox code{font-family:ui-monospace,Menlo,Consolas,"Roboto Mono",monospace;font-size:16px;color:#065f46;white-space:nowrap;overflow:auto}
+
+    .toast{
+      position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;
+      box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .modal { position:fixed; inset:0; display:none; place-items:center;background:rgba(3,6,12,.6); backdrop-filter:blur(4px); z-index:50; padding:20px; }
+    .modal.open{display:grid;}
+    .modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px;}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .modal-head h3{margin:0;font-size:18px}
+    .x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+    .pv{
+      display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);
+      border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600
+    }
+    .pv img{width:20px;height:20px}
+    .tag{
+      margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;
+      background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600;
+    }
+    .pv:hover{background:#101924}
+
+    .phone-row{display:flex;gap:8px;align-items:center}
+    .dial{position:relative;display:flex}
+    .dial-btn{
+      height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;
+      display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    }
+    .dial-btn:hover{background:#0d1729}
+    .dial-panel{
+      position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);
+      border-radius:10px;box-shadow:var(--shadow);display:none;
+    }
+    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
+    .dial-list{max-height:260px;overflow:auto}
+    .dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+    .dial-item:last-child{border-bottom:0}
+    .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}
+    .dialcode{color:#cfe1ff}
+    .country{color:#9fb0c0;font-size:12px}
+
+    @media (max-width: 540px){
+      .brand{justify-content:flex-start !important;gap:8px !important;margin:10px 0 20px !important;padding:0 8px;}
+      .brand img.arrow{position:static !important;transform:none !important;max-width:28px !important;height:auto !important;margin-right:6px;}
+      .brand img.word{max-width:170px !important;}
+      .lang-toggle{right:8px !important;font-size:11px;padding:3px 8px;}
+    }
+
+    #installBtn{
+      position:fixed;right:14px;bottom:90px;z-index:80;
+      display:none;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);
+      background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;
+      box-shadow:var(--shadow);
+    }
     #installBtn:active{transform:translateY(1px)}
-    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
-    #splash img{width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96}#splash.hide{opacity:0;pointer-events:none}
-    .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}.modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
-    @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
-    @media (max-height:640px){.modal-card{max-height:84vh}}
+
+    #splash{
+      position:fixed; inset:0; z-index:9999;
+      display:grid; place-items:center;
+      background: radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
+                  radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),
+                  var(--bg);
+      transition: opacity .35s ease;
+    }
+    #splash img{ width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96; }
+    #splash.hide{ opacity:0; pointer-events:none; }
+
+    .modal{ padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px; }
+    .modal-card{ width: min(440px, 92vw); max-height: 88vh; overflow: auto; }
+    @media (max-width: 380px){ .modal-card{ width: 94vw; } .providers{ grid-template-columns: 1fr !important; } }
+    @media (max-height: 640px){ .modal-card{ max-height: 84vh; } }
   </style>
 
   <script>
-  document.addEventListener("DOMContentLoaded",function(){
-    const s=document.getElementById('splash');if(!s)return;
-    const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
-    if(isStandalone){s.remove();return}
-    let done=false;function hide(){if(done)return;done=true;s.classList.add('hide');setTimeout(()=>s.remove(),400)}
-    window.addEventListener('load',hide);setTimeout(hide,1200)
+  document.addEventListener("DOMContentLoaded", function () {
+    const s = document.getElementById('splash');
+    if (!s) return;
+    const isStandalone =
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      (window.navigator.standalone === true);
+    if (isStandalone) { s.remove(); return; }
+    let done = false;
+    function hideSplash(){ if(done) return; done = true; s.classList.add('hide'); setTimeout(()=>s.remove(), 400); }
+    window.addEventListener('load', hideSplash);
+    setTimeout(hideSplash, 1200);
   });
-  </script>
-
-  <!-- CONFIG + pays -->
-  <script src="config.js"></script>
-  <script src="countries.js"></script>
-
-  <!-- CHARGEUR ROBUSTE WalletConnect: local si OK, sinon fallback CDN -->
-  <script>
-    (function(){
-      function inject(src){
-        return new Promise((resolve,reject)=>{
-          const s=document.createElement('script');
-          s.src=src; s.async=true;
-          s.onload=resolve; s.onerror=()=>reject(new Error('load fail '+src));
-          document.head.appendChild(s);
-        });
-      }
-      async function loadLocalOrCdn(){
-        const local="/assets/vendor/wc/ethereum-provider.bundle.min.js";
-        try{
-          const r=await fetch(local,{cache:'no-store'});
-          const ct=(r.headers.get('content-type')||'').toLowerCase();
-          const txt=await r.text();
-          if(!r.ok || ct.includes('text/html') || /^\s*<!doctype html/i.test(txt)) throw new Error('local is html/404');
-          await inject(local+'?v='+Date.now());
-        }catch(_){
-          await inject("https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js");
-        }
-      }
-      window.__wcProviderBootstrap = loadLocalOrCdn();
-    })();
   </script>
 </head>
 
 <body>
   <script>
-  (function(){
-    const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
-    const ua=(navigator.userAgent||navigator.vendor||window.opera||"").toLowerCase();
-    const isMobileUA=/android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
-    if(!isStandalone && isMobileUA){
-      function browserHelp(){
-        if(ua.includes('samsungbrowser'))return"Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        if(ua.includes('firefox'))return"Sur Firefox Android : menu ⋮ > Installer.";
-        if(ua.includes('crios')||ua.includes('iphone')||ua.includes('ipad'))return"Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        if(ua.includes('chrome'))return"Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
-        return"Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
+  (function () {
+    const isStandalone =
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      (window.navigator.standalone === true);
+    const ua = (navigator.userAgent || navigator.vendor || window.opera || "").toLowerCase();
+    const isMobileUA = /android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
+    if (!isStandalone && isMobileUA) {
+      function browserHelp() {
+        if (ua.includes('samsungbrowser')) return "Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
+        if (ua.includes('firefox')) return "Sur Firefox Android : menu ⋮ > Installer.";
+        if (ua.includes('crios') || ua.includes('iphone') || ua.includes('ipad')) return "Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
+        if (ua.includes('chrome')) return "Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
+        return "Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
       }
       document.write(`
         <style>body > :not(#install-gate){display:none!important}</style>
-        <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
+        <div id="install-gate" style="
+          min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
+          font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
           <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
-          <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
+          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
+            Pour utiliser LinkiSend, installe l’application sur ton téléphone.
+          </p>
+          <button id="installNow" style="
+            display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
+            border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
+            📲 Installer l’app
+          </button>
+          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
+            ${browserHelp()}
+          </div>
         </div>
       `);
-      let _d=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();_d=e});
-      window.addEventListener('click',async(ev)=>{
-        const b=document.getElementById('installNow');if(!b||ev.target!==b)return;
-        if(_d){_d.prompt();try{await _d.userChoice}catch{} _d=null}else{alert(document.getElementById('installHint').textContent)}
+      let _deferred = null;
+      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _deferred = e; });
+      window.addEventListener('click', async (ev) => {
+        const btn = document.getElementById('installNow');
+        if (!btn || ev.target !== btn) return;
+        if (_deferred) {
+          _deferred.prompt();
+          try { await _deferred.userChoice; } catch {}
+          _deferred = null;
+        } else {
+          alert(document.getElementById('installHint').textContent);
+        }
       });
     }
   })();
   </script>
 
   <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
+
+  <script src="config.js"></script>
+  <script src="countries.js"></script>
 
   <div class="wrap">
     <div class="brand">
@@ -144,11 +246,8 @@
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
-          <select id="currency">
-            <option>USDT</option><option>USDC</option><option>ETH</option>
-            <option>BTC</option><option>SOL</option><option>BNB</option>
-            <option>AVAX</option><option>DAI</option><option>LINK</option>
-          </select>
+          <!-- rempli dynamiquement -->
+          <select id="currency"></select>
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
@@ -181,6 +280,7 @@
       <div class="contacts" id="contactsList"></div>
 
       <button id="generateBtn" class="btn">Générer le lien</button>
+
       <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
       <div id="result" class="result-cta" aria-live="polite">
@@ -194,7 +294,7 @@
         </div>
       </div>
 
-      <div id="error" class="error" style="display:none"></div>
+      <div id="error"  class="error"  style="display:none"></div>
     </div>
   </div>
 
@@ -207,125 +307,236 @@
         <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
       </div>
       <div class="providers">
-        <button class="pv" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="MetaMask" />MetaMask <span class="tag">EVM</span></button>
-        <button class="pv" data-wallet="walletconnect"><img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />WalletConnect <span class="tag">EVM</span></button>
-        <button class="pv" data-wallet="uniswap"><img src="assets/wallets/uniswap.svg" alt="Uniswap" />Uniswap <span class="tag">DEX</span></button>
-        <button class="pv" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="Phantom" />Phantom <span class="tag">Solana</span></button>
+        <button class="pv" data-wallet="metamask">
+          <img src="assets/wallets/metamask.svg" alt="MetaMask" />
+          MetaMask <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="walletconnect">
+          <img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />
+          WalletConnect <span class="tag">EVM</span>
+        </button>
+        <button class="pv" data-wallet="uniswap">
+          <img src="assets/wallets/uniswap.svg" alt="Uniswap" />
+          Uniswap <span class="tag">DEX</span>
+        </button>
+        <button class="pv" data-wallet="phantom">
+          <img src="assets/wallets/phantom.svg" alt="Phantom" />
+          Phantom <span class="tag">Solana</span>
+        </button>
       </div>
     </div>
   </div>
 
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
-    const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
-    const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
-    const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');let currentDial={iso:"FR",code:"+33"};
-    const langToggle=document.getElementById('langToggle');const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
-    const t={fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",needNumber:"Enter a number first."}};
-    function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet").textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document.getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang].hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch").placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document.getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
-    langToggle.addEventListener('click',()=>{lang=(lang==='fr')?'en':'fr';localStorage.setItem('lang',lang);applyLang()});
+    const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
+      ? window.LINKISEND_CONFIG.BACKEND_BASE
+      : `${location.protocol}//${location.hostname}:8000`;
 
-    const modal=document.getElementById('walletModal');const openModal=()=>{modal.classList.add('open')};const closeModal=()=>{modal.classList.remove('open')};
-    document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose').addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
+    const resultDiv = document.getElementById('result');
+    const errorDiv  = document.getElementById('error');
+    const walletInput = document.getElementById('wallet');
+    const linkEl  = document.getElementById('the-link');
+    const currencySel = document.getElementById('currency');
+    const networkSel = document.getElementById('network');
 
-    const discovered=[];window.addEventListener('eip6963:announceProvider',(event)=>{try{discovered.push(event.detail)}catch{}});try{window.dispatchEvent(new Event('eip6963:requestProvider'))}catch{}
-    function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
-    const isMobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
-    function getProviderBy(match6963,matchLegacy){const d=discovered.find(x=>{try{return match6963(x)}catch{return false}});if(d&&d.provider)return d.provider;if(window.ethereum){if(Array.isArray(window.ethereum.providers)){const p=window.ethereum.providers.find(p=>{try{return matchLegacy(p)}catch{return false}});if(p)return p}if(matchLegacy(window.ethereum))return window.ethereum}return null}
-    function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Échec chargement "+src));document.head.appendChild(s)})}
+    const dialBtn = document.getElementById('dialBtn');
+    const dialPanel = document.getElementById('dialPanel');
+    const dialSearch = document.getElementById('dialSearch');
+    const dialList = document.getElementById('dialList');
+    let currentDial = { iso:"FR", code:"+33" };
 
-    function getWcGlobal(){
-      const mod=window['@walletconnect/ethereum-provider'];
-      if(mod&&(mod.EthereumProvider?.init||mod.default?.EthereumProvider?.init)){return mod.EthereumProvider||mod.default.EthereumProvider}
-      return window.EthereumProvider||window.WalletConnectEthereumProvider||(window.WalletConnectProvider&&(window.WalletConnectProvider.init?window.WalletConnectProvider:window.WalletConnectProvider.default))||(window.WalletConnect&&window.WalletConnect.EthereumProvider)
+    const langToggle = document.getElementById('langToggle');
+    const userPref = localStorage.getItem('lang');
+    let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
+
+    const t = {
+      fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},
+      en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",needNumber:"Enter a number first."}
+    };
+
+    function applyLang(){
+      document.getElementById("title").textContent = t[lang].title;
+      document.getElementById("subtitle").textContent = t[lang].subtitle;
+      document.getElementById("lbl-wallet").textContent = t[lang].wallet;
+      document.getElementById("lbl-token").textContent = t[lang].token;
+      document.getElementById("lbl-amount").textContent = t[lang].amount;
+      document.getElementById("lbl-network").textContent = t[lang].network;
+      document.getElementById("lbl-phone").textContent = t[lang].phone;
+      document.getElementById("hint").textContent = t[lang].hint;
+      document.getElementById("generateBtn").textContent = t[lang].generate;
+      document.getElementById("connectWalletLink").textContent = t[lang].connectWallet;
+      document.getElementById("dialSearch").placeholder = t[lang].search;
+      document.getElementById("resultTitle").textContent = t[lang].resultTitle;
+      document.getElementById("validityText").textContent = t[lang].validity;
+      document.getElementById("langToggle").textContent = (lang === 'fr') ? 'FR / EN' : 'EN / FR';
+      if (dialPanel.style.display === 'block') renderDialList(dialSearch.value.toLowerCase());
+      if (saveNameInput) saveNameInput.placeholder = t[lang].savePh;
+      if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+      if (saveCancelBtn) saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
     }
+    langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
 
-    async function loadWalletConnectProvider(){
-      try{await window.__wcProviderBootstrap}catch{} // attend le bootstrap local/CDN
-      let EP=getWcGlobal(); if(EP) return EP;
-      const umd=["https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js","https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"];
-      for(const u of umd){try{await loadScript(u+"?v="+Date.now());EP=getWcGlobal();if(EP)return EP}catch{}}
+    // ====== Tokens par réseau ======
+    const TOKENS = {
+      ethereum: ["ETH","USDC","USDT","DAI","LINK"],
+      polygon: ["MATIC","USDC","USDT","DAI"],
+      bsc: ["BNB","USDT","USDC"],
+      avalanche: ["AVAX","USDC","USDT"],
+      solana: ["SOL","USDC","USDT"]
+    };
+    const CHAIN_TO_NETWORK = {
+      "0x1": "ethereum",
+      "0x89": "polygon",
+      "0x38": "bsc",
+      "0xa86a": "avalanche"
+      // (optimism 0xa, arbitrum 0xa4b1 non listés dans le select)
+    };
+    function setTokenOptions(networkKey){
+      const list = TOKENS[networkKey] || TOKENS.ethereum;
+      currencySel.innerHTML = "";
+      for (const sym of list){
+        const opt = document.createElement("option");
+        opt.textContent = sym;
+        currencySel.appendChild(opt);
+      }
+    }
+    function setNetworkSelect(networkKey){
+      const label =
+        networkKey === "ethereum" ? "Ethereum" :
+        networkKey === "bsc" ? "BNB Chain" :
+        networkKey === "polygon" ? "Polygon" :
+        networkKey === "avalanche" ? "Avalanche" :
+        networkKey === "solana" ? "Solana" : null;
+      if (!label) return;
+      for (let i=0;i<networkSel.options.length;i++){
+        if (networkSel.options[i].text === label){ networkSel.selectedIndex = i; break; }
+      }
+    }
+    function updateFromChainId(chainIdHex){
+      const net = CHAIN_TO_NETWORK[String(chainIdHex).toLowerCase()];
+      if (net){ setNetworkSelect(net); setTokenOptions(net); }
+    }
+    // initial par défaut
+    setTokenOptions("ethereum");
+
+    networkSel.addEventListener("change", ()=>{
+      const v = networkSel.value;
+      const key =
+        v === "Ethereum" ? "ethereum" :
+        v === "BNB Chain" ? "bsc" :
+        v === "Polygon" ? "polygon" :
+        v === "Avalanche" ? "avalanche" :
+        v === "Solana" ? "solana" : "ethereum";
+      setTokenOptions(key);
+    });
+
+    // ====== Modal Wallet ======
+    const modal = document.getElementById('walletModal');
+    const openModal  = () => { modal.classList.add('open'); };
+    const closeModal = () => { modal.classList.remove('open'); };
+    document.getElementById('connectWalletLink').addEventListener('click', (e)=>{e.preventDefault(); openModal();});
+    document.getElementById('walletModalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) closeModal(); });
+
+    // Helpers WC
+    function loadScript(src){
+      return new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src=src; s.async=true; s.onload=resolve; s.onerror=()=>reject(new Error("Échec chargement "+src));
+        document.head.appendChild(s);
+      });
+    }
+    function getWcGlobal() {
+      const mod = window['@walletconnect/ethereum-provider'];
+      if (mod && (mod.EthereumProvider?.init || mod.default?.EthereumProvider?.init)) {
+        return mod.EthereumProvider || mod.default.EthereumProvider;
+      }
+      return window.EthereumProvider || window.WalletConnectEthereumProvider ||
+             (window.WalletConnectProvider && (window.WalletConnectProvider.init
+                ? window.WalletConnectProvider
+                : window.WalletConnectProvider.default)) ||
+             (window.WalletConnect && window.WalletConnect.EthereumProvider);
+    }
+    async function ensureWcModal() {
+      if (window.WalletConnectModal || window.walletConnectModal) return true;
+      const urls = [
+        "https://cdn.jsdelivr.net/npm/@walletconnect/modal-ui@2/dist/index.min.js",
+        "https://unpkg.com/@walletconnect/modal-ui@2/dist/index.min.js"
+      ];
+      for (const u of urls){
+        try { await loadScript(u + "?v=" + Date.now()); return true; } catch(e){}
+      }
+      return false;
+    }
+    async function loadWalletConnectProvider() {
+      let EP = getWcGlobal();
+      if (EP) return EP;
+      const umd = [
+        "https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js",
+        "https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"
+      ];
+      for (const u of umd) {
+        try { await loadScript(u + "?v=" + Date.now()); EP = getWcGlobal(); if (EP) return EP; } catch(e){}
+      }
       return null;
     }
 
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
-        const provider=btn.getAttribute('data-wallet');
-        if(provider==='metamask'){
-          const eth=getProviderBy(d=>/metamask/i.test(d?.info?.rdns||'')||/metamask/i.test(d?.info?.name||''),p=>!!p.isMetaMask);
-          if(!eth||!eth.request){if(isStandaloneApp()&&!isMobile){window.open(window.location.href,'_blank');return}
-            if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
-          try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
+        const provider = btn.getAttribute('data-wallet');
 
-                } else if (provider === "phantom") {
-          const ph = window.solana;
-          if (ph && ph.isPhantom) {
-            try {
-              const resp = await ph.connect();
-              walletInput.value = resp.publicKey.toString();
-              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
-              if (typeof ph.on === "function") {
-                ph.on("accountChanged", (pubKey) => {
-                  walletInput.value = pubKey ? pubKey.toString() : "";
-                });
-              }
-              closeModal();
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Phantom refusée ou erreur.");
-            }
-          } else {
-            window.open("https://phantom.app/", "_blank");
-          }
+        if(provider === 'metamask'){
+          const isStandaloneApp =
+            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+            (window.navigator.standalone === true);
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
-                } else if (provider === "uniswap") {
-          const uni = getProviderBy(
-            d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
-            p => !!p.isUniswap || p?.providerName === 'uniswap'
-          );
+          const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+            ? window.ethereum.providers.find(p => p && p.isMetaMask)
+            : window.ethereum;
 
-          // Extension détectée
-          if (uni && typeof uni.request === "function") {
-            try {
-              const accounts = await uni.request({ method: "eth_requestAccounts" });
-              if (accounts && accounts[0]) walletInput.value = accounts[0];
-
-              // 🔄 garde le champ à jour si le compte change
-              if (typeof uni.on === "function") {
-                uni.on("accountsChanged", (acc) => {
-                  if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
-                });
-              }
-
-              closeModal();
-              return;
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Uniswap refusée ou erreur.");
-              return;
-            }
-          }
-
-          // Pas d’extension : on ouvre l’app Uniswap
-          if (isMobile) {
-            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
-            window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
-            closeModal();
+          if (!eth || !eth.request) {
+            if (isStandaloneApp && !isMobile) { window.open(window.location.href, '_blank'); return; }
+            if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
+            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
             return;
           }
-          if (isStandaloneApp()) { window.open(window.location.href, '_blank'); return; }
-          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
-          window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
-          closeModal();
 
-                } else if (provider === "walletconnect") {
+          try{
+            const accounts = await eth.request({ method:'eth_requestAccounts' });
+            if(accounts && accounts[0]) walletInput.value = accounts[0];
+
+            // récupère le chainId et adapte tokens
+            try {
+              const chainId = await eth.request({ method:'eth_chainId' });
+              updateFromChainId(chainId);
+            } catch {}
+
+            if (typeof eth.on === 'function') {
+              if (window.__onMMAccChanged) eth.removeListener?.('accountsChanged', window.__onMMAccChanged);
+              window.__onMMAccChanged = (acc) => { walletInput.value = (Array.isArray(acc) && acc[0]) ? acc[0] : ''; };
+              eth.on('accountsChanged', window.__onMMAccChanged);
+
+              if (window.__onMMChainChanged) eth.removeListener?.('chainChanged', window.__onMMChainChanged);
+              window.__onMMChainChanged = (cid) => { updateFromChainId(cid); };
+              eth.on('chainChanged', window.__onMMChainChanged);
+            }
+
+            closeModal();
+          }catch(e){
+            console.error(e);
+            alert("Connexion MetaMask refusée ou erreur.");
+          }
+
+        } else if (provider === "walletconnect") {
           try {
             if (window.__wcConnecting) return;
             window.__wcConnecting = true;
 
             const EP = await loadWalletConnectProvider();
             if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
+            await ensureWcModal();
 
             if (!window.__wcProvider) {
               window.__wcProvider = await EP.init({
@@ -340,27 +551,23 @@
                 events: ["chainChanged","accountsChanged"]
               });
 
-              // 🔗 Auto-remplissage du champ au changement de compte
               window.__wcProvider.on("accountsChanged", (acc) => {
-                if (Array.isArray(acc) && acc[0]) {
-                  walletInput.value = acc[0];
-                }
+                if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
               });
+              window.__wcProvider.on("chainChanged", (cid) => { updateFromChainId(cid); });
             }
 
-            // ✅ Connexion (affiche le QR si nécessaire)
             await window.__wcProvider.connect();
 
-            // 🧾 Récupère et place l’adresse
             let accounts = null;
+            try { accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" }); }
+            catch { accounts = await window.__wcProvider.request({ method: "eth_accounts" }); }
+            if (accounts && accounts[0]) walletInput.value = accounts[0];
+
             try {
-              accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" });
-            } catch {
-              accounts = await window.__wcProvider.request({ method: "eth_accounts" });
-            }
-            if (accounts && accounts[0]) {
-              walletInput.value = accounts[0];
-            }
+              const chainId = await window.__wcProvider.request({ method:"eth_chainId" });
+              updateFromChainId(chainId);
+            } catch {}
 
             closeModal();
           } catch (err) {
@@ -369,63 +576,336 @@
           } finally {
             window.__wcConnecting = false;
           }
-        }else{
-          alert("Connexion via "+provider+" arrive bientôt.");
+
+        } else if (provider === "uniswap") {
+          const uni = (window.ethereum && Array.isArray(window.ethereum.providers))
+            ? window.ethereum.providers.find(p => !!p?.isUniswap || p?.providerName === 'uniswap')
+            : (window.ethereum && (window.ethereum.isUniswap || window.ethereum.providerName === 'uniswap') ? window.ethereum : null);
+
+          if (uni && uni.request) {
+            try{
+              const accounts = await uni.request({ method:'eth_requestAccounts' });
+              if (accounts && accounts[0]) walletInput.value = accounts[0];
+
+              try { const chainId = await uni.request({ method:'eth_chainId' }); updateFromChainId(chainId); } catch {}
+
+              if (typeof uni.on === "function") {
+                uni.on("accountsChanged", (acc) => {
+                  if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
+                });
+                uni.on("chainChanged", (cid)=>{ updateFromChainId(cid); });
+              }
+
+              closeModal();
+              return;
+            }catch(err){
+              console.error(err);
+              alert("Connexion Uniswap refusée ou erreur.");
+              return;
+            }
+          }
+          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+          const isStandaloneApp =
+            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+            (window.navigator.standalone === true);
+          if (isMobile) {
+            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
+            window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
+            closeModal();
+            return;
+          }
+          if (isStandaloneApp) { window.open(window.location.href, '_blank'); return; }
+          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
+          window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
+          closeModal();
+
+        } else if (provider === "phantom") {
+          const ph = window.solana;
+          if (ph && ph.isPhantom) {
+            try {
+              const resp = await ph.connect();
+              walletInput.value = resp.publicKey.toString();
+              setNetworkSelect("solana"); setTokenOptions("solana");
+
+              if (typeof ph.on === "function") {
+                ph.removeAllListeners?.("accountChanged");
+                ph.on("accountChanged", (pubKey) => {
+                  walletInput.value = pubKey ? pubKey.toString() : "";
+                });
+              }
+              closeModal();
+            } catch (err) {
+              console.error(err);
+              alert("Connexion Phantom refusée ou erreur.");
+            }
+          } else {
+            window.open("https://phantom.app/", "_blank");
+          }
+
+        } else {
+          alert("Connexion via " + provider + " arrive bientôt.");
         }
       });
     });
 
-    function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML=`<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none"};dialList.appendChild(row)})}
-    dialBtn.addEventListener('click',(e)=>{e.stopPropagation();dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");if(dialPanel.style.display==="block"){renderDialList("");dialSearch.value="";dialSearch.focus()}});
-    dialSearch.oninput=()=>renderDialList(dialSearch.value);
-    document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
+    // ====== Indicatifs ======
+    function renderDialList(f=""){
+      dialList.innerHTML="";
+      const filter = f.toLowerCase();
+      COUNTRIES
+        .filter(d =>
+          !filter ||
+          d.en.toLowerCase().includes(filter) ||
+          d.fr.toLowerCase().includes(filter) ||
+          d.code.includes(filter) ||
+          d.iso.toLowerCase().includes(filter)
+        )
+        .forEach(d=>{
+          const name = (lang === "fr") ? d.fr : d.en;
+          const row = document.createElement("div");
+          row.className = "dial-item";
+          row.innerHTML = `<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
+          row.onclick = ()=>{
+            currentDial = { iso:d.iso, code:d.code };
+            dialBtn.innerHTML = `<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+            dialPanel.style.display = "none";
+          };
+          dialList.appendChild(row);
+        });
+    }
 
-    const contactsList=document.getElementById("contactsList");const showContacts=document.getElementById("showContacts");const saveContact=document.getElementById("saveContact");
-    let contacts=JSON.parse(localStorage.getItem("contacts")||"[]");if(showContacts)showContacts.textContent="📖";
-    function persistContacts(){localStorage.setItem("contacts",JSON.stringify(contacts))}
-    function renderContacts(){contactsList.innerHTML="";if(contacts.length===0){contactsList.style.display="none";return}
-      contacts.forEach((c,idx)=>{const row=document.createElement("div");row.className="contact-item";row.style.display="flex";row.style.alignItems="center";row.style.justifyContent="space-between";row.style.gap="8px";
-        const left=document.createElement("div");left.textContent=`${c.name} (${c.phone})`;left.style.flex="1 1 auto";left.style.whiteSpace="nowrap";left.style.overflow="hidden";left.style.textOverflow="ellipsis";
-        const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
-        left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};dialBtn.innerHTML=`<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;contactsList.style.display="none"};
-        del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
-        row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
-    }renderContacts();
-
-    const actionsBar=document.querySelector('.contact-actions');const saveInline=document.createElement('div');saveInline.style.display='none';saveInline.style.marginTop='8px';saveInline.style.padding='10px';saveInline.style.border='1px solid var(--stroke)';saveInline.style.borderRadius='8px';saveInline.style.background='#0e1420';saveInline.style.boxShadow='var(--shadow)';saveInline.style.gap='8px';saveInline.style.alignItems='center';saveInline.style.justifyContent='space-between';
-    const saveNameInput=document.createElement('input');saveNameInput.type='text';saveNameInput.id='saveName';saveNameInput.placeholder=t[lang].savePh;saveNameInput.style.width='100%';saveNameInput.style.padding='8px 10px';saveNameInput.style.border='1px solid var(--stroke)';saveNameInput.style.borderRadius='6px';saveNameInput.style.background='#0a1220';saveNameInput.style.color='#e6edf3';saveNameInput.style.marginRight='8px';
-    const btnsWrap=document.createElement('div');btnsWrap.style.display='flex';btnsWrap.style.gap='8px';btnsWrap.style.marginTop='8px';
-    const saveConfirmBtn=document.createElement('button');saveConfirmBtn.type='button';saveConfirmBtn.textContent=`✅ ${t[lang].save}`;saveConfirmBtn.style.border='1px solid var(--stroke)';saveConfirmBtn.style.background='#0a1220';saveConfirmBtn.style.color='#ffffff';saveConfirmBtn.style.borderRadius='8px';saveConfirmBtn.style.padding='6px 10px';saveConfirmBtn.style.cursor='pointer';
-    const saveCancelBtn=document.createElement('button');saveCancelBtn.type='button';saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;saveCancelBtn.style.border='1px solid var(--stroke)';saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
-    saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
-    function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
-    document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
-    document.getElementById('saveContact').onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}toggleSaveInline(true)};
-    saveConfirmBtn.onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}const pseudo=saveNameInput.value.trim();if(!pseudo){saveNameInput.focus();return}const phone=currentDial.code+num;contacts.push({name:pseudo,phone,iso:currentDial.iso,code:currentDial.code});persistContacts();renderContacts();toggleSaveInline(false)};
-    saveCancelBtn.onclick=()=>toggleSaveInline(false);
-
-    document.getElementById('generateBtn').addEventListener('click',async()=>{
-      const amount=parseFloat(document.getElementById('amount').value);
-      const currency=document.getElementById('currency').value;
-      const sender_wallet=walletInput.value.trim();
-      const localPhone=document.getElementById('phone').value.trim();
-      const recipient_phone=`${currentDial.code}${localPhone}`;
-      const network=document.getElementById('network').value;
-      resultDiv.style.display='none';errorDiv.style.display='none';
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";errorDiv.style.display='block';return}
-      try{
-        const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});
-        const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur lors de la génération du lien");
-        const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';
-      }catch(err){errorDiv.textContent=err.message||(lang==='fr'?'Erreur réseau':'Network error');errorDiv.style.display='block'}
+    dialBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      dialPanel.style.display = (dialPanel.style.display === "block" ? "none" : "block");
+      if (dialPanel.style.display === "block"){
+        renderDialList("");
+        dialSearch.value = "";
+        dialSearch.focus();
+      }
+    });
+    dialSearch.oninput = ()=> renderDialList(dialSearch.value);
+    document.addEventListener("click", e=>{
+      if(!dialPanel.contains(e.target) && !dialBtn.contains(e.target)){
+        dialPanel.style.display="none";
+      }
     });
 
-    const copyBtn=document.getElementById('copyLinkBtn');if(copyBtn){copyBtn.addEventListener('click',()=>{navigator.clipboard.writeText(linkEl.textContent).then(()=>{copyBtn.textContent="✅";setTimeout(()=>copyBtn.textContent="📋",1500)})})}
+    // ====== Contacts ======
+    const contactsList = document.getElementById("contactsList");
+    const showContacts = document.getElementById("showContacts");
+    const saveContact = document.getElementById("saveContact");
+    let contacts = JSON.parse(localStorage.getItem("contacts") || "[]");
+    if (showContacts) showContacts.textContent = "📖";
 
-    if("serviceWorker" in navigator){navigator.serviceWorker.register("/service-worker.js").then(()=>console.log("SW enregistré ✅")).catch(err=>console.error("SW erreur:",err))}
-    let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='inline-flex'});
-    document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
-    window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
+    function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
+    function renderContacts(){
+      contactsList.innerHTML = "";
+      if(contacts.length === 0){ contactsList.style.display = "none"; return; }
+      contacts.forEach((c, idx)=>{
+        const row = document.createElement("div");
+        row.className = "contact-item";
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "8px";
+
+        const left = document.createElement("div");
+        left.textContent = `${c.name} (${c.phone})`;
+        left.style.flex = "1 1 auto";
+        left.style.whiteSpace = "nowrap";
+        left.style.overflow = "hidden";
+        left.style.textOverflow = "ellipsis";
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.title = (lang==='fr') ? "Supprimer" : "Delete";
+        del.textContent = "🗑️";
+        del.style.border = "1px solid var(--stroke)";
+        del.style.background = "#0a1220";
+        del.style.color = "#ffffff";
+        del.style.borderRadius = "6px";
+        del.style.padding = "4px 6px";
+        del.style.cursor = "pointer";
+        del.style.flex = "0 0 auto";
+
+        left.onclick = ()=>{
+          document.getElementById("phone").value = c.phone.replace(c.code, "");
+          currentDial = { iso:c.iso, code:c.code };
+          dialBtn.innerHTML = `<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+          contactsList.style.display = "none";
+        };
+
+        del.onclick = (ev)=>{
+          ev.stopPropagation();
+          contacts.splice(idx, 1);
+          persistContacts();
+          renderContacts();
+        };
+
+        row.appendChild(left);
+        row.appendChild(del);
+        contactsList.appendChild(row);
+      });
+    }
+    renderContacts();
+
+    // ====== Mini-formulaire contact ======
+    const actionsBar = document.querySelector('.contact-actions');
+    const saveInline = document.createElement('div');
+    saveInline.style.display = 'none';
+    saveInline.style.marginTop = '8px';
+    saveInline.style.padding = '10px';
+    saveInline.style.border = '1px solid var(--stroke)';
+    saveInline.style.borderRadius = '8px';
+    saveInline.style.background = '#0e1420';
+    saveInline.style.boxShadow = 'var(--shadow)';
+    saveInline.style.gap = '8px';
+    saveInline.style.alignItems = 'center';
+    saveInline.style.justifyContent = 'space-between';
+
+    const saveNameInput = document.createElement('input');
+    saveNameInput.type = 'text';
+    saveNameInput.id = 'saveName';
+    saveNameInput.placeholder = t[lang].savePh;
+    saveNameInput.style.width = '100%';
+    saveNameInput.style.padding = '8px 10px';
+    saveNameInput.style.border = '1px solid var(--stroke)';
+    saveNameInput.style.borderRadius = '6px';
+    saveNameInput.style.background = '#0a1220';
+    saveNameInput.style.color = '#e6edf3';
+    saveNameInput.style.marginRight = '8px';
+
+    const btnsWrap = document.createElement('div');
+    btnsWrap.style.display = 'flex';
+    btnsWrap.style.gap = '8px';
+    btnsWrap.style.marginTop = '8px';
+
+    const saveConfirmBtn = document.createElement('button');
+    saveConfirmBtn.type = 'button';
+    saveConfirmBtn.textContent = `✅ ${t[lang].save}`;
+    saveConfirmBtn.style.border = '1px solid var(--stroke)';
+    saveConfirmBtn.style.background = '#0a1220';
+    saveConfirmBtn.style.color = '#ffffff';
+    saveConfirmBtn.style.borderRadius = '8px';
+    saveConfirmBtn.style.padding = '6px 10px';
+    saveConfirmBtn.style.cursor = 'pointer';
+
+    const saveCancelBtn = document.createElement('button');
+    saveCancelBtn.type = 'button';
+    saveCancelBtn.textContent = `✖️ ${t[lang].cancel}`;
+    saveCancelBtn.style.border = '1px solid var(--stroke)';
+    saveCancelBtn.style.background = '#0a1220';
+    saveCancelBtn.style.color = '#ffffff';
+    saveCancelBtn.style.borderRadius = '8px';
+    saveCancelBtn.style.padding = '6px 10px';
+    saveCancelBtn.style.cursor = 'pointer';
+
+    saveInline.appendChild(saveNameInput);
+    btnsWrap.appendChild(saveConfirmBtn);
+    btnsWrap.appendChild(saveCancelBtn);
+    saveInline.appendChild(btnsWrap);
+    actionsBar.insertAdjacentElement('afterend', saveInline);
+
+    function toggleSaveInline(open){
+      saveInline.style.display = open ? 'block' : 'none';
+      if (open){ saveNameInput.value = ''; saveNameInput.focus(); }
+    }
+
+    document.getElementById('showContacts').onclick = ()=>{
+      contactsList.style.display = (contactsList.style.display === "block" ? "none" : "block");
+      renderContacts();
+    };
+    document.getElementById('saveContact').onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      toggleSaveInline(true);
+    };
+    saveConfirmBtn.onclick = ()=>{
+      const num = document.getElementById("phone").value.trim();
+      if(!num){ alert(t[lang].needNumber); return; }
+      const pseudo = saveNameInput.value.trim();
+      if(!pseudo){ saveNameInput.focus(); return; }
+      const phone = currentDial.code + num;
+      contacts.push({ name:pseudo, phone, iso:currentDial.iso, code:currentDial.code });
+      persistContacts();
+      renderContacts();
+      toggleSaveInline(false);
+    };
+    saveCancelBtn.onclick = ()=> toggleSaveInline(false);
+
+    // ====== Génération du lien ======
+    document.getElementById('generateBtn').addEventListener('click', async ()=>{
+      const amount = parseFloat(document.getElementById('amount').value);
+      const currency = document.getElementById('currency').value;
+      const sender_wallet = walletInput.value.trim();
+      const localPhone = document.getElementById('phone').value.trim();
+      const recipient_phone = `${currentDial.code}${localPhone}`;
+      const network = document.getElementById('network').value;
+
+      resultDiv.style.display='none';
+      errorDiv.style.display='none';
+
+      if (!amount || !currency || !sender_wallet || !localPhone || !network){
+        errorDiv.textContent = (lang==='fr')
+          ? "Merci de remplir tous les champs obligatoires."
+          : "Please fill in all required fields.";
+        errorDiv.style.display='block';
+        return;
+      }
+
+      try{
+        const res = await fetch(`${BACKEND}/create-link`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ amount, currency, sender_wallet, recipient_phone, network })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.detail || "Erreur lors de la génération du lien");
+
+        const lien = `https://linkisend.io/${data.short_id}`;
+        linkEl.textContent = lien;
+        resultDiv.style.display='block';
+      }catch(err){
+        errorDiv.textContent = err.message || (lang==='fr'?'Erreur réseau':'Network error');
+        errorDiv.style.display='block';
+      }
+    });
+
+    const copyBtn = document.getElementById('copyLinkBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', ()=>{
+        navigator.clipboard.writeText(linkEl.textContent).then(()=>{
+          copyBtn.textContent = "✅";
+          setTimeout(()=> copyBtn.textContent = "📋", 1500);
+        });
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("SW enregistré ✅"))
+        .catch(err => console.error("SW erreur:", err));
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'inline-flex';
+    });
+    document.getElementById('installBtn').addEventListener('click', async ()=>{
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+    window.addEventListener('appinstalled', ()=>{
+      const b = document.getElementById('installBtn');
+      if (b) b.style.display = 'none';
+    });
+
     applyLang();
   });
   </script>
