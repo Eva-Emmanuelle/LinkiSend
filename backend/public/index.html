@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let nativeHex = '0x0';
     try{ nativeHex = await eth.request({method:'eth_getBalance', params:[account,'latest']}); }catch{}
     const natStr = toDecimalString(nativeHex, natDec);
-    items.push({symbol:natSymbol, amountStr:natStr, amountNum:parseFloat(natStr||'0')});
+    items.push({symbol:natSymbol, amountStr:String(parseFloat(natStr||'0')), amountNum:parseFloat(natStr||'0')});
 
     // ERC20 (soit adresses connues du réseau, soit tokens par défaut à 0 si réseau inconnu)
     if (reg){
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try{
           const hex = await eth.request({method:'eth_call', params:[{to:tok.addr,data},'latest']});
           const str = toDecimalString(hex, tok.dec);
-          items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
+          items.push({symbol:sym, amountStr:String(parseFloat(str||'0')), amountNum:parseFloat(str||'0')});
         }catch{
           items.push({symbol:sym, amountStr:'0', amountNum:0});
         }
