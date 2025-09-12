@@ -161,11 +161,10 @@
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
-          <select id="currency">
-            <option>USDT</option><option>USDC</option><option>ETH</option>
-            <option>BTC</option><option>SOL</option><option>BNB</option>
-            <option>AVAX</option><option>DAI</option><option>LINK</option>
-          </select>
+<select id="currency"></select>
+<span id="tokenBalanceInfo" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:4px;">
+  Solde: 0
+</span>
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
@@ -519,5 +518,248 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+  <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
+<script>
+(function(){
+  const walletInput = document.getElementById('wallet');
+  const currencySel = document.getElementById('currency');
+  const balInfoEl   = document.getElementById('tokenBalanceInfo');
+  if (!walletInput || !currencySel || !balInfoEl) return;
+
+  /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
+  const CG_ID = {
+    ETH:'ethereum', BNB:'binancecoin', MATIC:'matic-network', AVAX:'avalanche-2', SOL:'solana',
+    USDT:'tether', USDC:'usd-coin', DAI:'dai', WBTC:'wrapped-bitcoin', LINK:'chainlink',
+    BONK:'bonk', RAY:'raydium'
+  };
+  async function setBalanceLine(symbol, amountStr){
+    try{
+      const id = CG_ID[symbol];
+      if (!id){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
+      const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+      const j = await r.json();
+      const p = j?.[id]?.usd;
+      if (typeof p !== 'number'){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
+      const usd = (parseFloat(amountStr || "0") * p).toFixed(2);
+      balInfoEl.textContent = `Solde: ${amountStr} ${symbol} — ≈ ${usd} $`;
+    }catch{
+      balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`;
+    }
+  }
+  currencySel.addEventListener('change', ()=>{
+    const opt = currencySel.options[currencySel.selectedIndex];
+    if (!opt) return;
+    const sym = opt.value;
+    const amountStr = (opt.textContent||'').split('—').pop().trim();
+    setBalanceLine(sym, amountStr);
+  });
+
+  /* --- Outils EVM --- */
+  function toDecimalString(hexOrStr, decimals){
+    if (hexOrStr == null) return "0";
+    let big;
+    if (typeof hexOrStr === "string" && hexOrStr.startsWith("0x")) big = BigInt(hexOrStr);
+    else big = BigInt(String(hexOrStr));
+    const d = BigInt(decimals);
+    const base = 10n ** d;
+    const intPart = big / base;
+    const frac = big % base;
+    if (frac === 0n) return intPart.toString();
+    return `${intPart}.${frac.toString().padStart(Number(d),'0')}`.replace(/0+$/,'');
+  }
+  function erc20BalanceOfData(owner){
+    return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
+  }
+  function setSelect(items){
+    const prev = currencySel.value;
+    currencySel.innerHTML = '';
+    items.forEach(it=>{
+      const o = document.createElement('option');
+      o.value = it.symbol;
+      o.textContent = `${it.symbol} — ${it.amountStr}`;
+      currencySel.appendChild(o);
+    });
+    if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
+  }
+
+  /* --- Registres supports (mainnets) --- */
+  const EVM = {
+    '0x1': { native:{symbol:'ETH',dec:18}, tokens:{
+      USDT:{addr:'0xdAC17F958D2ee523a2206206994597C13D831ec7',dec:6},
+      USDC:{addr:'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48',dec:6},
+      DAI :{addr:'0x6B175474E89094C44Da98b954EedeAC495271d0F',dec:18},
+      WBTC:{addr:'0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',dec:8},
+      LINK:{addr:'0x514910771AF9Ca656af840dff83E8264EcF986CA',dec:18}
+    }},
+    '0x38': { native:{symbol:'BNB',dec:18}, tokens:{
+      USDT:{addr:'0x55d398326f99059Ff775485246999027B3197955',dec:18},
+      USDC:{addr:'0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',dec:18},
+      DAI :{addr:'0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3',dec:18},
+      WBTC:{addr:'0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',dec:18},
+      LINK:{addr:'0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD',dec:18}
+    }},
+    '0x89': { native:{symbol:'MATIC',dec:18}, tokens:{
+      USDT:{addr:'0xC2132D05D31c914a87C6611C10748AaCbD9b0f',dec:6},
+      USDC:{addr:'0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',dec:6},
+      DAI :{addr:'0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',dec:18},
+      WBTC:{addr:'0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',dec:8},
+      LINK:{addr:'0x53E0bca35eC356BD5ddDFebbD1Fc0fD03Fabad39',dec:18}
+    }},
+    '0xa86a': { native:{symbol:'AVAX',dec:18}, tokens:{
+      USDT:{addr:'0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',dec:6},
+      USDC:{addr:'0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',dec:6},
+      DAI :{addr:'0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',dec:18},
+      WBTC:{addr:'0x50b7545627a5162F82A992c33b87aDc75187B218',dec:8},
+      LINK:{addr:'0x5947BB275c521040051D82396192181b413227A3',dec:18}
+    }}
+  };
+  const NATIVE_FALLBACK = { // pour testnets ou réseau non mappé → on montre au moins le natif
+    '0x1':'ETH','0x5':'ETH','0xaa36a7':'ETH',
+    '0x38':'BNB','0x61':'BNB',
+    '0x89':'MATIC','0x13881':'MATIC',
+    '0xa86a':'AVAX','0xa869':'AVAX'
+  };
+  const DEFAULT_EVM_TOKENS = ['USDT','USDC','DAI','WBTC','LINK'];
+
+  async function scanEvm(eth, account){
+    let chainId;
+    try{ chainId = await eth.request({method:'eth_chainId'}); }catch{ chainId = undefined; }
+
+    const reg = chainId ? EVM[chainId] : undefined;
+    const items = [];
+
+    // Natif
+    let natSymbol = (chainId && (reg?.native?.symbol || NATIVE_FALLBACK[chainId])) || 'ETH';
+    let natDec    = (reg?.native?.dec) ?? 18;
+    let nativeHex = '0x0';
+    try{ nativeHex = await eth.request({method:'eth_getBalance', params:[account,'latest']}); }catch{}
+    const natStr = toDecimalString(nativeHex, natDec);
+    items.push({symbol:natSymbol, amountStr:natStr, amountNum:parseFloat(natStr||'0')});
+
+    // ERC20 (soit adresses connues du réseau, soit tokens par défaut à 0 si réseau inconnu)
+    if (reg){
+      const data = erc20BalanceOfData(account);
+      for (const [sym,tok] of Object.entries(reg.tokens)){
+        try{
+          const hex = await eth.request({method:'eth_call', params:[{to:tok.addr,data},'latest']});
+          const str = toDecimalString(hex, tok.dec);
+          items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
+        }catch{
+          items.push({symbol:sym, amountStr:'0', amountNum:0});
+        }
+      }
+    } else {
+      for (const sym of DEFAULT_EVM_TOKENS){
+        items.push({symbol:sym, amountStr:'0', amountNum:0});
+      }
+    }
+
+    items.sort((a,b)=> b.amountNum - a.amountNum);
+    setSelect(items);
+    const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+  }
+
+  /* --- Solana (SOL + quelques SPL connus) --- */
+  const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+  const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  const SOLANA = {
+    native:{symbol:'SOL',dec:9},
+    tokens:{
+      USDC:{mint:'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',dec:6},
+      USDT:{mint:'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',dec:6},
+      BONK:{mint:'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',dec:5},
+      RAY :{mint:'4k3Dyjzvzp8eMZWUXbBCaJXipqAVCbi6y5b9VPVuyV7y',dec:6}
+    }
+  };
+  async function solanaRpc(body){
+    const r = await fetch(SOLANA_RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    return r.json();
+  }
+  async function scanSolana(address){
+    const items = [];
+
+    // SOL
+    let lamports = 0;
+    try{
+      const r = await solanaRpc({jsonrpc:"2.0", id:1, method:"getBalance", params:[address]});
+      lamports = r?.result?.value || 0;
+    }catch{}
+    const solStr = (lamports/1e9).toString();
+    items.push({symbol:'SOL', amountStr:solStr, amountNum:parseFloat(solStr||'0')});
+
+    // Comptes SPL de l’adresse
+    let accs = [];
+    try{
+      const r = await solanaRpc({
+        jsonrpc:"2.0", id:2, method:"getTokenAccountsByOwner",
+        params:[address, { programId: TOKEN_PROGRAM_ID }, { encoding:"jsonParsed" }]
+      });
+      accs = r?.result?.value || [];
+    }catch{}
+
+    const found = {};
+    for(const a of accs){
+      const info = a?.account?.data?.parsed?.info;
+      const mint = info?.mint;
+      const ui   = info?.tokenAmount?.uiAmount || 0;
+      found[mint] = ui;
+    }
+
+    for (const [sym,t] of Object.entries(SOLANA.tokens)){
+      const ui = found[t.mint] ?? 0;
+      const str = (typeof ui === 'number') ? ui.toString() : String(ui);
+      items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
+    }
+
+    items.sort((a,b)=> b.amountNum - a.amountNum);
+    setSelect(items);
+    const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+  }
+
+  /* --- Orchestration --- */
+  async function refresh(){
+    const addr = (walletInput.value || '').trim();
+    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent='Solde: 0'; return; }
+
+    // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
+    if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
+      await scanEvm(window.ethereum, addr);
+    } else if (!addr.startsWith('0x')) {
+      await scanSolana(addr);
+    } else {
+      // Pas de provider EVM accessible : afficher au moins une liste par défaut à 0
+      const items = [{symbol:'ETH',amountStr:'0',amountNum:0},{symbol:'USDT',amountStr:'0',amountNum:0},{symbol:'USDC',amountStr:'0',amountNum:0},{symbol:'DAI',amountStr:'0',amountNum:0},{symbol:'WBTC',amountStr:'0',amountNum:0},{symbol:'LINK',amountStr:'0',amountNum:0}];
+      setSelect(items);
+      const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+    }
+
+    const opt = currencySel.options[currencySel.selectedIndex];
+    if (opt){
+      const sym = opt.value;
+      const amountStr = (opt.textContent||'').split('—').pop().trim();
+      setBalanceLine(sym, amountStr);
+    }
+  }
+
+  // Lancement immédiat + surveillance des changements d’adresse
+  refresh();
+  let last = walletInput.value;
+  setInterval(()=>{
+    const cur = walletInput.value;
+    if (cur !== last){ last = cur; refresh(); }
+  }, 1000);
+
+  // Écoute EVM (si disponible)
+  const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+    ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
+    : window.ethereum;
+  if (eth && eth.on){
+    eth.on('accountsChanged', refresh);
+    eth.on('chainChanged',  refresh);
+  }
+})();
+</script>
+<!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
+
 </body>
 </html>
