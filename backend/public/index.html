@@ -50,7 +50,7 @@
     label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim);}
     select,input{
       width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);
-      border:1px solid var(--stroke);background:#0e141c;color:#text;outline:none;color:var(--text);
+      border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none;
     }
     select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35);}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
@@ -157,10 +157,13 @@
   document.addEventListener("DOMContentLoaded", function () {
     const s = document.getElementById('splash');
     if (!s) return;
+
     const isStandalone =
       (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
       (window.navigator.standalone === true);
+
     if (isStandalone) { s.remove(); return; }
+
     let done = false;
     function hideSplash(){ if(done) return; done = true; s.classList.add('hide'); setTimeout(()=>s.remove(), 400); }
     window.addEventListener('load', hideSplash);
@@ -170,6 +173,7 @@
 </head>
 
 <body>
+  <!-- Gate mobile / install PWA (inchangé) -->
   <script>
   (function () {
     const isStandalone =
@@ -187,23 +191,12 @@
       }
       document.write(`
         <style>body > :not(#install-gate){display:none!important}</style>
-        <div id="install-gate" style="
-          min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-          text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;
-          font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
+        <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;">
           <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">
-            Pour utiliser LinkiSend, installe l’application sur ton téléphone.
-          </p>
-          <button id="installNow" style="
-            display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
-            border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">
-            📲 Installer l’app
-          </button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">
-            ${browserHelp()}
-          </div>
+          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
+          <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
+          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
         </div>
       `);
       let _deferred = null;
@@ -223,9 +216,14 @@
   })();
   </script>
 
-  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
+  <!-- Splash -->
+  <div id="splash">
+    <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" />
+  </div>
 
+  <!-- CONFIG -->
   <script src="config.js"></script>
+  <!-- Pays + indicatifs -->
   <script src="countries.js"></script>
 
   <div class="wrap">
@@ -239,28 +237,36 @@
       <h2 id="title">Envoyer des cryptos</h2>
       <p class="sub" id="subtitle">Génère un lien en 10&nbsp;secondes.</p>
 
+      <!-- 1) WALLET -->
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
       <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
 
+      <!-- 2) TOKEN & MONTANT -->
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
-          <!-- rempli dynamiquement -->
           <select id="currency"></select>
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
-          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00000001" placeholder="0.01" />
         </div>
       </div>
+      <div id="balanceLine" class="hint" style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+        <span id="balanceText">Solde : —</span>
+        <button id="maxBtn" type="button" style="border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:999px;padding:2px 8px;cursor:pointer;height:22px;line-height:18px">Max</button>
+        <span id="usdText" style="margin-left:auto">≈ $0.00</span>
+      </div>
 
+      <!-- 3) RÉSEAU -->
       <label for="network" id="lbl-network">Réseau</label>
       <select id="network">
         <option>Ethereum</option><option>BNB Chain</option>
         <option>Polygon</option><option>Solana</option><option>Avalanche</option>
       </select>
 
+      <!-- 4) TÉLÉPHONE -->
       <label id="lbl-phone">Numéro du destinataire</label>
       <div class="phone-row">
         <div class="dial">
@@ -273,6 +279,7 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
+      <!-- 📖/💾 actions contacts -->
       <div class="contact-actions">
         <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
         <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
@@ -283,6 +290,7 @@
 
       <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
 
+      <!-- Bloc résultat -->
       <div id="result" class="result-cta" aria-live="polite">
         <h3 id="resultTitle" style="margin:0 0 10px;font-size:18px;">Lien prêt ✅</h3>
         <div class="row-cta" style="display:inline-flex;align-items:center;">
@@ -293,13 +301,15 @@
           ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
         </div>
       </div>
-
+      <!-- Erreurs -->
       <div id="error"  class="error"  style="display:none"></div>
     </div>
   </div>
 
+  <!-- Toast copie -->
   <div class="toast" id="toast">Lien copié ✅</div>
 
+  <!-- Modal choix wallet -->
   <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
     <div class="modal-card">
       <div class="modal-head">
@@ -329,23 +339,31 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
+    // ====== Backend ======
     const BACKEND = (window.LINKISEND_CONFIG && window.LINKISEND_CONFIG.BACKEND_BASE)
       ? window.LINKISEND_CONFIG.BACKEND_BASE
       : `${location.protocol}//${location.hostname}:8000`;
 
+    // ====== Elements ======
     const resultDiv = document.getElementById('result');
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
     const linkEl  = document.getElementById('the-link');
     const currencySel = document.getElementById('currency');
-    const networkSel = document.getElementById('network');
+    const networkSel  = document.getElementById('network');
+    const amountInp   = document.getElementById('amount');
+    const balanceText = document.getElementById('balanceText');
+    const usdText     = document.getElementById('usdText');
+    const maxBtn      = document.getElementById('maxBtn');
 
+    // ====== Indicatifs ======
     const dialBtn = document.getElementById('dialBtn');
     const dialPanel = document.getElementById('dialPanel');
     const dialSearch = document.getElementById('dialSearch');
     const dialList = document.getElementById('dialList');
     let currentDial = { iso:"FR", code:"+33" };
 
+    // ====== Langue ======
     const langToggle = document.getElementById('langToggle');
     const userPref = localStorage.getItem('lang');
     let lang = userPref || ((navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en');
@@ -377,61 +395,213 @@
     }
     langToggle.addEventListener('click', ()=>{ lang = (lang === 'fr') ? 'en' : 'fr'; localStorage.setItem('lang', lang); applyLang(); });
 
-    // ====== Tokens par réseau ======
-    const TOKENS = {
-      ethereum: ["ETH","USDC","USDT","DAI","LINK"],
-      polygon: ["MATIC","USDC","USDT","DAI"],
-      bsc: ["BNB","USDT","USDC"],
-      avalanche: ["AVAX","USDC","USDT"],
-      solana: ["SOL","USDC","USDT"]
-    };
+    // ====== Réseaux & tokens (EVM) ======
     const CHAIN_TO_NETWORK = {
       "0x1": "ethereum",
-      "0x89": "polygon",
       "0x38": "bsc",
+      "0x89": "polygon",
       "0xa86a": "avalanche"
-      // (optimism 0xa, arbitrum 0xa4b1 non listés dans le select)
     };
-    function setTokenOptions(networkKey){
-      const list = TOKENS[networkKey] || TOKENS.ethereum;
-      currencySel.innerHTML = "";
-      for (const sym of list){
-        const opt = document.createElement("option");
-        opt.textContent = sym;
-        currencySel.appendChild(opt);
-      }
-    }
+    const NETWORK_LABEL = { ethereum:"Ethereum", bsc:"BNB Chain", polygon:"Polygon", avalanche:"Avalanche", solana:"Solana" };
+
+    // Métadonnées locales (contrats + décimales + Coingecko id)
+    const TOKENS_META = {
+      ethereum: [
+        {symbol:"ETH",  address:null, decimals:18, cg:"ethereum",           native:true},
+        {symbol:"USDC", address:"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", decimals:6,  cg:"usd-coin"},
+        {symbol:"USDT", address:"0xdAC17F958D2ee523a2206206994597C13D831ec7", decimals:6,  cg:"tether"},
+        {symbol:"DAI",  address:"0x6B175474E89094C44Da98b954EedeAC495271d0F", decimals:18, cg:"dai"},
+        {symbol:"LINK", address:"0x514910771AF9Ca656af840dff83E8264EcF986CA", decimals:18, cg:"chainlink"}
+      ],
+      bsc: [
+        {symbol:"BNB",  address:null, decimals:18, cg:"binancecoin",        native:true},
+        {symbol:"USDT", address:"0x55d398326f99059fF775485246999027B3197955", decimals:18, cg:"tether"},
+        {symbol:"USDC", address:"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", decimals:18, cg:"usd-coin"},
+        {symbol:"DAI",  address:"0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3", decimals:18, cg:"dai"},
+        {symbol:"ETH",  address:"0x2170Ed0880ac9A755fd29B2688956BD959F933F8", decimals:18, cg:"ethereum"} // WETH (BSC)
+      ],
+      polygon: [
+        {symbol:"MATIC",address:null, decimals:18, cg:"matic-network",       native:true},
+        {symbol:"USDC", address:"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", decimals:6,  cg:"usd-coin"},
+        {symbol:"USDT", address:"0x3813e82e6f7098b9583FC0F33a962D02018B6803", decimals:6,  cg:"tether"},
+        {symbol:"DAI",  address:"0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", decimals:18, cg:"dai"},
+        {symbol:"LINK", address:"0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39", decimals:18, cg:"chainlink"}
+      ],
+      avalanche: [
+        {symbol:"AVAX", address:null, decimals:18, cg:"avalanche-2",         native:true},
+        {symbol:"USDC", address:"0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", decimals:6,  cg:"usd-coin"},
+        {symbol:"USDT", address:"0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", decimals:6,  cg:"tether"},
+        {symbol:"DAI",  address:"0xd586E7F844cEa2F87f50152665BCbc2C279D8d70", decimals:18, cg:"dai"},
+        {symbol:"LINK", address:"0x5947BB275c521040051D82396192181b413227A3", decimals:18, cg:"chainlink"}
+      ],
+      // Solana: statique (pas EVM)
+      solana: ["SOL","USDC","USDT"]
+    };
+
+    // Cache prix (Coingecko)
+    const priceCache = new Map(); // key: cg id -> {price, ts}
+
     function setNetworkSelect(networkKey){
-      const label =
-        networkKey === "ethereum" ? "Ethereum" :
-        networkKey === "bsc" ? "BNB Chain" :
-        networkKey === "polygon" ? "Polygon" :
-        networkKey === "avalanche" ? "Avalanche" :
-        networkKey === "solana" ? "Solana" : null;
+      const label = NETWORK_LABEL[networkKey];
       if (!label) return;
       for (let i=0;i<networkSel.options.length;i++){
         if (networkSel.options[i].text === label){ networkSel.selectedIndex = i; break; }
       }
     }
-    function updateFromChainId(chainIdHex){
-      const net = CHAIN_TO_NETWORK[String(chainIdHex).toLowerCase()];
-      if (net){ setNetworkSelect(net); setTokenOptions(net); }
-    }
-    // initial par défaut
-    setTokenOptions("ethereum");
 
-    networkSel.addEventListener("change", ()=>{
-      const v = networkSel.value;
-      const key =
-        v === "Ethereum" ? "ethereum" :
-        v === "BNB Chain" ? "bsc" :
-        v === "Polygon" ? "polygon" :
-        v === "Avalanche" ? "avalanche" :
-        v === "Solana" ? "solana" : "ethereum";
-      setTokenOptions(key);
+    function fillTokensFallback(networkKey){
+      const arr = TOKENS_META[networkKey];
+      currencySel.innerHTML = "";
+      if (Array.isArray(arr)) {
+        const list = arr.slice(0,5); // 5 premiers
+        for (const tkn of list){
+          const opt = document.createElement("option");
+          opt.value = tkn.symbol;
+          opt.textContent = tkn.symbol;
+          opt.dataset.addr = tkn.address || "";
+          opt.dataset.dec = tkn.decimals || 18;
+          opt.dataset.cg  = tkn.cg || "";
+          opt.dataset.native = tkn.native ? "1" : "0";
+          currencySel.appendChild(opt);
+        }
+      } else {
+        for (const sym of TOKENS_META.solana){
+          const opt = document.createElement("option"); opt.textContent = sym; opt.value = sym;
+          currencySel.appendChild(opt);
+        }
+      }
+    }
+
+    // Helpers EVM
+    const pad32 = (hex) => hex.replace(/^0x/,'').padStart(64,'0');
+    const selector_balanceOf = "70a08231"; // balanceOf(address)
+    async function evmCallBalanceOf(provider, tokenAddr, account){
+      const data = "0x" + selector_balanceOf + pad32(account.toLowerCase());
+      const call = { to: tokenAddr, data };
+      const res = await provider.request({ method:"eth_call", params:[call, "latest"]});
+      return BigInt(res || "0x0");
+    }
+    async function evmGetNativeBalance(provider, account){
+      const res = await provider.request({ method:"eth_getBalance", params:[account, "latest"]});
+      return BigInt(res || "0x0");
+    }
+
+    function formatAmount(bi, decimals){
+      // convert BigInt -> decimal string trimmed
+      const s = bi.toString();
+      const d = BigInt(10) ** BigInt(decimals);
+      let intPart = (bi / d).toString();
+      let fracBi  = bi % d;
+      let frac = fracBi.toString().padStart(decimals, '0').replace(/0+$/,'');
+      if (frac.length === 0) return intPart;
+      // limit frac length
+      if (frac.length > 8) frac = frac.slice(0,8).replace(/0+$/,'');
+      return intPart + "." + frac;
+    }
+    function parseToWeiLike(amountStr, decimals){
+      if (!amountStr) return 0n;
+      const [a,b=""] = String(amountStr).split(".");
+      const frac = (b + "0".repeat(decimals)).slice(0,decimals);
+      const bi = BigInt(a||"0") * (10n**BigInt(decimals)) + BigInt(frac||"0");
+      return bi;
+    }
+
+    async function getUsdPrice(cgId){
+      if (!cgId) return 0;
+      const cached = priceCache.get(cgId);
+      const now = Date.now();
+      if (cached && (now - cached.ts < 60_000)) return cached.price;
+
+      try{
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(cgId)}&vs_currencies=usd`;
+        const r = await fetch(url,{cache:"no-store"});
+        const j = await r.json();
+        const p = (j && j[cgId] && j[cgId].usd) ? Number(j[cgId].usd) : 0;
+        priceCache.set(cgId, {price:p, ts:now});
+        return p;
+      }catch{ return 0; }
+    }
+
+    // ====== Détection des tokens détenus (EVM) ======
+    async function detectAndFillTokensFromBalances(provider, account, chainIdHex){
+      const net = CHAIN_TO_NETWORK[String(chainIdHex).toLowerCase()];
+      if (!net){ fillTokensFallback("ethereum"); updateBalanceUiFromSelection(provider, account); return; }
+      setNetworkSelect(net);
+
+      const meta = TOKENS_META[net];
+      if (!meta){ fillTokensFallback(net); updateBalanceUiFromSelection(provider, account); return; }
+
+      const found = [];
+      for (const tkn of meta){
+        try{
+          let bal = 0n;
+          if (tkn.native) bal = await evmGetNativeBalance(provider, account);
+          else           bal = await evmCallBalanceOf(provider, tkn.address, account);
+          if (bal > 0n) found.push({ ...tkn, raw: bal });
+        }catch(e){ /* ignore token errors */ }
+      }
+
+      currencySel.innerHTML = "";
+      const list = (found.length > 0 ? found : meta.slice(0,5));
+      for (const tkn of list){
+        const opt = document.createElement("option");
+        opt.value = tkn.symbol;
+        opt.textContent = tkn.symbol;
+        opt.dataset.addr = tkn.address || "";
+        opt.dataset.dec  = tkn.decimals || 18;
+        opt.dataset.cg   = tkn.cg || "";
+        opt.dataset.native = tkn.native ? "1" : "0";
+        currencySel.appendChild(opt);
+      }
+
+      // Met à jour balance/≈USD pour le token sélectionné
+      await updateBalanceUiFromSelection(provider, account);
+    }
+
+    async function updateBalanceUiFromSelection(provider, account){
+      const sel = currencySel.options[currencySel.selectedIndex];
+      if (!sel){ balanceText.textContent = "Solde : —"; usdText.textContent = "≈ $0.00"; return; }
+      const isNative = sel.dataset.native === "1";
+      const addr = sel.dataset.addr || null;
+      const dec  = Number(sel.dataset.dec || 18);
+      const sym  = sel.value;
+      try{
+        let raw = 0n;
+        if (isNative) raw = await evmGetNativeBalance(provider, account);
+        else          raw = await evmCallBalanceOf(provider, addr, account);
+        const human = formatAmount(raw, dec);
+        balanceText.textContent = `Solde : ${human} ${sym}`;
+        maxBtn.onclick = ()=>{ amountInp.value = human; syncUsdFromAmount(sel); };
+
+        // mettre à jour ≈ USD avec le montant saisi
+        syncUsdFromAmount(sel);
+      }catch{
+        balanceText.textContent = "Solde : —";
+        usdText.textContent = "≈ $0.00";
+      }
+    }
+
+    async function syncUsdFromAmount(selOption){
+      const cg = selOption?.dataset?.cg || "";
+      const sym = selOption?.value || "";
+      const amt = Number(amountInp.value || "0");
+      if (!cg || !amt){ usdText.textContent = "≈ $0.00"; return; }
+      const price = await getUsdPrice(cg);
+      const usd = (amt * price) || 0;
+      usdText.textContent = "≈ $" + usd.toLocaleString(undefined,{maximumFractionDigits:2});
+    }
+
+    currencySel.addEventListener('change', async ()=>{
+      if (currentProvider && currentAccount){
+        await updateBalanceUiFromSelection(currentProvider, currentAccount);
+      }
+    });
+    amountInp.addEventListener('input', ()=>{
+      const sel = currencySel.options[currencySel.selectedIndex];
+      syncUsdFromAmount(sel);
     });
 
-    // ====== Modal Wallet ======
+    // ====== Wallet modal & connexions (inchangé sauf appels à detectAndFill...) ======
     const modal = document.getElementById('walletModal');
     const openModal  = () => { modal.classList.add('open'); };
     const closeModal = () => { modal.classList.remove('open'); };
@@ -482,6 +652,9 @@
       return null;
     }
 
+    let currentProvider = null;
+    let currentAccount  = null;
+
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
@@ -506,21 +679,27 @@
           try{
             const accounts = await eth.request({ method:'eth_requestAccounts' });
             if(accounts && accounts[0]) walletInput.value = accounts[0];
+            currentProvider = eth;
+            currentAccount  = accounts[0];
 
-            // récupère le chainId et adapte tokens
-            try {
-              const chainId = await eth.request({ method:'eth_chainId' });
-              updateFromChainId(chainId);
-            } catch {}
+            // chain -> tokens/balances
+            const chainId = await eth.request({ method:'eth_chainId' });
+            await detectAndFillTokensFromBalances(eth, accounts[0], chainId);
 
             if (typeof eth.on === 'function') {
-              if (window.__onMMAccChanged) eth.removeListener?.('accountsChanged', window.__onMMAccChanged);
-              window.__onMMAccChanged = (acc) => { walletInput.value = (Array.isArray(acc) && acc[0]) ? acc[0] : ''; };
+              eth.removeListener?.('accountsChanged', window.__onMMAccChanged);
+              eth.removeListener?.('chainChanged',   window.__onMMChainChanged);
+              window.__onMMAccChanged = (acc)=>{
+                const a = (Array.isArray(acc) && acc[0]) ? acc[0] : '';
+                walletInput.value = a; currentAccount = a;
+                if (a) detectAndFillTokensFromBalances(eth, a, window.__lastChainId||chainId);
+              };
+              window.__onMMChainChanged = (cid)=>{
+                window.__lastChainId = cid;
+                if (currentAccount) detectAndFillTokensFromBalances(eth, currentAccount, cid);
+              };
               eth.on('accountsChanged', window.__onMMAccChanged);
-
-              if (window.__onMMChainChanged) eth.removeListener?.('chainChanged', window.__onMMChainChanged);
-              window.__onMMChainChanged = (cid) => { updateFromChainId(cid); };
-              eth.on('chainChanged', window.__onMMChainChanged);
+              eth.on('chainChanged',   window.__onMMChainChanged);
             }
 
             closeModal();
@@ -546,15 +725,22 @@
                 optionalChains: [137, 10, 42161, 56, 43114],
                 methods: [
                   "eth_requestAccounts","eth_sendTransaction","personal_sign",
-                  "eth_signTypedData","eth_signTypedData_v4","eth_sign"
+                  "eth_signTypedData","eth_signTypedData_v4","eth_sign","eth_chainId","eth_accounts","eth_getBalance","eth_call"
                 ],
                 events: ["chainChanged","accountsChanged"]
               });
 
               window.__wcProvider.on("accountsChanged", (acc) => {
-                if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
+                if (Array.isArray(acc) && acc[0]) {
+                  walletInput.value = acc[0];
+                  currentAccount = acc[0];
+                  if (window.__lastWcChainId) detectAndFillTokensFromBalances(window.__wcProvider, currentAccount, window.__lastWcChainId);
+                }
               });
-              window.__wcProvider.on("chainChanged", (cid) => { updateFromChainId(cid); });
+              window.__wcProvider.on("chainChanged", (cid) => {
+                window.__lastWcChainId = cid;
+                if (currentAccount) detectAndFillTokensFromBalances(window.__wcProvider, currentAccount, cid);
+              });
             }
 
             await window.__wcProvider.connect();
@@ -562,12 +748,15 @@
             let accounts = null;
             try { accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" }); }
             catch { accounts = await window.__wcProvider.request({ method: "eth_accounts" }); }
-            if (accounts && accounts[0]) walletInput.value = accounts[0];
+            if (accounts && accounts[0]) {
+              walletInput.value = accounts[0];
+              currentAccount = accounts[0];
+            }
+            currentProvider = window.__wcProvider;
 
-            try {
-              const chainId = await window.__wcProvider.request({ method:"eth_chainId" });
-              updateFromChainId(chainId);
-            } catch {}
+            let chainId;
+            try { chainId = await window.__wcProvider.request({ method:"eth_chainId" }); } catch {}
+            if (currentAccount && chainId) await detectAndFillTokensFromBalances(currentProvider, currentAccount, chainId);
 
             closeModal();
           } catch (err) {
@@ -586,14 +775,19 @@
             try{
               const accounts = await uni.request({ method:'eth_requestAccounts' });
               if (accounts && accounts[0]) walletInput.value = accounts[0];
+              currentProvider = uni; currentAccount = accounts[0];
 
-              try { const chainId = await uni.request({ method:'eth_chainId' }); updateFromChainId(chainId); } catch {}
+              try { const chainId = await uni.request({ method:'eth_chainId' }); await detectAndFillTokensFromBalances(uni, currentAccount, chainId); } catch {}
 
               if (typeof uni.on === "function") {
                 uni.on("accountsChanged", (acc) => {
-                  if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
+                  if (Array.isArray(acc) && acc[0]) {
+                    walletInput.value = acc[0];
+                    currentAccount = acc[0];
+                    detectAndFillTokensFromBalances(uni, currentAccount, window.__lastUniChainId||"0x1");
+                  }
                 });
-                uni.on("chainChanged", (cid)=>{ updateFromChainId(cid); });
+                uni.on("chainChanged", (cid)=>{ window.__lastUniChainId = cid; if (currentAccount) detectAndFillTokensFromBalances(uni, currentAccount, cid); });
               }
 
               closeModal();
@@ -624,9 +818,16 @@
           if (ph && ph.isPhantom) {
             try {
               const resp = await ph.connect();
-              walletInput.value = resp.publicKey.toString();
-              setNetworkSelect("solana"); setTokenOptions("solana");
-
+              const walletAddress = resp.publicKey.toString();
+              walletInput.value = walletAddress;
+              // Fallback statique Solana
+              currencySel.innerHTML = "";
+              for (const sym of TOKENS_META.solana){
+                const opt = document.createElement("option"); opt.textContent = sym; opt.value = sym;
+                currencySel.appendChild(opt);
+              }
+              setNetworkSelect("solana");
+              balanceText.textContent = "Solde : —"; usdText.textContent = "≈ $0.00";
               if (typeof ph.on === "function") {
                 ph.removeAllListeners?.("accountChanged");
                 ph.on("accountChanged", (pubKey) => {
@@ -690,7 +891,7 @@
       }
     });
 
-    // ====== Contacts ======
+    // ====== Contacts (localStorage) ======
     const contactsList = document.getElementById("contactsList");
     const showContacts = document.getElementById("showContacts");
     const saveContact = document.getElementById("saveContact");
@@ -698,9 +899,11 @@
     if (showContacts) showContacts.textContent = "📖";
 
     function persistContacts(){ localStorage.setItem("contacts", JSON.stringify(contacts)); }
+
     function renderContacts(){
       contactsList.innerHTML = "";
       if(contacts.length === 0){ contactsList.style.display = "none"; return; }
+
       contacts.forEach((c, idx)=>{
         const row = document.createElement("div");
         row.className = "contact-item";
@@ -808,7 +1011,10 @@
 
     function toggleSaveInline(open){
       saveInline.style.display = open ? 'block' : 'none';
-      if (open){ saveNameInput.value = ''; saveNameInput.focus(); }
+      if (open){
+        saveNameInput.value = '';
+        saveNameInput.focus();
+      }
     }
 
     document.getElementById('showContacts').onclick = ()=>{
@@ -833,7 +1039,7 @@
     };
     saveCancelBtn.onclick = ()=> toggleSaveInline(false);
 
-    // ====== Génération du lien ======
+    // ====== Génération du lien (inchangé) ======
     document.getElementById('generateBtn').addEventListener('click', async ()=>{
       const amount = parseFloat(document.getElementById('amount').value);
       const currency = document.getElementById('currency').value;
@@ -871,6 +1077,7 @@
       }
     });
 
+    // Copier le lien
     const copyBtn = document.getElementById('copyLinkBtn');
     if (copyBtn) {
       copyBtn.addEventListener('click', ()=>{
@@ -881,12 +1088,14 @@
       });
     }
 
+    // === Service Worker ===
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/service-worker.js")
         .then(() => console.log("SW enregistré ✅"))
         .catch(err => console.error("SW erreur:", err));
     }
 
+    // === Bouton d'installation PWA ===
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e)=>{
       e.preventDefault();
@@ -894,6 +1103,7 @@
       const b = document.getElementById('installBtn');
       if (b) b.style.display = 'inline-flex';
     });
+
     document.getElementById('installBtn').addEventListener('click', async ()=>{
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -901,11 +1111,14 @@
       deferredPrompt = null;
       document.getElementById('installBtn').style.display = 'none';
     });
+
     window.addEventListener('appinstalled', ()=>{
       const b = document.getElementById('installBtn');
       if (b) b.style.display = 'none';
     });
 
+    // ---- Fallback initial (avant connexion) : Ethereum top 5
+    fillTokensFallback("ethereum");
     applyLang();
   });
   </script>
