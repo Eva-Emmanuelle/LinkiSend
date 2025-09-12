@@ -348,6 +348,13 @@
     const resultDiv = document.getElementById('result');
     const errorDiv  = document.getElementById('error');
     const walletInput = document.getElementById('wallet');
+    // --- Anti "adresse fantôme" (autofill / ancien état) ---
+try { walletInput.value = ""; } catch {}
+try { walletInput.setAttribute("autocomplete", "off"); } catch {}
+// Nettoyage d'anciens états WalletConnect (au cas où)
+try { localStorage.removeItem("walletconnect"); } catch {}
+try { sessionStorage.removeItem("WALLETCONNECT_DEEPLINK_CHOICE"); } catch {}
+// -------------------------------------------------------
     const linkEl  = document.getElementById('the-link');
     const currencySel = document.getElementById('currency');
     const networkSel  = document.getElementById('network');
