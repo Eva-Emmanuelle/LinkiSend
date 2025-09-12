@@ -2,747 +2,221 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>LinkiSend — Envoyer des cryptos</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
-  <meta name="theme-color" content="#0b0f14">
-  <link rel="icon" href="assets/icons/icon-maskable-512.png" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinkiSend</title>
   <style>
-    :root{--bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;--text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;--shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px}
-    *,*:before,*:after{box-sizing:border-box}html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}.brand{display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}.brand img.word{max-width:240px;height:auto;display:block}.brand img.arrow{position:absolute;left:0;top:50%;transform:translateY(-50%);max-width:60px;height:auto}
-    .lang-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);padding:4px 8px;border-radius:999px;background:#0e141c}.lang-toggle:hover{background:#101924}
-    .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}.card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}.sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
-    .row{display:flex;gap:var(--gap)}.col{flex:1}label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
-    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none}
-    select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
-    .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
-    .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px}
-    .btn:hover{box-shadow:0 12px 32px rgba(34,197,94,.28)}.btn:active{transform:translateY(1px)}
-    .wallet-link{display:inline-flex;align-items:center;gap:8px;color:#93c5fd;text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:#0a1220;margin:8px 2px 4px;width:max-content}
-    .wallet-link:hover{background:#0d1729}
-    .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke)}.error{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
-    .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
-    .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
-    .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
-    .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-    .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
-    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
-    .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
-    .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}.dialcode{color:#cfe1ff}.country{color:#9fb0c0;font-size:12px}
-    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
-    #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
-    #installBtn:active{transform:translateY(1px)}
-    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
-    #splash img{width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96}#splash.hide{opacity:0;pointer-events:none}
-    .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}.modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
-    @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
-    @media (max-height:640px){.modal-card{max-height:84vh}}
-    /* Effet sur 📖 et 💾 */
-.emoji-btn {
-  display: inline-block;            /* ← important pour que :hover/transform marchent */
-  transition: transform 0.1s ease, opacity 0.1s ease;
-  cursor: pointer;
-}
-
-/* Survol : léger zoom */
-.emoji-btn:hover {
-  transform: scale(1.2);
-}
-
-/* Clic : bouton enfoncé */
-.emoji-btn:active {
-  transform: scale(0.9);
-  opacity: 0.7;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:#0f172a;
+      color:#e2e8f0;
+      margin:0;
+      padding:0;
+    }
+    .container { max-width:600px; margin:20px auto; padding:20px; }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input, select, button {
+      width:100%; padding:10px; margin-top:5px;
+      border-radius:8px; border:none;
+      font-size:16px;
+    }
+    input, select { background:#1e293b; color:#f1f5f9; }
+    button {
+      background:#4f46e5; color:white; font-weight:bold;
+      cursor:pointer; margin-top:20px;
+    }
+    button:hover { background:#4338ca; }
+    .emoji-btn {
+      display:inline-block;
+      transition: transform 0.1s ease, opacity 0.1s ease;
+      cursor:pointer;
+    }
+    .emoji-btn:hover { transform:scale(1.2); }
+    .emoji-btn:active { transform:scale(0.9); opacity:0.7; }
   </style>
-
-  <script>
-  document.addEventListener("DOMContentLoaded",function(){
-    const s=document.getElementById('splash');if(!s)return;
-    const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
-    if(isStandalone){s.remove();return}
-    let done=false;function hide(){if(done)return;done=true;s.classList.add('hide');setTimeout(()=>s.remove(),400)}
-    window.addEventListener('load',hide);setTimeout(hide,1200)
-  });
-  </script>
-
-  <!-- CONFIG + pays -->
-  <script src="config.js"></script>
-  <script src="countries.js"></script>
-
-  <!-- CHARGEUR ROBUSTE WalletConnect: local si OK, sinon fallback CDN -->
-  <script>
-    (function(){
-      function inject(src){
-        return new Promise((resolve,reject)=>{
-          const s=document.createElement('script');
-          s.src=src; s.async=true;
-          s.onload=resolve; s.onerror=()=>reject(new Error('load fail '+src));
-          document.head.appendChild(s);
-        });
-      }
-      async function loadLocalOrCdn(){
-        const local="/assets/vendor/wc/ethereum-provider.bundle.min.js";
-        try{
-          const r=await fetch(local,{cache:'no-store'});
-          const ct=(r.headers.get('content-type')||'').toLowerCase();
-          const txt=await r.text();
-          if(!r.ok || ct.includes('text/html') || /^\s*<!doctype html/i.test(txt)) throw new Error('local is html/404');
-          await inject(local+'?v='+Date.now());
-        }catch(_){
-          await inject("https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js");
-        }
-      }
-      window.__wcProviderBootstrap = loadLocalOrCdn();
-    })();
-  </script>
 </head>
-
 <body>
+  <div class="container">
+    <h1>LinkiSend</h1>
+
+    <label for="wallet">Adresse Wallet</label>
+    <input type="text" id="wallet" placeholder="0x..." />
+
+    <label for="currency" id="lbl-token">Token</label>
+    <select id="currency">
+      <option>USDT</option>
+      <option>USDC</option>
+      <option>ETH</option>
+      <option>BTC</option>
+      <option>SOL</option>
+      <option>BNB</option>
+      <option>AVAX</option>
+      <option>DAI</option>
+      <option>LINK</option>
+    </select>
+    <!-- Ajout pour solde + équivalent USD -->
+    <span id="tokenBalanceInfo" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:4px;">
+      Solde: 0
+    </span>
+
+    <label for="amount" id="lbl-amount">Montant</label>
+    <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+    <p id="usdValue" style="font-style:italic;color:#9fb0c0;font-size:13px;margin:2px 0 0;">
+      ≈ 0.00 $
+    </p>
+
+    <label for="network">Réseau</label>
+    <select id="network">
+      <option value="ethereum">Ethereum</option>
+      <option value="bsc">BNB Chain</option>
+      <option value="polygon">Polygon</option>
+      <option value="avalanche">Avalanche</option>
+      <option value="solana">Solana</option>
+    </select>
+
+    <button id="generate">Générer le lien</button>
+  </div>
+
+  <!-- ====== LINKISEND: START SCANNER INTERNE MULTI-RÉSEAUX ====== -->
   <script>
   (function(){
-    const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
-    const ua=(navigator.userAgent||navigator.vendor||window.opera||"").toLowerCase();
-    const isMobileUA=/android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
-    if(!isStandalone && isMobileUA){
-      function browserHelp(){
-        if(ua.includes('samsungbrowser'))return"Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
-        if(ua.includes('firefox'))return"Sur Firefox Android : menu ⋮ > Installer.";
-        if(ua.includes('crios')||ua.includes('iphone')||ua.includes('ipad'))return"Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
-        if(ua.includes('chrome'))return"Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
-        return"Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
-      }
-      document.write(`
-        <style>body > :not(#install-gate){display:none!important}</style>
-        <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
-          <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
-          <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
-          <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
-          <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
-        </div>
-      `);
-      let _d=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();_d=e});
-      window.addEventListener('click',async(ev)=>{
-        const b=document.getElementById('installNow');if(!b||ev.target!==b)return;
-        if(_d){_d.prompt();try{await _d.userChoice}catch{} _d=null}else{alert(document.getElementById('installHint').textContent)}
-      });
-    }
-  })();
-  </script>
+    const walletInput = document.getElementById('wallet');
+    const currencySel = document.getElementById('currency');
+    const balInfoEl   = document.getElementById('tokenBalanceInfo');
 
-  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
-
-  <div class="wrap">
-    <div class="brand">
-      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
-      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
-      <span id="langToggle" class="lang-toggle">FR / EN</span>
-    </div>
-
-    <div class="card" role="region" aria-label="Formulaire d’envoi">
-      <h2 id="title">Envoyer des cryptos</h2>
-      <p class="sub" id="subtitle">Génère un lien en 10&nbsp;secondes.</p>
-
-      <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
-      <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
-
-      <div class="row">
-        <div class="col">
-          <label for="currency" id="lbl-token">Token</label>
-<select id="currency"></select>
-<span id="tokenBalanceInfo" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:4px;">
-  Solde: 0
-</span>
-        </div>
-        <div class="col">
-          <label for="amount" id="lbl-amount">Montant</label>
-          <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
-          <span id="usdValue" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:2px;">
-  ≈ 0.00 $
-</span>
-        </div>
-      </div>
-
-      <label for="network" id="lbl-network">Réseau</label>
-      <select id="network">
-        <option>Ethereum</option><option>BNB Chain</option>
-        <option>Polygon</option><option>Solana</option><option>Avalanche</option>
-      </select>
-
-      <label id="lbl-phone">Numéro du destinataire</label>
-      <div class="phone-row">
-        <div class="dial">
-          <button id="dialBtn" class="dial-btn"><span class="iso">FR</span><span id="dialCode">+33</span></button>
-          <div id="dialPanel" class="dial-panel">
-            <div class="dial-head"><input id="dialSearch" class="dial-search-input" placeholder="Rechercher..."/></div>
-            <div id="dialList" class="dial-list"></div>
-          </div>
-        </div>
-        <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
-      </div>
-
-      <div class="contact-actions">
-        <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
-        <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
-      </div>
-      <div class="contacts" id="contactsList"></div>
-
-      <button id="generateBtn" class="btn">Générer le lien</button>
-      <p class="hint" id="hint">Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.</p>
-
-      <div id="result" class="result-cta" aria-live="polite">
-        <h3 id="resultTitle" style="margin:0 0 10px;font-size:18px;">Lien prêt ✅</h3>
-        <div class="row-cta" style="display:inline-flex;align-items:center;">
-          <code id="the-link"></code>
-          <span id="copyLinkBtn" style="cursor:pointer;margin-left:4px;" title="Copier">📋</span>
-        </div>
-        <div class="sub-cta" id="validityText" style="margin-top:10px;">
-          ⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.
-        </div>
-      </div>
-
-      <div id="error" class="error" style="display:none"></div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast">Lien copié ✅</div>
-
-  <div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="walletModalTitle">Connecter un wallet</h3>
-        <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
-      </div>
-      <div class="providers">
-        <button class="pv" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="MetaMask" />MetaMask <span class="tag">EVM</span></button>
-        <button class="pv" data-wallet="walletconnect"><img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />WalletConnect <span class="tag">EVM</span></button>
-        <button class="pv" data-wallet="uniswap"><img src="assets/wallets/uniswap.svg" alt="Uniswap" />Uniswap <span class="tag">DEX</span></button>
-        <button class="pv" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="Phantom" />Phantom <span class="tag">Solana</span></button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', ()=> {
-    const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
-    const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
-    const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');let currentDial={iso:"FR",code:"+33"};
-    const langToggle=document.getElementById('langToggle');const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
-    const t={fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",needNumber:"Enter a number first."}};
-    function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet").textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document.getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang].hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch").placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document.getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
-    langToggle.addEventListener('click',()=>{lang=(lang==='fr')?'en':'fr';localStorage.setItem('lang',lang);applyLang()});
-
-    const modal=document.getElementById('walletModal');const openModal=()=>{modal.classList.add('open')};const closeModal=()=>{modal.classList.remove('open')};
-    document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose').addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
-
-    const discovered=[];window.addEventListener('eip6963:announceProvider',(event)=>{try{discovered.push(event.detail)}catch{}});try{window.dispatchEvent(new Event('eip6963:requestProvider'))}catch{}
-    function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
-    const isMobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
-    function getProviderBy(match6963,matchLegacy){const d=discovered.find(x=>{try{return match6963(x)}catch{return false}});if(d&&d.provider)return d.provider;if(window.ethereum){if(Array.isArray(window.ethereum.providers)){const p=window.ethereum.providers.find(p=>{try{return matchLegacy(p)}catch{return false}});if(p)return p}if(matchLegacy(window.ethereum))return window.ethereum}return null}
-    function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Échec chargement "+src));document.head.appendChild(s)})}
-
-    function getWcGlobal(){
-      const mod=window['@walletconnect/ethereum-provider'];
-      if(mod&&(mod.EthereumProvider?.init||mod.default?.EthereumProvider?.init)){return mod.EthereumProvider||mod.default.EthereumProvider}
-      return window.EthereumProvider||window.WalletConnectEthereumProvider||(window.WalletConnectProvider&&(window.WalletConnectProvider.init?window.WalletConnectProvider:window.WalletConnectProvider.default))||(window.WalletConnect&&window.WalletConnect.EthereumProvider)
-    }
-
-    async function loadWalletConnectProvider(){
-      try{await window.__wcProviderBootstrap}catch{} // attend le bootstrap local/CDN
-      let EP=getWcGlobal(); if(EP) return EP;
-      const umd=["https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js","https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"];
-      for(const u of umd){try{await loadScript(u+"?v="+Date.now());EP=getWcGlobal();if(EP)return EP}catch{}}
-      return null;
-    }
-
-    modal.querySelectorAll('.pv').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const provider=btn.getAttribute('data-wallet');
-        if(provider==='metamask'){
-          const eth=getProviderBy(d=>/metamask/i.test(d?.info?.rdns||'')||/metamask/i.test(d?.info?.name||''),p=>!!p.isMetaMask);
-          if(!eth||!eth.request){if(isStandaloneApp()&&!isMobile){window.open(window.location.href,'_blank');return}
-            if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
-          try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
-
-                } else if (provider === "phantom") {
-          const ph = window.solana;
-          if (ph && ph.isPhantom) {
-            try {
-              const resp = await ph.connect();
-              walletInput.value = resp.publicKey.toString();
-              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
-              if (typeof ph.on === "function") {
-                ph.on("accountChanged", (pubKey) => {
-                  walletInput.value = pubKey ? pubKey.toString() : "";
-                });
-              }
-              closeModal();
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Phantom refusée ou erreur.");
-            }
-          } else {
-            window.open("https://phantom.app/", "_blank");
-          }
-
-                } else if (provider === "uniswap") {
-          const uni = getProviderBy(
-            d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
-            p => !!p.isUniswap || p?.providerName === 'uniswap'
-          );
-
-          // Extension détectée
-          if (uni && typeof uni.request === "function") {
-            try {
-              const accounts = await uni.request({ method: "eth_requestAccounts" });
-              if (accounts && accounts[0]) walletInput.value = accounts[0];
-
-              // 🔄 garde le champ à jour si le compte change
-              if (typeof uni.on === "function") {
-                uni.on("accountsChanged", (acc) => {
-                  if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
-                });
-              }
-
-              closeModal();
-              return;
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Uniswap refusée ou erreur.");
-              return;
-            }
-          }
-
-          // Pas d’extension : on ouvre l’app Uniswap
-          if (isMobile) {
-            alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
-            window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
-            closeModal();
-            return;
-          }
-          if (isStandaloneApp()) { window.open(window.location.href, '_blank'); return; }
-          alert("Extension Uniswap non détectée. J’ouvre l’app Uniswap dans un nouvel onglet.");
-          window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
-          closeModal();
-
-                } else if (provider === "walletconnect") {
-          try {
-            if (window.__wcConnecting) return;
-            window.__wcConnecting = true;
-
-            const EP = await loadWalletConnectProvider();
-            if (!EP || !EP.init) throw new Error("Provider WalletConnect indisponible (chargement)");
-
-            if (!window.__wcProvider) {
-              window.__wcProvider = await EP.init({
-                projectId: "9c945cd5bef5c1e1905266cf0219736d",
-                showQrModal: true,
-                chains: [1],
-                optionalChains: [137, 10, 42161, 56, 43114],
-                methods: [
-                  "eth_requestAccounts","eth_sendTransaction","personal_sign",
-                  "eth_signTypedData","eth_signTypedData_v4","eth_sign"
-                ],
-                events: ["chainChanged","accountsChanged"]
-              });
-
-              // 🔗 Auto-remplissage du champ au changement de compte
-              window.__wcProvider.on("accountsChanged", (acc) => {
-                if (Array.isArray(acc) && acc[0]) {
-                  walletInput.value = acc[0];
-                }
-              });
-            }
-
-            // ✅ Connexion (affiche le QR si nécessaire)
-            await window.__wcProvider.connect();
-
-            // 🧾 Récupère et place l’adresse
-            let accounts = null;
-            try {
-              accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" });
-            } catch {
-              accounts = await window.__wcProvider.request({ method: "eth_accounts" });
-            }
-            if (accounts && accounts[0]) {
-              walletInput.value = accounts[0];
-            }
-
-            closeModal();
-          } catch (err) {
-            console.error("WalletConnect connect error:", err);
-            alert("Connexion WalletConnect refusée ou erreur.");
-          } finally {
-            window.__wcConnecting = false;
-          }
-        }else{
-          alert("Connexion via "+provider+" arrive bientôt.");
-        }
-      });
-    });
-
-    function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML=`<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none"};dialList.appendChild(row)})}
-    dialBtn.addEventListener('click',(e)=>{e.stopPropagation();dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");if(dialPanel.style.display==="block"){renderDialList("");dialSearch.value="";dialSearch.focus()}});
-    dialSearch.oninput=()=>renderDialList(dialSearch.value);
-    document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
-
-    const contactsList=document.getElementById("contactsList");const showContacts=document.getElementById("showContacts");const saveContact=document.getElementById("saveContact");
-    let contacts=JSON.parse(localStorage.getItem("contacts")||"[]");if(showContacts)showContacts.textContent="📖";
-    function persistContacts(){localStorage.setItem("contacts",JSON.stringify(contacts))}
-    function renderContacts(){contactsList.innerHTML="";if(contacts.length===0){contactsList.style.display="none";return}
-      contacts.forEach((c,idx)=>{const row=document.createElement("div");row.className="contact-item";row.style.display="flex";row.style.alignItems="center";row.style.justifyContent="space-between";row.style.gap="8px";
-        const left=document.createElement("div");left.textContent=`${c.name} (${c.phone})`;left.style.flex="1 1 auto";left.style.whiteSpace="nowrap";left.style.overflow="hidden";left.style.textOverflow="ellipsis";
-        const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
-        left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};dialBtn.innerHTML=`<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;contactsList.style.display="none"};
-        del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
-        row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
-    }renderContacts();
-
-    const actionsBar=document.querySelector('.contact-actions');const saveInline=document.createElement('div');saveInline.style.display='none';saveInline.style.marginTop='8px';saveInline.style.padding='10px';saveInline.style.border='1px solid var(--stroke)';saveInline.style.borderRadius='8px';saveInline.style.background='#0e1420';saveInline.style.boxShadow='var(--shadow)';saveInline.style.gap='8px';saveInline.style.alignItems='center';saveInline.style.justifyContent='space-between';
-    const saveNameInput=document.createElement('input');saveNameInput.type='text';saveNameInput.id='saveName';saveNameInput.placeholder=t[lang].savePh;saveNameInput.style.width='100%';saveNameInput.style.padding='8px 10px';saveNameInput.style.border='1px solid var(--stroke)';saveNameInput.style.borderRadius='6px';saveNameInput.style.background='#0a1220';saveNameInput.style.color='#e6edf3';saveNameInput.style.marginRight='8px';
-    const btnsWrap=document.createElement('div');btnsWrap.style.display='flex';btnsWrap.style.gap='8px';btnsWrap.style.marginTop='8px';
-    const saveConfirmBtn=document.createElement('button');saveConfirmBtn.type='button';saveConfirmBtn.textContent=`✅ ${t[lang].save}`;saveConfirmBtn.style.border='1px solid var(--stroke)';saveConfirmBtn.style.background='#0a1220';saveConfirmBtn.style.color='#ffffff';saveConfirmBtn.style.borderRadius='8px';saveConfirmBtn.style.padding='6px 10px';saveConfirmBtn.style.cursor='pointer';
-    const saveCancelBtn=document.createElement('button');saveCancelBtn.type='button';saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;saveCancelBtn.style.border='1px solid var(--stroke)';saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
-    saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
-    function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
-    document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
-    document.getElementById('saveContact').onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}toggleSaveInline(true)};
-    saveConfirmBtn.onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}const pseudo=saveNameInput.value.trim();if(!pseudo){saveNameInput.focus();return}const phone=currentDial.code+num;contacts.push({name:pseudo,phone,iso:currentDial.iso,code:currentDial.code});persistContacts();renderContacts();toggleSaveInline(false)};
-    saveCancelBtn.onclick=()=>toggleSaveInline(false);
-
-    document.getElementById('generateBtn').addEventListener('click',async()=>{
-      const amount=parseFloat(document.getElementById('amount').value);
-      const currency=document.getElementById('currency').value;
-      const sender_wallet=walletInput.value.trim();
-      const localPhone=document.getElementById('phone').value.trim();
-      const recipient_phone=`${currentDial.code}${localPhone}`;
-      const network=document.getElementById('network').value;
-      resultDiv.style.display='none';errorDiv.style.display='none';
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";errorDiv.style.display='block';return}
-      try{
-        const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});
-        const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur lors de la génération du lien");
-        const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';
-      }catch(err){errorDiv.textContent=err.message||(lang==='fr'?'Erreur réseau':'Network error');errorDiv.style.display='block'}
-    });
-
-    const copyBtn=document.getElementById('copyLinkBtn');if(copyBtn){copyBtn.addEventListener('click',()=>{navigator.clipboard.writeText(linkEl.textContent).then(()=>{copyBtn.textContent="✅";setTimeout(()=>copyBtn.textContent="📋",1500)})})}
-
-    if("serviceWorker" in navigator){navigator.serviceWorker.register("/service-worker.js").then(()=>console.log("SW enregistré ✅")).catch(err=>console.error("SW erreur:",err))}
-    let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='inline-flex'});
-    document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
-    window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
-    applyLang();
-  });
-  </script>
-
-  <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
-  <script>
-// Mapping entre symboles et IDs CoinGecko
-const COINGECKO_IDS = {
-  ETH: "ethereum",
-  BNB: "binancecoin",
-  MATIC: "matic-network",
-  AVAX: "avalanche-2",
-  SOL: "solana",
-  USDT: "tether",
-  USDC: "usd-coin",
-  DAI: "dai",
-  WBTC: "wrapped-bitcoin",
-  LINK: "chainlink",
-  BONK: "bonk",
-  RAY: "raydium"
-};
-
-async function updateUsdValue(){
-  const amountEl = document.getElementById("amount");
-  const tokenEl  = document.getElementById("currency");
-  const usdEl    = document.getElementById("usdValue");
-
-  if (!amountEl || !tokenEl || !usdEl) return;
-
-  const amount = parseFloat(amountEl.value);
-  const sym = tokenEl.value;
-  const id = COINGECKO_IDS[sym];
-
-  if (!amount || !id){
-    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
-    return;
-  }
-
-  try {
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const price = data[id].usd;
-    const usdVal = (amount * price).toFixed(2);
-    usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
-  } catch(e){
-    console.error("Erreur CoinGecko", e);
-    usdEl.textContent = "(Erreur CoinGecko)";
-  }
-}
-
-// Mettre à jour quand on change le montant ou le token
-document.getElementById("amount")?.addEventListener("input", updateUsdValue);
-document.getElementById("currency")?.addEventListener("change", updateUsdValue);
-</script>
-  <script>
-/* Fermer la liste de contacts par défaut et ne l’ouvrir que via 📖 */
-document.addEventListener('DOMContentLoaded', () => {
-  const box = document.getElementById('contactsList');
-  const btn = document.getElementById('showContacts');
-  if (!box) return;
-
-  // 1) Toujours caché au chargement, même s'il y a des contacts
-  box.style.display = 'none';
-
-  // 2) Ouvrir/fermer uniquement via le bouton 📖
-  if (btn) {
-    btn.onclick = () => {
-      box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+    const CG_ID = {
+      ETH:'ethereum', BNB:'binancecoin', MATIC:'matic-network', AVAX:'avalanche-2', SOL:'solana',
+      USDT:'tether', USDC:'usd-coin', DAI:'dai', WBTC:'wrapped-bitcoin', LINK:'chainlink',
+      BONK:'bonk', RAY:'raydium'
     };
-  }
-});
-</script>
-  <script>
-/* LinkiSend – Scanner interne multi-réseaux (append-only)
-   - EVM: Ethereum(0x1), BNB(0x38), Polygon(0x89), Avalanche(0xa86a)
-   - Solana mainnet
-   - Affiche TOUS les tokens du registre, même si solde = 0
-   - Tri décroissant par montant
-   - Sous le select: "Solde: X SYMBOL — ≈ Y $" (Y=2 décimales, via CoinGecko)
-*/
-(function(){
-  const walletInput = document.getElementById('wallet');
-  const currencySel = document.getElementById('currency');
-  const balInfoEl   = document.getElementById('tokenBalanceInfo');
-  if (!walletInput || !currencySel || !balInfoEl) return;
 
-  /* ---------- Utils ---------- */
-  const CG_ID = {
-    ETH:'ethereum', BNB:'binancecoin', MATIC:'matic-network', AVAX:'avalanche-2', SOL:'solana',
-    USDT:'tether', USDC:'usd-coin', DAI:'dai', WBTC:'wrapped-bitcoin', LINK:'chainlink',
-    BONK:'bonk', RAY:'raydium'
-  };
-
-  function toDecimalString(hexOrStr, decimals){
-    if (hexOrStr == null) return "0";
-    let big;
-    if (typeof hexOrStr === "string" && hexOrStr.startsWith("0x")) big = BigInt(hexOrStr);
-    else big = BigInt(String(hexOrStr));
-    const d = BigInt(decimals);
-    const base = 10n ** d;
-    const intPart = big / base;
-    const frac = big % base;
-    if (frac === 0n) return intPart.toString();
-    return `${intPart}.${frac.toString().padStart(Number(d),'0')}`.replace(/0+$/,'');
-  }
-
-  function setSelect(items){
-    const prev = currencySel.value;
-    currencySel.innerHTML = '';
-    for (const it of items){
-      const o = document.createElement('option');
-      o.value = it.symbol;
-      o.textContent = `${it.symbol} — ${it.amountStr}`;
-      currencySel.appendChild(o);
+    function toDecimalString(hexOrStr, decimals){
+      if (hexOrStr == null) return "0";
+      let big;
+      if (typeof hexOrStr === "string" && hexOrStr.startsWith("0x")) big = BigInt(hexOrStr);
+      else big = BigInt(String(hexOrStr));
+      const d = BigInt(decimals);
+      const base = 10n ** d;
+      const intPart = big / base;
+      const frac = big % base;
+      if (frac === 0n) return intPart.toString();
+      return `${intPart}.${frac.toString().padStart(Number(d),'0')}`.replace(/0+$/, '');
     }
-    if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
-  }
 
-  async function setBalanceLine(symbol, amountStr){
-    try{
-      const id = CG_ID[symbol];
-      if (!id){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
-      const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
-      const j = await r.json();
-      const p = j?.[id]?.usd;
-      if (typeof p !== 'number'){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
-      const usd = (parseFloat(amountStr || "0") * p).toFixed(2);
-      balInfoEl.textContent = `Solde: ${amountStr} ${symbol} — ≈ ${usd} $`;
-    }catch{
-      balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`;
+    function setSelect(items){
+      const prev = currencySel.value;
+      currencySel.innerHTML = '';
+      for (const it of items){
+        const o = document.createElement('option');
+        o.value = it.symbol;
+        o.textContent = `${it.symbol} — ${it.amountStr}`;
+        currencySel.appendChild(o);
+      }
+      if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
     }
-  }
 
-  currencySel.addEventListener('change', ()=>{
-    const opt = currencySel.options[currencySel.selectedIndex];
-    if (!opt) return;
-    const sym = opt.value;
-    const amountStr = (opt.textContent||'').split('—').pop().trim();
-    setBalanceLine(sym, amountStr);
-  });
-
-  /* ---------- EVM ---------- */
-  const EVM = {
-    '0x1': { native:{symbol:'ETH',dec:18}, tokens:{
-      USDT:{addr:'0xdAC17F958D2ee523a2206206994597C13D831ec7',dec:6},
-      USDC:{addr:'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48',dec:6},
-      DAI :{addr:'0x6B175474E89094C44Da98b954EedeAC495271d0F',dec:18},
-      WBTC:{addr:'0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',dec:8},
-      LINK:{addr:'0x514910771AF9Ca656af840dff83E8264EcF986CA',dec:18}
-    }},
-    '0x38': { native:{symbol:'BNB',dec:18}, tokens:{
-      USDT:{addr:'0x55d398326f99059Ff775485246999027B3197955',dec:18},
-      USDC:{addr:'0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',dec:18},
-      DAI :{addr:'0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3',dec:18},
-      WBTC:{addr:'0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',dec:18},
-      LINK:{addr:'0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD',dec:18}
-    }},
-    '0x89': { native:{symbol:'MATIC',dec:18}, tokens:{
-      USDT:{addr:'0xC2132D05D31c914a87C6611C10748AaCbD9b0f',dec:6},
-      USDC:{addr:'0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',dec:6},
-      DAI :{addr:'0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',dec:18},
-      WBTC:{addr:'0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',dec:8},
-      LINK:{addr:'0x53E0bca35eC356BD5ddDFebbD1Fc0fD03Fabad39',dec:18}
-    }},
-    '0xa86a': { native:{symbol:'AVAX',dec:18}, tokens:{
-      USDT:{addr:'0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',dec:6},
-      USDC:{addr:'0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',dec:6},
-      DAI :{addr:'0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',dec:18},
-      WBTC:{addr:'0x50b7545627a5162F82A992c33b87aDc75187B218',dec:8},
-      LINK:{addr:'0x5947BB275c521040051D82396192181b413227A3',dec:18}
-    }}
-  };
-
-  function erc20BalanceOfData(owner){
-    return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
-  }
-
-  async function scanEvm(eth, account){
-    const chainId = await eth.request({method:'eth_chainId'});
-    const reg = EVM[chainId];
-    if (!reg){ setSelect([]); balInfoEl.textContent=''; return; }
-
-    const items = [];
-    // natif
-    const nativeHex = await eth.request({method:'eth_getBalance', params:[account,'latest']});
-    const natStr = toDecimalString(nativeHex, reg.native.dec);
-    items.push({symbol:reg.native.symbol, amountStr:natStr, amountNum:parseFloat(natStr||'0')});
-
-    // ERC-20 (on affiche tous, même si 0)
-    const data = erc20BalanceOfData(account);
-    for (const [sym,tok] of Object.entries(reg.tokens)){
+    async function setBalanceLine(symbol, amountStr){
       try{
-        const hex = await eth.request({method:'eth_call', params:[{to:tok.addr,data},'latest']});
-        const str = toDecimalString(hex, tok.dec);
-        items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
+        const id = CG_ID[symbol];
+        if (!id){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
+        const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+        const j = await r.json();
+        const p = j?.[id]?.usd;
+        if (typeof p !== 'number'){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
+        const usd = (parseFloat(amountStr || "0") * p).toFixed(2);
+        balInfoEl.textContent = `Solde: ${amountStr} ${symbol} — ≈ ${usd} $`;
       }catch{
-        items.push({symbol:sym, amountStr:'0', amountNum:0});
+        balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`;
       }
     }
 
-    items.sort((a,b)=> b.amountNum - a.amountNum);
-    setSelect(items);
-    const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
-  }
-
-  /* ---------- Solana ---------- */
-  const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
-  const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-  const SOLANA = {
-    native:{symbol:'SOL',dec:9},
-    tokens:{
-      USDC:{mint:'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',dec:6},
-      USDT:{mint:'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',dec:6},
-      BONK:{mint:'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',dec:5},
-      RAY :{mint:'4k3Dyjzvzp8eMZWUXbBCaJXipqAVCbi6y5b9VPVuyV7y',dec:6}
-    }
-  };
-  async function solanaRpc(body){
-    const r = await fetch(SOLANA_RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    return r.json();
-  }
-  async function scanSolana(address){
-    const items = [];
-
-    // SOL
-    let lamports = 0;
-    try{
-      const r = await solanaRpc({jsonrpc:"2.0",id:1,method:"getBalance",params:[address]});
-      lamports = r?.result?.value || 0;
-    }catch{}
-    const solStr = (lamports/1e9).toString();
-    items.push({symbol:'SOL', amountStr:solStr, amountNum:parseFloat(solStr||'0')});
-
-    // Comptes SPL possédés
-    let accs = [];
-    try{
-      const r = await solanaRpc({
-        jsonrpc:"2.0", id:2, method:"getTokenAccountsByOwner",
-        params:[address,{programId:TOKEN_PROGRAM_ID},{encoding:"jsonParsed"}]
-      });
-      accs = r?.result?.value || [];
-    }catch{}
-
-    const found = {};
-    for (const a of accs){
-      const info = a?.account?.data?.parsed?.info;
-      const mint = info?.mint;
-      const ui = info?.tokenAmount?.uiAmount || 0;
-      found[mint] = ui;
-    }
-    for (const [sym,t] of Object.entries(SOLANA.tokens)){
-      const ui = found[t.mint] ?? 0;
-      const str = (typeof ui === 'number') ? ui.toString() : String(ui);
-      items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
-    }
-
-    items.sort((a,b)=> b.amountNum - a.amountNum);
-    setSelect(items);
-    const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
-  }
-
-  /* ---------- Orchestration ---------- */
-  async function refresh(){
-    const addr = (walletInput.value || '').trim();
-    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent=''; return; }
-
-    if (addr.startsWith('0x') && window.ethereum && window.ethereum.request){
-      await scanEvm(window.ethereum, addr);
-    } else {
-      await scanSolana(addr);
-    }
-
-    const opt = currencySel.options[currencySel.selectedIndex];
-    if (opt){
+    currencySel.addEventListener('change', ()=>{
+      const opt = currencySel.options[currencySel.selectedIndex];
+      if (!opt) return;
       const sym = opt.value;
       const amountStr = (opt.textContent||'').split('—').pop().trim();
       setBalanceLine(sym, amountStr);
+    });
+
+    const EVM = {
+      '0x1': { native:{symbol:'ETH',dec:18}, tokens:{
+        USDT:{addr:'0xdAC17F958D2ee523a2206206994597C13D831ec7',dec:6},
+        USDC:{addr:'0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48',dec:6},
+        DAI :{addr:'0x6B175474E89094C44Da98b954EedeAC495271d0F',dec:18},
+        WBTC:{addr:'0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',dec:8},
+        LINK:{addr:'0x514910771AF9Ca656af840dff83E8264EcF986CA',dec:18}
+      }}
+      // idem pour BNB, Polygon, Avalanche...
+    };
+
+    function erc20BalanceOfData(owner){
+      return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
     }
-  }
 
-  // re-scan si l’adresse change
-  let last = walletInput.value;
-  setInterval(()=>{
-    const cur = walletInput.value;
-    if (cur !== last){ last = cur; refresh(); }
-  }, 1000);
+    async function scanEvm(eth, account){
+      let chainId;
+      try{ chainId = await eth.request({method:'eth_chainId'}); }catch{ chainId = undefined; }
+      const reg = chainId ? EVM[chainId] : undefined;
+      const items = [];
+      let natSymbol = reg?.native?.symbol || 'ETH';
+      let natDec    = reg?.native?.dec || 18;
+      let nativeHex = '0x0';
+      try{ nativeHex = await eth.request({method:'eth_getBalance', params:[account,'latest']}); }catch{}
+      const natStr = toDecimalString(nativeHex, natDec);
+      items.push({symbol:natSymbol, amountStr:natStr, amountNum:parseFloat(natStr||'0')});
+      if (reg){
+        const data = erc20BalanceOfData(account);
+        for (const [sym,tok] of Object.entries(reg.tokens)){
+          try{
+            const hex = await eth.request({method:'eth_call', params:[{to:tok.addr,data},'latest']});
+            const str = toDecimalString(hex, tok.dec);
+            items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
+          }catch{
+            items.push({symbol:sym, amountStr:'0', amountNum:0});
+          }
+        }
+      }
+      items.sort((a,b)=> b.amountNum - a.amountNum);
+      setSelect(items);
+      const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+    }
 
-  // re-scan si EVM change (si dispo)
-  const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
-    ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
-    : window.ethereum;
-  if (eth && eth.on){
-    eth.on('accountsChanged', refresh);
-    eth.on('chainChanged',  refresh);
-  }
-  refresh();
-})();
-</script>
+    // Solana simplifié
+    const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+    async function scanSolana(address){
+      const items = [];
+      let lamports = 0;
+      try{
+        const r = await fetch(SOLANA_RPC,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"getBalance",params:[address]})});
+        const j = await r.json();
+        lamports = j?.result?.value || 0;
+      }catch{}
+      const solStr = (lamports/1e9).toString();
+      items.push({symbol:'SOL', amountStr:solStr, amountNum:parseFloat(solStr||'0')});
+      items.sort((a,b)=> b.amountNum - a.amountNum);
+      setSelect(items);
+      const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+    }
+
+    async function refresh(){
+      const addr = (walletInput.value || '').trim();
+      if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent=''; return; }
+      if (addr.startsWith('0x') && window.ethereum && window.ethereum.request){
+        await scanEvm(window.ethereum, addr);
+      } else {
+        await scanSolana(addr);
+      }
+    }
+
+    refresh(); // lancement initial
+    let last = walletInput.value;
+    setInterval(()=>{ const cur = walletInput.value; if (cur !== last){ last=cur; refresh(); }},1000);
+    const eth = window.ethereum;
+    if (eth && eth.on){
+      eth.on('accountsChanged', refresh);
+      eth.on('chainChanged', refresh);
+    }
+  })();
+  </script>
+  <!-- ====== LINKISEND: END SCANNER INTERNE MULTI-RÉSEAUX ====== -->
 </body>
 </html>
