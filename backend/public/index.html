@@ -47,7 +47,18 @@
     .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}.modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
     @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
     @media (max-height:640px){.modal-card{max-height:84vh}}
-    /* Effet "enfoncé" quand on clique sur 📖 ou 💾 */
+    /* Effet sur 📖 et 💾 */
+.emoji-btn {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+  cursor: pointer;
+}
+
+/* Survol : léger zoom */
+.emoji-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Clic : bouton enfoncé */
 .emoji-btn:active {
   transform: scale(0.9);
   opacity: 0.7;
