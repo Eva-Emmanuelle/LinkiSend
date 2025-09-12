@@ -49,6 +49,7 @@
     @media (max-height:640px){.modal-card{max-height:84vh}}
     /* Effet sur 📖 et 💾 */
 .emoji-btn {
+  display: inline-block;            /* ← important pour que :hover/transform marchent */
   transition: transform 0.1s ease, opacity 0.1s ease;
   cursor: pointer;
 }
