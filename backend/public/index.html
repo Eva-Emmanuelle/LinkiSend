@@ -673,55 +673,83 @@ try {
       btn.addEventListener('click', async ()=>{
         const provider = btn.getAttribute('data-wallet');
 
-        if(provider === 'metamask'){
-          const isStandaloneApp =
-            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-            (window.navigator.standalone === true);
-          const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+        if (provider === 'metamask') {
+  const isStandaloneApp =
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator.standalone === true);
+  const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
 
-          const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
-            ? window.ethereum.providers.find(p => p && p.isMetaMask)
-            : window.ethereum;
+  // Récupère l’instance MetaMask (et pas un autre provider EVM)
+  const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+    ? window.ethereum.providers.find(p => p && p.isMetaMask)
+    : window.ethereum;
 
-          if (!eth || !eth.request) {
-            if (isStandaloneApp && !isMobile) { window.open(window.location.href, '_blank'); return; }
-            if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
-            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
-            return;
-          }
+  if (!eth || !eth.request) {
+    if (isStandaloneApp && !isMobile) { window.open(window.location.href, '_blank'); return; }
+    if (isMobile) { const path = location.host + location.pathname + location.search; location.href = `https://metamask.app.link/dapp/${path}`; return; }
+    alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
+    return;
+  }
 
-          try{
-            const accounts = await eth.request({ method:'eth_requestAccounts' });
-            if(accounts && accounts[0]) walletInput.value = accounts[0];
-            currentProvider = eth;
-            currentAccount  = accounts[0];
-            console.log("MetaMask accounts renvoyés:", accounts);
+  try {
+    // 1) Demande le compte actif (si déverrouillé, c’est celui sélectionné dans l’extension)
+    const accounts = await eth.request({ method: 'eth_requestAccounts' });
+    const a = (Array.isArray(accounts) && accounts[0]) ? accounts[0] : "";
 
-            // chain -> tokens/balances
-            const chainId = await eth.request({ method:'eth_chainId' });
-            await detectAndFillTokensFromBalances(eth, accounts[0], chainId);
+    // 2) Force l’input à l’adresse active MetaMask (on écrase toute valeur résiduelle)
+    walletInput.value = a;
+    currentProvider = eth;
+    currentAccount  = a;
+    window.__activeProvider = 'metamask';
 
-            if (typeof eth.on === 'function') {
-              eth.removeListener?.('accountsChanged', window.__onMMAccChanged);
-              eth.removeListener?.('chainChanged',   window.__onMMChainChanged);
-              window.__onMMAccChanged = (acc)=>{
-                const a = (Array.isArray(acc) && acc[0]) ? acc[0] : '';
-                walletInput.value = a; currentAccount = a;
-                if (a) detectAndFillTokensFromBalances(eth, a, window.__lastChainId||chainId);
-              };
-              window.__onMMChainChanged = (cid)=>{
-                window.__lastChainId = cid;
-                if (currentAccount) detectAndFillTokensFromBalances(eth, currentAccount, cid);
-              };
-              eth.on('accountsChanged', window.__onMMAccChanged);
-              eth.on('chainChanged',   window.__onMMChainChanged);
-            }
+    // 3) Détection réseau + tokens/balances
+    let chainId = "0x1";
+    try { chainId = await eth.request({ method: 'eth_chainId' }); } catch {}
+    await detectAndFillTokensFromBalances(eth, a, chainId);
 
-            closeModal();
-          }catch(e){
-            console.error(e);
-            alert("Connexion MetaMask refusée ou erreur.");
-          }
+    // 4) Nettoyage des anciens listeners pour éviter les doublons
+    if (typeof eth.removeListener === 'function') {
+      if (window.__onMMAccChanged)   eth.removeListener('accountsChanged', window.__onMMAccChanged);
+      if (window.__onMMChainChanged) eth.removeListener('chainChanged',   window.__onMMChainChanged);
+    }
+
+    // 5) Écoute : si tu changes de compte dans l’extension ouverte, l’input se met à jour automatiquement
+    window.__onMMAccChanged = (acc)=>{
+      const addr = (Array.isArray(acc) && acc[0]) ? acc[0] : '';
+      walletInput.value = addr;
+      currentAccount = addr;
+      if (addr) detectAndFillTokensFromBalances(eth, addr, window.__lastChainId || chainId);
+    };
+    window.__onMMChainChanged = (cid)=>{
+      window.__lastChainId = cid;
+      if (currentAccount) detectAndFillTokensFromBalances(eth, currentAccount, cid);
+    };
+    if (typeof eth.on === 'function') {
+      eth.on('accountsChanged', window.__onMMAccChanged);
+      eth.on('chainChanged',    window.__onMMChainChanged);
+    }
+
+    // 6) Fallback robuste : petit polling si l’extension ne déclenche pas l’événement (rare mais déjà vu)
+    clearInterval(window.__mmPoll);
+    window.__mmPoll = setInterval(async ()=>{
+      if (window.__activeProvider !== 'metamask') return;
+      try {
+        const list = await eth.request({ method:'eth_accounts' });
+        const addr = (Array.isArray(list) && list[0]) ? list[0] : '';
+        if (addr && addr !== currentAccount) {
+          currentAccount = addr;
+          walletInput.value = addr;
+          detectAndFillTokensFromBalances(eth, addr, window.__lastChainId || chainId);
+        }
+      } catch {}
+    }, 1500);
+
+    closeModal();
+  } catch (e) {
+    console.error(e);
+    alert("Connexion MetaMask refusée ou erreur.");
+  }
+}
 
         } else if (provider === "walletconnect") {
           try {
