@@ -484,5 +484,23 @@ async function updateUsdValue(){
 document.getElementById("amount")?.addEventListener("input", updateUsdValue);
 document.getElementById("currency")?.addEventListener("change", updateUsdValue);
 </script>
+  <script>
+/* Fermer la liste de contacts par défaut et ne l’ouvrir que via 📖 */
+document.addEventListener('DOMContentLoaded', () => {
+  const box = document.getElementById('contactsList');
+  const btn = document.getElementById('showContacts');
+  if (!box) return;
+
+  // 1) Toujours caché au chargement, même s'il y a des contacts
+  box.style.display = 'none';
+
+  // 2) Ouvrir/fermer uniquement via le bouton 📖
+  if (btn) {
+    btn.onclick = () => {
+      box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+    };
+  }
+});
+</script>
 </body>
 </html>
