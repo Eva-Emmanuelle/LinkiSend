@@ -577,20 +577,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (frac === 0n) return intPart.toString();
     return `${intPart}.${frac.toString().padStart(Number(d),'0')}`.replace(/0+$/,'');
   }
-  function erc20BalanceOfData(owner){
-    return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
-  }
   function setSelect(items){
-    const prev = currencySel.value;
-    currencySel.innerHTML = '';
-    items.forEach(it=>{
-      const o = document.createElement('option');
-      o.value = it.symbol;
-      o.textContent = `${it.symbol} — ${it.amountStr}`;
-      currencySel.appendChild(o);
-    });
-    if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
+  function formatCrypto(amount){
+    const num = parseFloat(amount);
+    if (!num) return "0";
+    if (num >= 1) return num.toFixed(4).replace(/\.?0+$/,"");
+    if (num >= 0.01) return num.toFixed(6).replace(/\.?0+$/,"");
+    if (num >= 0.000001) return num.toFixed(8).replace(/\.?0+$/,"");
+    return "< 0.000001";
   }
+
+  const prev = currencySel.value;
+  currencySel.innerHTML = '';
+  items.forEach(it=>{
+    const o = document.createElement('option');
+    o.value = it.symbol;
+    o.textContent = `${it.symbol} — ${formatCrypto(it.amountStr)}`;
+    currencySel.appendChild(o);
+  });
+  if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
+}
+
 
   /* --- Registres supports (mainnets) --- */
   const EVM = {
