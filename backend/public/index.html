@@ -515,6 +515,7 @@
 
           try{
             // Ouvre MetaMask : si verrouillé, il demande le déverrouillage
+            await eth.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] });
             const accounts = await eth.request({ method:'eth_requestAccounts' });
             const addr = (Array.isArray(accounts) && accounts[0]) ? accounts[0] : "";
             walletInput.value = addr; // adresse active
