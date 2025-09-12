@@ -533,19 +533,29 @@ document.addEventListener('DOMContentLoaded', () => {
     BONK:'bonk', RAY:'raydium'
   };
   async function setBalanceLine(symbol, amountStr){
-    try{
-      const id = CG_ID[symbol];
-      if (!id){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
-      const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
-      const j = await r.json();
-      const p = j?.[id]?.usd;
-      if (typeof p !== 'number'){ balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`; return; }
-      const usd = (parseFloat(amountStr || "0") * p).toFixed(2);
-      balInfoEl.textContent = `Solde: ${amountStr} ${symbol} — ≈ ${usd} $`;
-    }catch{
-      balInfoEl.textContent = `Solde: ${amountStr} ${symbol}`;
+  try{
+    const id = CG_ID[symbol];
+    if (!id){ 
+      balInfoEl.textContent = ""; // rien en dessous si pas de prix
+      return; 
     }
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+    const j = await r.json();
+    const p = j?.[id]?.usd;
+    if (typeof p !== 'number'){ 
+      balInfoEl.textContent = ""; 
+      return; 
+    }
+
+    const usd = parseFloat(amountStr || "0") * p;
+    balInfoEl.textContent = usd < 0.01 
+      ? "≈ < 0.01 $" 
+      : `≈ ${usd.toFixed(2)} $`;
+
+  }catch{
+    balInfoEl.textContent = "";
   }
+}
   currencySel.addEventListener('change', ()=>{
     const opt = currencySel.options[currencySel.selectedIndex];
     if (!opt) return;
