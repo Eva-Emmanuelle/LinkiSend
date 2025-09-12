@@ -153,6 +153,9 @@
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
           <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
+          <p id="usdValue" style="font-style:italic;color:#9fb0c0;font-size:13px;">
+  ≈ 0.00 $ (indexé sur CoinGecko)
+</p>
         </div>
       </div>
 
@@ -431,5 +434,55 @@
   </script>
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
+  <script>
+// Mapping entre symboles et IDs CoinGecko
+const COINGECKO_IDS = {
+  ETH: "ethereum",
+  BNB: "binancecoin",
+  MATIC: "matic-network",
+  AVAX: "avalanche-2",
+  SOL: "solana",
+  USDT: "tether",
+  USDC: "usd-coin",
+  DAI: "dai",
+  WBTC: "wrapped-bitcoin",
+  LINK: "chainlink",
+  BONK: "bonk",
+  RAY: "raydium"
+};
+
+async function updateUsdValue(){
+  const amountEl = document.getElementById("amount");
+  const tokenEl  = document.getElementById("currency");
+  const usdEl    = document.getElementById("usdValue");
+
+  if (!amountEl || !tokenEl || !usdEl) return;
+
+  const amount = parseFloat(amountEl.value);
+  const sym = tokenEl.value;
+  const id = COINGECKO_IDS[sym];
+
+  if (!amount || !id){
+    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
+    return;
+  }
+
+  try {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const price = data[id].usd;
+    const usdVal = (amount * price).toFixed(2);
+    usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
+  } catch(e){
+    console.error("Erreur CoinGecko", e);
+    usdEl.textContent = "(Erreur CoinGecko)";
+  }
+}
+
+// Mettre à jour quand on change le montant ou le token
+document.getElementById("amount")?.addEventListener("input", updateUsdValue);
+document.getElementById("currency")?.addEventListener("change", updateUsdValue);
+</script>
 </body>
 </html>
