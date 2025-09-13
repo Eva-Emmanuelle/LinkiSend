@@ -278,32 +278,45 @@
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 
                 } else if (provider === "phantom") {
-  const ph = window.solana;
-  if (ph && ph.isPhantom) {
-    try {
-      const resp = await ph.connect({ onlyIfTrusted: false });
-      walletInput.value = resp.publicKey.toString();
-
-      // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
-      if (typeof ph.on === "function") {
-        ph.on("accountChanged", (pubKey) => {
-          walletInput.value = pubKey ? pubKey.toString() : "";
-        });
-      }
-
-      closeModal();
-    } catch (err) {
-      console.error(err);
-      alert("Connexion Phantom refusée ou erreur.");
+  try {
+    const ph = window?.solana;
+    if (!ph || !ph.isPhantom) {
+      // Phantom pas présent → page d'installation
+      window.open("https://phantom.app/download", "_blank");
+      return;
     }
-  } else {
-    alert("Phantom non détecté. Installe l’extension ou ouvre l’app mobile.");
-    window.open("https://phantom.app/", "_blank");
-  }
-          } else {
-            window.open("https://phantom.app/", "_blank");
-          }
 
+    // Ouvre Phantom
+    const resp = await ph.connect({ onlyIfTrusted: false });
+
+    // Adresse Solana propre
+    const pubkey =
+      resp?.publicKey?.toBase58?.() ||
+      resp?.publicKey?.toString?.() ||
+      "";
+    if (!pubkey) {
+      alert("Impossible de récupérer l’adresse Phantom.");
+      return;
+    }
+
+    // Remplir le champ + forcer réseau Solana
+    walletInput.value = pubkey;
+    const net = document.getElementById("network");
+    if (net) net.value = "Solana";
+
+    // Suivre les changements de compte
+    if (typeof ph.on === "function") {
+      ph.on("accountChanged", (pk) => {
+        walletInput.value = pk ? (pk.toBase58?.() || pk.toString?.() || "") : "";
+      });
+    }
+
+    closeModal();
+  } catch (err) {
+    console.error("Phantom connect error:", err);
+    alert("Connexion Phantom refusée ou erreur.");
+  }
+}
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
