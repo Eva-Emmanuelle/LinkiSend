@@ -277,59 +277,27 @@
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 
- } else if (provider === "phantom") {
-  try {
-    var ph = window.solana;
-    if (!ph || !ph.isPhantom) {
-      window.open("https://phantom.app/download", "_blank");
-      return;
-    }
+                } else if (provider === "phantom") {
+          const ph = window.solana;
+          if (ph && ph.isPhantom) {
+            try {
+              const resp = await ph.connect();
+              walletInput.value = resp.publicKey.toString();
+              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
+              if (typeof ph.on === "function") {
+                ph.on("accountChanged", (pubKey) => {
+                  walletInput.value = pubKey ? pubKey.toString() : "";
+                });
+              }
+              closeModal();
+            } catch (err) {
+              console.error(err);
+              alert("Connexion Phantom refusée ou erreur.");
+            }
+          } else {
+            window.open("https://phantom.app/", "_blank");
+          }
 
-    // Ouvre Phantom
-    var resp = await ph.connect({ onlyIfTrusted: false });
-
-    // Récupère l'adresse propre
-    var pubkey = "";
-    if (resp && resp.publicKey) {
-      if (typeof resp.publicKey.toBase58 === "function") {
-        pubkey = resp.publicKey.toBase58();
-      } else if (typeof resp.publicKey.toString === "function") {
-        pubkey = resp.publicKey.toString();
-      }
-    }
-    if (!pubkey) {
-      alert("Impossible de récupérer l'adresse Phantom.");
-      return;
-    }
-
-    // Remplit le champ + force le réseau Solana
-    walletInput.value = pubkey;
-    var net = document.getElementById("network");
-    if (net) net.value = "Solana";
-
-    // Suivre les changements de compte
-    if (ph && typeof ph.on === "function") {
-      ph.on("accountChanged", function (pk) {
-        var next = "";
-        if (pk) {
-          if (typeof pk.toBase58 === "function") next = pk.toBase58();
-          else if (typeof pk.toString === "function") next = pk.toString();
-        }
-        walletInput.value = next || "";
-      });
-    }
-
-        closeModal();
-  } catch (err) {
-    console.error("Phantom connect error:", err);
-    alert("Connexion Phantom refusée ou erreur.");
-  }
-} else {
-  // Pas de Phantom → on propose l'installation
-  window.open("https://phantom.app/download", "_blank");
-}
-      }
-} else if (provider === "uniswap") {
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
