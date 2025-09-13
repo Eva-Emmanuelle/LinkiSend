@@ -278,22 +278,28 @@
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 
                 } else if (provider === "phantom") {
-          const ph = window.solana;
-          if (ph && ph.isPhantom) {
-            try {
-              const resp = await ph.connect();
-              walletInput.value = resp.publicKey.toString();
-              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
-              if (typeof ph.on === "function") {
-                ph.on("accountChanged", (pubKey) => {
-                  walletInput.value = pubKey ? pubKey.toString() : "";
-                });
-              }
-              closeModal();
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Phantom refusée ou erreur.");
-            }
+  const ph = window.solana;
+  if (ph && ph.isPhantom) {
+    try {
+      const resp = await ph.connect({ onlyIfTrusted: false });
+      walletInput.value = resp.publicKey.toString();
+
+      // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
+      if (typeof ph.on === "function") {
+        ph.on("accountChanged", (pubKey) => {
+          walletInput.value = pubKey ? pubKey.toString() : "";
+        });
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert("Connexion Phantom refusée ou erreur.");
+    }
+  } else {
+    alert("Phantom non détecté. Installe l’extension ou ouvre l’app mobile.");
+    window.open("https://phantom.app/", "_blank");
+  }
           } else {
             window.open("https://phantom.app/", "_blank");
           }
