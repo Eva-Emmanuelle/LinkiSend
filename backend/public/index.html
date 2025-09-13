@@ -278,26 +278,53 @@
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 
                 } else if (provider === "phantom") {
-          const ph = window.solana;
-          if (ph && ph.isPhantom) {
-            try {
-              const resp = await ph.connect();
-              walletInput.value = resp.publicKey.toString();
-              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
-              if (typeof ph.on === "function") {
-                ph.on("accountChanged", (pubKey) => {
-                  walletInput.value = pubKey ? pubKey.toString() : "";
-                });
-              }
-              closeModal();
-            } catch (err) {
-              console.error(err);
-              alert("Connexion Phantom refusée ou erreur.");
-            }
-          } else {
-            window.open("https://phantom.app/", "_blank");
-          }
+  const ph = window?.solana;
 
+  // 1) Phantom non présent → page d’installation
+  if (!ph || !ph.isPhantom) {
+    window.open("https://phantom.app/download", "_blank");
+    return;
+  }
+
+  try {
+    // 2) Ouverture de Phantom (force l’UI si besoin)
+    const resp = await ph.connect({ onlyIfTrusted: false });
+
+    // 3) Récupération propre de l’adresse + validation Base58 (format Solana)
+    const pubkey =
+      (resp?.publicKey?.toBase58?.() || resp?.publicKey?.toString?.() || "").trim();
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(pubkey)) {
+      alert("Adresse Solana invalide retournée par Phantom.");
+      return;
+    }
+
+    // 4) Remplir l'input + forcer le réseau sur Solana
+    walletInput.value = pubkey;
+    const net = document.getElementById("network");
+    if (net) net.value = "Solana";
+
+    // 5) Désabonner d’éventuels écouteurs EVM qui écrasent le champ
+    if (window.__evmProvider && window.__evmProvider.removeListener) {
+      if (window.__onEvmAccChanged)
+        window.__evmProvider.removeListener("accountsChanged", window.__onEvmAccChanged);
+      if (window.__onEvmChainChanged)
+        window.__evmProvider.removeListener("chainChanged", window.__onEvmChainChanged);
+    }
+
+    // 6) Suivre les changements de compte Phantom
+    if (typeof ph.on === "function") {
+      ph.on("accountChanged", (pk) => {
+        const next = pk?.toBase58?.() || pk?.toString?.() || "";
+        if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(next)) walletInput.value = next;
+      });
+    }
+
+    closeModal();
+  } catch (err) {
+    console.error(err);
+    alert("Connexion Phantom refusée ou erreur.");
+  }
+}
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
