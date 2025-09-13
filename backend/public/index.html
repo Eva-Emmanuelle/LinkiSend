@@ -319,12 +319,16 @@
       });
     }
 
-    closeModal();
+        closeModal();
   } catch (err) {
     console.error("Phantom connect error:", err);
     alert("Connexion Phantom refusée ou erreur.");
   }
+} else {
+  // Pas de Phantom → on propose l'installation
+  window.open("https://phantom.app/download", "_blank");
 }
+} else if (provider === "uniswap") {
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
