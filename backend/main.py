@@ -1,14 +1,16 @@
-# main.py — LinkiSend backend (liens courts + réclamation)
+# main.py — LinkiSend backend (API + frontend statique)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
+from pathlib import Path
 import os, secrets, time, re
 
 app = FastAPI(title="LinkiSend API")
 
-# CORS permissif pour le front (on peut restreindre plus tard à ton domaine)
+# CORS permissif pour le front (à restreindre plus tard au domaine)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,19 +21,21 @@ app.add_middleware(
 # ----------------------------
 # Config
 # ----------------------------
-FRONTEND_BASE = os.getenv("FRONTEND_BASE", "http://localhost:8001")
+BASE_DIR = Path(__file__).resolve().parent
+PUBLIC_DIR = BASE_DIR / "public"  # contient index.html et claim.html
+
+FRONTEND_BASE = os.getenv("FRONTEND_BASE", "")  # vide = servir localement
 LINK_TTL_SECONDS = int(os.getenv("LINK_TTL_SECONDS", "86400"))  # 24h
 
 RESERVED = {
     "", "docs", "openapi.json", "favicon.ico", "health",
-    "create-link", "claim", "claim-status", "s"   # /s conservé pour compat
+    "create-link", "claim", "claim-status", "s", "assets", "static"
 }
 
-# Stockage en mémoire (POC)
-# LINKS[short_id] = {
-#   payload: {...}, created_at: int, expires_at: int,
-#   claimed: bool, claimed_at: Optional[int], claim: Optional[dict]
-# }
+# ----------------------------
+# Stockage POC en mémoire
+# ----------------------------
+# LINKS[short_id] = { payload: {...}, created_at, expires_at, claimed, ... }
 LINKS: Dict[str, Dict[str, Any]] = {}
 
 # ----------------------------
@@ -75,9 +79,8 @@ def is_expired(item: Dict[str, Any]) -> bool:
 PHONE_RE = re.compile(r"[^\d+]")
 
 def normalize_phone(p: str) -> str:
-    # garde + et chiffres, retire le reste
+    # garde + et chiffres, retire le reste (POC)
     p = PHONE_RE.sub("", p or "")
-    # normalisation simple POC; à durcir plus tard (lib phone)
     return p
 
 # ----------------------------
@@ -119,21 +122,15 @@ def claim_link(data: ClaimIn):
     if item["claimed"]:
         raise HTTPException(status_code=409, detail="Lien déjà réclamé.")
 
-    # Contrôles de base POC
     if not phone or len(phone) < 6:
         raise HTTPException(status_code=400, detail="Numéro de téléphone invalide.")
     if not wallet.lower().startswith("0x") or len(wallet) < 10:
         raise HTTPException(status_code=400, detail="Adresse wallet invalide.")
 
-    # Enregistrer la réclamation (pas d’envoi on-chain dans ce POC)
     item["claimed"] = True
     item["claimed_at"] = now()
-    item["claim"] = {
-        "phone": phone,
-        "wallet": wallet,
-    }
+    item["claim"] = {"phone": phone, "wallet": wallet}
 
-    # Ici, plus tard: déclencher le transfert on-chain ou la file d’attente
     return ClaimOut(
         status="ok",
         short_id=sid,
@@ -141,7 +138,6 @@ def claim_link(data: ClaimIn):
         message="Réclamation enregistrée. Le transfert sera traité."
     )
 
-# (Facultatif) statut d’un lien pour debug
 @app.get("/claim-status/{short_id}")
 def claim_status(short_id: str):
     item = LINKS.get(short_id)
@@ -157,6 +153,28 @@ def claim_status(short_id: str):
     }
 
 # ----------------------------
+# Frontend statique (index.html / claim.html)
+# ----------------------------
+# Si FRONTEND_BASE est vide → on sert les fichiers locaux depuis /backend/public
+if not FRONTEND_BASE:
+    # Dossier d'assets (si besoin)
+    app.mount("/assets", StaticFiles(directory=PUBLIC_DIR), name="assets")
+
+    @app.get("/", include_in_schema=False)
+    def serve_index():
+        index_file = PUBLIC_DIR / "index.html"
+        if not index_file.exists():
+            raise HTTPException(status_code=500, detail="index.html manquant.")
+        return FileResponse(index_file)
+
+    @app.get("/claim", include_in_schema=False)
+    def serve_claim():
+        claim_file = PUBLIC_DIR / "claim.html"
+        if not claim_file.exists():
+            raise HTTPException(status_code=500, detail="claim.html manquant.")
+        return FileResponse(claim_file)
+
+# ----------------------------
 # Redirections courtes
 # ----------------------------
 @app.get("/s/{short_id}")  # compat legacy
@@ -164,17 +182,21 @@ def redirect_legacy(short_id: str):
     item = LINKS.get(short_id)
     if not item or is_expired(item):
         raise HTTPException(status_code=404, detail="Lien invalide ou expiré.")
-    target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
-    return RedirectResponse(url=target, status_code=307)
+    if FRONTEND_BASE:
+        target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
+        return RedirectResponse(url=target, status_code=307)
+    # sinon, on sert localement
+    return RedirectResponse(url=f"/claim?sid={short_id}", status_code=307)
 
 @app.get("/{short_id}")
 def redirect_root(short_id: str):
+    # Empêche de capturer les routes réservées
     if short_id in RESERVED:
-        if short_id == "":
-            return JSONResponse({"service": "LinkiSend", "status": "ok"})
         raise HTTPException(status_code=404, detail="Not found.")
     item = LINKS.get(short_id)
     if not item or is_expired(item):
         raise HTTPException(status_code=404, detail="Lien invalide ou expiré.")
-    target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
-    return RedirectResponse(url=target, status_code=307)
+    if FRONTEND_BASE:
+        target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
+        return RedirectResponse(url=target, status_code=307)
+    return RedirectResponse(url=f"/claim?sid={short_id}", status_code=307)
