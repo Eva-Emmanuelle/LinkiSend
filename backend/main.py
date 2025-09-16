@@ -157,8 +157,8 @@ def claim_status(short_id: str):
 # ----------------------------
 # Si FRONTEND_BASE est vide → on sert les fichiers locaux depuis /backend/public
 if not FRONTEND_BASE:
-    # Dossier d'assets (si besoin)
-    app.mount("/assets", StaticFiles(directory=PUBLIC_DIR), name="assets")
+    # Sert tout le dossier public (css, js, images, logos…)
+    app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="public")
 
     @app.get("/", include_in_schema=False)
     def serve_index():
