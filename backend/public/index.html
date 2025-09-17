@@ -903,10 +903,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* --- Orchestration --- */
-  async function refresh(){
-    const addr = (walletInput.value || '').trim();
-    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent='Solde: 0'; return; }
+ async function refresh(){
+  const addr = (walletInput.value || '').trim();
+  if (!addr){ 
+    currencySel.innerHTML=''; 
+    balInfoEl.textContent='Solde: 0'; 
+    return; 
+  }
 
+  // Si l’utilisateur change le réseau manuellement → on rescannera ce réseau
+  if (networkSel) {
+    networkSel.addEventListener('change', () => {
+      refresh();
+    });
+  }
+}
     // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
     if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
       await scanEvm(window.ethereum, addr);
