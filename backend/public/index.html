@@ -447,6 +447,72 @@
     window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
     applyLang();
   });
+    applyLang();
+
+// ====== LINKISEND: CORRECTIF SYNCHRO WALLET ======
+(function(){
+  const walletInput = document.getElementById("wallet");
+  const networkSel  = document.getElementById("network");
+
+  if (!walletInput || !networkSel) return;
+
+  // 🔄 Fonction de mise à jour complète
+  async function fullRefresh(addr, source){
+    if (!addr) return;
+    walletInput.value = addr;
+
+    // Choix automatique du réseau selon type d’adresse
+    if (addr.startsWith("0x")){
+      // Adresse EVM → par défaut Ethereum si pas déjà un réseau EVM choisi
+      if (!/ethereum|polygon|bnb/i.test(networkSel.value)){
+        networkSel.value = "Ethereum";
+      }
+    } else {
+      // Adresse Solana → forcer Solana
+      networkSel.value = "Solana";
+    }
+
+    // Appelle la logique existante pour mettre à jour tokens + montants
+    try {
+      if (typeof refresh === "function"){
+        await refresh();
+      }
+    } catch(e){
+      console.warn("refresh error", e);
+    }
+  }
+
+  // Patch léger : quand on ferme le modal après connexion
+  const connectLink = document.getElementById("connectWalletLink");
+  if (connectLink){
+    connectLink.addEventListener("click", () => {
+      setTimeout(()=>{
+        if (walletInput.value){
+          fullRefresh(walletInput.value, "manual");
+        }
+      }, 500);
+    });
+  }
+
+  // 2) Surveillance continue → toutes les 2s on vérifie
+  setInterval(async ()=>{
+    let addr = "";
+    try{
+      if (window.ethereum && typeof window.ethereum.request === "function"){
+        const accs = await window.ethereum.request({method:"eth_accounts"});
+        if (accs && accs[0]) addr = accs[0];
+      }
+      if (!addr && window.solana && window.solana.publicKey){
+        addr = window.solana.publicKey.toString();
+      }
+    }catch{}
+
+    if (addr && addr !== walletInput.value){
+      fullRefresh(addr, "polling");
+    }
+  }, 2000);
+})();
+// ====== FIN CORRECTIF ======
   </script>
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
