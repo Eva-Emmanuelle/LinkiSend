@@ -286,6 +286,25 @@ if (eth && typeof eth.on === "function") {
     }
   });
 }
+          // 🕒 Fallback : vérifie régulièrement l’adresse MetaMask
+let lastMetaMaskAddr = walletInput.value;
+setInterval(async () => {
+  try {
+    if (eth && typeof eth.request === "function") {
+      const accs = await eth.request({ method: "eth_accounts" });
+      if (Array.isArray(accs) && accs[0]) {
+        const current = accs[0];
+        if (current !== lastMetaMaskAddr) {
+          walletInput.value = current;
+          lastMetaMaskAddr = current;
+        }
+      }
+    }
+  } catch(e) {
+    console.warn("Polling MetaMask error:", e);
+  }
+}, 2000);
+
                 } else if (provider === "phantom") {
           const ph = window.solana;
           if (ph && ph.isPhantom) {
