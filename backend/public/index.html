@@ -304,6 +304,27 @@ setInterval(async () => {
     console.warn("Polling MetaMask error:", e);
   }
 }, 2000);
+          // === MetaMask: refresh automatique (réseau + changement d'adresse) ===
+const networkSel = document.getElementById('network');
+
+// 1) Si tu changes le réseau manuellement, on rescannera immédiatement ce réseau
+if (networkSel) {
+  networkSel.addEventListener('change', () => {
+    if (typeof refresh === 'function') refresh();
+  });
+}
+
+// 2) Dès que l'adresse visible change (via accountsChanged ou polling), on recalcule tokens + soldes
+let lastRefreshedAddr = (document.getElementById('wallet')?.value || '').trim();
+setInterval(() => {
+  const w = document.getElementById('wallet');
+  if (!w) return;
+  const current = (w.value || '').trim();
+  if (current && current !== lastRefreshedAddr) {
+    lastRefreshedAddr = current;
+    if (typeof refresh === 'function') refresh();
+  }
+}, 1200);
 
                 } else if (provider === "phantom") {
           const ph = window.solana;
