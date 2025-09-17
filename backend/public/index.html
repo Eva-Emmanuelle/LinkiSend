@@ -768,78 +768,235 @@ document.addEventListener('DOMContentLoaded', () => {
     eth.on('chainChanged',  refresh);
   }
 })();
-</script>
-<!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
 <script>
 /**
- * Remplit le select des tokens selon le réseau choisi
- * et affiche le solde à côté du symbole (par défaut "— 0").
- * Aucune dépendance externe.
+ * LinkiSend – Remplissage dynamique des tokens + soldes "façon MetaMask"
+ * - Détecte le réseau choisi (Ethereum / Polygon / BNB)
+ * - Lit l'adresse du wallet (champ texte ou MetaMask)
+ * - Récupère les soldes (native + ERC20) via window.ethereum
+ * - Affiche dans le select:  "USDT — 12,34"
+ * - Format fr-FR, décimales intelligentes (comme MetaMask)
+ *
+ * Prérequis: MetaMask pour soldes réels (sinon on reste à 0).
  */
 (() => {
-  // 1) Configuration simple des tokens par réseau
-  const TOKENS_BY_NETWORK = {
-    ethereum: ['ETH', 'USDT', 'USDC', 'DAI'],
-    polygon:  ['MATIC', 'USDT', 'USDC', 'DAI'],
-    bnb:      ['BNB', 'USDT', 'USDC']
+  // ---------------------------
+  // 1) Config tokens par réseau
+  // ---------------------------
+  // decimals requis pour format, addresses pour ERC20
+  const CONFIG = {
+    ethereum: {
+      native: { symbol: 'ETH', decimals: 18 },
+      erc20: [
+        { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6  },
+        { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48', decimals: 6  },
+        { symbol: 'DAI',  address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
+      ]
+    },
+    polygon: {
+      native: { symbol: 'MATIC', decimals: 18 },
+      erc20: [
+        { symbol: 'USDT', address: '0xc2132D05D31c914a87C6611C10748AaCBc53212F', decimals: 6  }, // USDT (Polygon)
+        { symbol: 'USDC', address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', decimals: 6  }, // USDC.e
+        { symbol: 'DAI',  address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', decimals: 18 },
+      ]
+    },
+    bnb: {
+      native: { symbol: 'BNB', decimals: 18 },
+      erc20: [
+        { symbol: 'USDT', address: '0x55d398326f99059fF775485246999027B3197955', decimals: 18 },
+        { symbol: 'USDC', address: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', decimals: 18 },
+      ]
+    }
   };
 
-  // 2) On essaie de repérer automatiquement les <select>
-  //    - networkSelect : celui qui contient "Ethereum/Polygon/BNB"
-  //    - tokenSelect   : un select vide au chargement (ta liste est vide actuellement)
+  // -----------------------------------
+  // 2) Repérage des <select> du formulaire
+  // -----------------------------------
   const selects = Array.from(document.querySelectorAll('select'));
-
   const networkSelect = selects.find(s =>
-    Array.from(s.options).some(o =>
-      /ethereum|polygon|bnb/i.test((o.textContent || '').trim())
-    )
+    Array.from(s.options).some(o => /ethereum|polygon|bnb/i.test((o.textContent || '').trim()))
   );
-
-  const tokenSelect = selects.find(s =>
-    s !== networkSelect &&
-    (s.options.length === 0 || Array.from(s.options).every(o => (o.value || '').trim() === ''))
-  );
+  const tokenSelect = selects.find(s => s !== networkSelect);
 
   if (!networkSelect || !tokenSelect) {
-    console.warn('[LinkiSend] Impossible de trouver les selects réseau/token automatiquement.');
+    console.warn('[LinkiSend] Impossible de trouver les selects réseau/token.');
     return;
   }
 
-  // 3) Utilitaires
+  // Champ "Ton wallet (expéditeur)"
+  const walletInput = Array.from(document.querySelectorAll('input'))
+    .find(i => /^0x[a-fA-F0-9]{0,64}$/.test((i.value || '').trim()) || i.placeholder?.includes('0x'));
+
+  // ----------------------------
+  // 3) Outils de format & BigInt
+  // ----------------------------
+  // Hex -> BigInt
+  const hexToBigInt = (hex) => BigInt(hex);
+
+  // Balance BigInt -> string décimale sans perte (pas de float)
+  function bigIntToDecimalString(bn, decimals) {
+    const neg = bn < 0n;
+    const val = neg ? -bn : bn;
+    const base = 10n ** BigInt(decimals);
+    const integer = val / base;
+    const fraction = val % base;
+
+    let fracStr = fraction.toString().padStart(decimals, '0');
+    // trim trailing zeros
+    fracStr = fracStr.replace(/0+$/, '');
+    const intStr = integer.toString();
+
+    const out = fracStr ? `${intStr}.${fracStr}` : intStr;
+    return neg ? `-${out}` : out;
+  }
+
+  // Style MetaMask (fr-FR) : 0,00051 / 1,23 / 1 234,56 / <0,000001
+  function formatMetaMaskLike(decimalString, locale = 'fr-FR') {
+    if (!decimalString || decimalString === '0' || decimalString === '0.0') {
+      return '0';
+    }
+    const [intPart, fracPart = ''] = decimalString.split('.');
+    const num = Number(decimalString);
+
+    // < 0.000001 -> seuil lisible
+    if (num !== 0 && num < 0.000001) return '<0,000001';
+
+    // règles simples :
+    // - si >= 1 => 2 à 4 décimales
+    // - si < 1  => jusqu’à 6 décimales utiles
+    const maxFrac = num >= 1 ? 4 : 6;
+
+    const formatter = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxFrac
+    });
+    return formatter.format(num);
+  }
+
+  // ----------------------------------------
+  // 4) RPC helpers via window.ethereum (MetaMask)
+  // ----------------------------------------
+  const hasMM = typeof window.ethereum !== 'undefined';
+
+  async function getAccounts() {
+    try {
+      const accs = await window.ethereum.request({ method: 'eth_accounts' });
+      return accs;
+    } catch { return []; }
+  }
+
+  async function getNativeBalance(address) {
+    const hexBal = await window.ethereum.request({
+      method: 'eth_getBalance',
+      params: [address, 'latest']
+    });
+    return hexToBigInt(hexBal);
+  }
+
+  // ERC20 balanceOf(addr): 0x70a08231 + 12*0 + addr (32 bytes)
+  function encodeBalanceOfData(address) {
+    const method = '0x70a08231';
+    const addrNo0x = address.toLowerCase().replace(/^0x/, '');
+    const padded = addrNo0x.padStart(64, '0');
+    return method + padded;
+  }
+
+  async function getErc20Balance(tokenAddr, holderAddr) {
+    const data = encodeBalanceOfData(holderAddr);
+    const hexBal = await window.ethereum.request({
+      method: 'eth_call',
+      params: [{ to: tokenAddr, data }, 'latest']
+    });
+    return hexToBigInt(hexBal);
+  }
+
+  // -----------------------------------
+  // 5) Mapping réseau (texte -> clé config)
+  // -----------------------------------
   const normaliseNetwork = (label) => {
     const t = (label || '').toLowerCase();
-    if (t.includes('ethereum')) return 'ethereum';
     if (t.includes('polygon'))  return 'polygon';
     if (t.includes('bnb'))      return 'bnb';
-    return 'ethereum'; // fallback
+    return 'ethereum';
   };
 
-  const createOption = (symbol, balanceText = '0') => {
-    const opt = document.createElement('option');
-    // Affichage demandé : "USDT — 0"
-    opt.value = symbol;
-    opt.textContent = `${symbol} — ${balanceText}`;
-    return opt;
-  };
-
-  // 4) Peupler la liste de tokens selon le réseau
-  const populateTokens = () => {
-    const netKey = normaliseNetwork(networkSelect.options[networkSelect.selectedIndex]?.textContent);
-    const tokens = TOKENS_BY_NETWORK[netKey] || TOKENS_BY_NETWORK.ethereum;
-
-    // vide puis remplit
+  // -----------------------------------
+  // 6) Remplissage + mise à jour des soldes
+  // -----------------------------------
+  function setOptions(symbolsWithDisplay) {
     tokenSelect.innerHTML = '';
-    tokens.forEach((sym, i) => {
-      const opt = createOption(sym, '0'); // solde affiché même à 0
+    symbolsWithDisplay.forEach(({symbol, display}) => {
+      const opt = document.createElement('option');
+      opt.value = symbol;
+      opt.textContent = `${symbol} — ${display}`;
       tokenSelect.appendChild(opt);
-      // par défaut : le token natif du réseau en premier (déjà le cas dans la config)
-      if (i === 0) tokenSelect.selectedIndex = 0;
     });
-  };
+    tokenSelect.selectedIndex = 0;
+  }
 
-  // 5) Init + écoute des changements de réseau
-  populateTokens();
-  networkSelect.addEventListener('change', populateTokens);
+  async function populateAndRefreshBalances() {
+    const netKey = normaliseNetwork(networkSelect.options[networkSelect.selectedIndex]?.textContent);
+    const cfg = CONFIG[netKey] || CONFIG.ethereum;
+
+    // 1) populate avec 0 en attendant
+    const initial = [
+      { symbol: cfg.native.symbol, display: '0' },
+      ...cfg.erc20.map(t => ({ symbol: t.symbol, display: '0' }))
+    ];
+    setOptions(initial);
+
+    // 2) on tente de détecter une adresse
+    let addr = (walletInput?.value || '').trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr) && hasMM) {
+      const accs = await getAccounts();
+      if (accs[0]) addr = accs[0];
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr) || !hasMM) {
+      // pas d’adresse ou pas de MetaMask -> on laisse à 0
+      return;
+    }
+
+    // 3) on récupère les soldes
+    try {
+      // Native
+      const natBal = await getNativeBalance(addr);
+      const natDecimal = bigIntToDecimalString(natBal, cfg.native.decimals);
+      const natDisplay = formatMetaMaskLike(natDecimal, 'fr-FR');
+
+      // ERC20
+      const ercDisplays = [];
+      for (const t of cfg.erc20) {
+        const b = await getErc20Balance(t.address, addr);
+        const dec = bigIntToDecimalString(b, t.decimals);
+        const disp = formatMetaMaskLike(dec, 'fr-FR');
+        ercDisplays.push({ symbol: t.symbol, display: disp });
+      }
+
+      // 4) on remplace les options par les valeurs réelles
+      setOptions([{ symbol: cfg.native.symbol, display: natDisplay }, ...ercDisplays]);
+    } catch (e) {
+      console.warn('[LinkiSend] Impossible de récupérer les soldes:', e);
+      // on laisse les 0
+    }
+  }
+
+  // Init + écoute
+  populateAndRefreshBalances();
+  networkSelect.addEventListener('change', populateAndRefreshBalances);
+
+  // Si l’utilisateur modifie le champ wallet manuellement, on rafraîchit
+  walletInput?.addEventListener('input', () => {
+    // petit debounce
+    clearTimeout(walletInput.__t);
+    walletInput.__t = setTimeout(populateAndRefreshBalances, 500);
+  });
+
+  // Écoute MetaMask (changement de compte / réseau)
+  if (hasMM) {
+    window.ethereum.on?.('accountsChanged', populateAndRefreshBalances);
+    window.ethereum.on?.('chainChanged', populateAndRefreshBalances);
+  }
 })();
 </script>
 </body>
