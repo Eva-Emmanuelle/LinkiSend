@@ -304,28 +304,124 @@ setInterval(async () => {
     console.warn("Polling MetaMask error:", e);
   }
 }, 2000);
-          // === MetaMask: refresh automatique (réseau + changement d'adresse) ===
+          // === LinkiSend · EVM balances (format MetaMask, auto-refresh) ===
+const walletEl   = document.getElementById('wallet');
+const tokenSel   = document.getElementById('token');
 const networkSel = document.getElementById('network');
 
-// 1) Si tu changes le réseau manuellement, on rescannera immédiatement ce réseau
-if (networkSel) {
-  networkSel.addEventListener('change', () => {
-    if (typeof refresh === 'function') refresh();
+const ERC20_REGISTRY = {
+  // Tu pourras ajouter Polygon/Arbitrum ensuite : même structure.
+  Ethereum: [
+    { symbol: 'ETH',  native: true,  decimals: 18 },
+    { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6  },
+    { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6  },
+    { symbol: 'DAI',  address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
+  ],
+};
+
+// Arrondi “façon MetaMask” : 5 décimales max + trim des zéros
+function fmtAmount(n) {
+  if (!isFinite(n) || n === 0) return '0';
+  const s = n.toFixed(5);
+  return s.replace(/\.?0+$/,'');
+}
+
+// Lecture balance ERC-20 par eth_call (balanceOf)
+async function readErc20Balance(eth, addr, tokenAddr, decimals) {
+  // balanceOf(address) => 0x70a08231 + 12*'00' + 20 bytes address
+  const method = '0x70a08231';
+  const paddedAddr = '0'.repeat(24) + addr.toLowerCase().replace(/^0x/,'');
+  const data = method + paddedAddr;
+  const res = await eth.request({ method: 'eth_call', params: [{ to: tokenAddr, data }, 'latest'] });
+  const raw = BigInt(res || '0x0');
+  const denom = 10n ** BigInt(decimals);
+  // conversion BigInt → Number en sécurité pour l’affichage
+  const asNumber = Number(raw) / Number(denom);
+  return asNumber;
+}
+
+// Lecture balance native (ETH) par eth_getBalance
+async function readNativeBalance(eth, addr) {
+  const hex = await eth.request({ method: 'eth_getBalance', params: [addr, 'latest'] });
+  const wei = BigInt(hex || '0x0');
+  const ethNum = Number(wei) / 1e18;
+  return ethNum;
+}
+
+// Reconstruit la liste Token avec les montants du réseau sélectionné
+async function refreshEvmBalances() {
+  if (!walletEl || !tokenSel || !networkSel) return;
+  const addr = (walletEl.value || '').trim();
+  if (!addr || !addr.startsWith('0x')) return;
+
+  const eth = window.ethereum;
+  if (!eth || typeof eth.request !== 'function') return;
+
+  const network = networkSel.value || 'Ethereum';
+  const registry = ERC20_REGISTRY[network];
+  if (!registry) return;
+
+  // 1) Récupère les soldes
+  const balances = [];
+  for (const t of registry) {
+    try {
+      const amount = t.native
+        ? await readNativeBalance(eth, addr)
+        : await readErc20Balance(eth, addr, t.address, t.decimals);
+      balances.push({ symbol: t.symbol, amount, decimals: t.decimals, native: !!t.native });
+    } catch (e) {
+      balances.push({ symbol: t.symbol, amount: 0, decimals: t.decimals, native: !!t.native });
+      console.warn('balance error', t.symbol, e);
+    }
+  }
+
+  // 2) Met à jour le <select id="token"> avec “SYMBOL — montant”
+  //    (on conserve uniquement les tokens connus du réseau actif)
+  tokenSel.innerHTML = ''; // on repart propre
+  for (const b of balances) {
+    const opt = document.createElement('option');
+    opt.value = b.symbol;
+    opt.textContent = `${b.symbol} — ${fmtAmount(b.amount)}`;
+    opt.dataset.balance = String(b.amount);
+    tokenSel.appendChild(opt);
+  }
+
+  // 3) Sélectionne par défaut le 1er token au solde > 0, sinon ETH
+  const firstPos = Array.from(tokenSel.options).find(o => Number(o.dataset.balance) > 0);
+  if (firstPos) tokenSel.value = firstPos.value;
+  else if (Array.from(tokenSel.options).some(o => o.value === 'ETH')) tokenSel.value = 'ETH';
+}
+
+// --- Déclencheurs automatiques ---
+
+// a) À chaque changement d’adresse (listener + polling que tu as déjà) → on rafraîchit
+if (eth && typeof eth.on === 'function') {
+  eth.on('accountsChanged', () => {
+    refreshEvmBalances();
   });
 }
 
-// 2) Dès que l'adresse visible change (via accountsChanged ou polling), on recalcule tokens + soldes
-let lastRefreshedAddr = (document.getElementById('wallet')?.value || '').trim();
+// b) Sur notre polling d’adresse (toutes les 2s), on a déjà mis à jour walletEl.value.
+//    On ajoute ici un petit observateur qui relance le scan si la valeur change.
+let _lastAddrForScan = (walletEl?.value || '').trim();
 setInterval(() => {
-  const w = document.getElementById('wallet');
-  if (!w) return;
-  const current = (w.value || '').trim();
-  if (current && current !== lastRefreshedAddr) {
-    lastRefreshedAddr = current;
-    if (typeof refresh === 'function') refresh();
+  const cur = (walletEl?.value || '').trim();
+  if (cur && cur !== _lastAddrForScan) {
+    _lastAddrForScan = cur;
+    refreshEvmBalances();
   }
 }, 1200);
 
+// c) Si l’utilisateur change le réseau manuellement → on rescannera ce réseau
+if (networkSel) {
+  networkSel.addEventListener('change', () => {
+    // On respecte ton choix : on scanne la chaîne choisie
+    refreshEvmBalances();
+  });
+}
+
+// d) Premier affichage après connexion MetaMask
+refreshEvmBalances();
                 } else if (provider === "phantom") {
           const ph = window.solana;
           if (ph && ph.isPhantom) {
