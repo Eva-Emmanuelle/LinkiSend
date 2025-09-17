@@ -276,7 +276,16 @@
             if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
-
+// 🔄 Mise à jour auto quand on change de sous-compte MetaMask
+if (eth && typeof eth.on === "function") {
+  eth.on("accountsChanged", (accs) => {
+    if (Array.isArray(accs) && accs[0]) {
+      walletInput.value = accs[0];
+    } else {
+      walletInput.value = "";
+    }
+  });
+}
                 } else if (provider === "phantom") {
           const ph = window.solana;
           if (ph && ph.isPhantom) {
