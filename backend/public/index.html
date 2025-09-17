@@ -785,15 +785,26 @@ document.addEventListener('DOMContentLoaded', () => {
       DAI :{addr:'0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',dec:18},
       WBTC:{addr:'0x50b7545627a5162F82A992c33b87aDc75187B218',dec:8},
       LINK:{addr:'0x5947BB275c521040051D82396192181b413227A3',dec:18}
-    }}
+    }},
+    '0xa4b1': { // Arbitrum One mainnet
+  native: {symbol:'ETH',dec:18}, 
+  tokens: {
+    USDT:{addr:'0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',dec:6},
+    USDC:{addr:'0xaf88d065e77c8cc2239327c5edb3a432268e5831',dec:6},
+    DAI :{addr:'0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',dec:18},
+    WBTC:{addr:'0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',dec:8},
+    LINK:{addr:'0xf97f4df75117a78c1a5a0dbb814af92458539fb4',dec:18}
+  }
+}
   };
     const NATIVE_FALLBACK = {
-    '0x1':'ETH','0x5':'ETH','0xaa36a7':'ETH',
-    '0x38':'BNB','0x61':'BNB',
-    '0x89':'MATIC','0x13881':'MATIC',
-    '0xa4b1':'ETH',
-    '0xa86a':'AVAX','0xa869':'AVAX'
-  };
+  '0x1':'ETH','0x5':'ETH','0xaa36a7':'ETH',
+  '0x38':'BNB','0x61':'BNB',
+  '0x89':'MATIC','0x13881':'MATIC',
+  '0xa86a':'AVAX','0xa869':'AVAX',
+  '0xa4b1':'ETH'
+};
+
   const DEFAULT_EVM_TOKENS = ['USDT','USDC','DAI','WBTC','LINK'];
 
   async function scanEvm(eth, account){
