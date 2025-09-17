@@ -726,17 +726,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
   }
   function setSelect(items){
-    const prev = currencySel.value;
-    currencySel.innerHTML = '';
-    items.forEach(it=>{
-      const o = document.createElement('option');
-      o.value = it.symbol;
-      o.textContent = `${it.symbol} — ${it.amountStr}`;
-      currencySel.appendChild(o);
-    });
-    if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
-  }
+  // Arrondi façon MetaMask : 5 décimales max, sans zéros inutiles
+  const fmt5 = (x) => {
+    const n = parseFloat(x || '0');
+    if (!isFinite(n) || n === 0) return '0';
+    return n.toFixed(5).replace(/\.?0+$/,'');
+  };
 
+  const prev = currencySel.value;
+  currencySel.innerHTML = '';
+
+  items.forEach(it => {
+    const o = document.createElement('option');
+    o.value = it.symbol;
+    o.textContent = `${it.symbol} — ${fmt5(it.amountStr)}`;
+    currencySel.appendChild(o);
+  });
+
+  if (items.some(i => i.symbol === prev)) {
+    currencySel.value = prev;
+  }
+}
   /* --- Registres supports (mainnets) --- */
   const EVM = {
     '0x1': { native:{symbol:'ETH',dec:18}, tokens:{
