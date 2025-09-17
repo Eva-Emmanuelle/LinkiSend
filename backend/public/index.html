@@ -913,7 +913,7 @@ async function refresh(){
     return;
   }
 
-  // Raccrocher l’écouteur réseau une seule fois
+  // Raccrocher l’écouteur sur le <select id="network"> une seule fois
   if (networkSel && !refresh._wired) {
     networkSel.addEventListener('change', refresh);
     refresh._wired = true;
@@ -927,12 +927,12 @@ async function refresh(){
   } else {
     // Pas de provider EVM : liste par défaut
     const items = [
-      {symbol:'ETH', amountStr:'0', amountNum:0},
-      {symbol:'USDT',amountStr:'0', amountNum:0},
-      {symbol:'USDC',amountStr:'0', amountNum:0},
-      {symbol:'DAI', amountStr:'0', amountNum:0},
-      {symbol:'WBTC',amountStr:'0', amountNum:0},
-      {symbol:'LINK',amountStr:'0', amountNum:0},
+      {symbol:'ETH',  amountStr:'0', amountNum:0},
+      {symbol:'USDT', amountStr:'0', amountNum:0},
+      {symbol:'USDC', amountStr:'0', amountNum:0},
+      {symbol:'DAI',  amountStr:'0', amountNum:0},
+      {symbol:'WBTC', amountStr:'0', amountNum:0},
+      {symbol:'LINK', amountStr:'0', amountNum:0},
     ];
     setSelect(items);
     const first = items[0];
@@ -947,22 +947,26 @@ async function refresh(){
     setBalanceLine(sym, amountStr);
   }
 }
-  // Lancement immédiat + surveillance des changements d’adresse
-  refresh();
-  let last = walletInput.value;
-  setInterval(()=>{
-    const cur = walletInput.value;
-    if (cur !== last){ last = cur; refresh(); }
-  }, 1000);
 
-  // Écoute EVM (si disponible)
-  const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
-    ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
-    : window.ethereum;
-  if (eth && eth.on){
-    eth.on('accountsChanged', refresh);
-    eth.on('chainChanged',  refresh);
-  }
+// Démarrage + polling sur le champ wallet
+refresh();
+let last = walletInput.value;
+setInterval(() => {
+  const cur = walletInput.value;
+  if (cur !== last) { last = cur; refresh(); }
+}, 1000);
+
+// Expose pour la console (utile au debug)
+window.refresh = refresh;
+
+// Écoute EVM (si disponible)
+const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
+  ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
+  : window.ethereum;
+if (eth && typeof eth.on === 'function') {
+  eth.on('accountsChanged', refresh);
+  eth.on('chainChanged',  refresh);
+}
 })();
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
