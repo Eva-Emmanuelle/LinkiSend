@@ -903,19 +903,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* --- Orchestration --- */
- async function refresh(){
+async function refresh(){
   const addr = (walletInput.value || '').trim();
-  if (!addr){ 
-    currencySel.innerHTML=''; 
-    balInfoEl.textContent='Solde: 0'; 
-    return; 
+
+  if (!addr) {
+    currencySel.innerHTML = '';
+    balInfoEl.textContent = 'Solde: 0';
+    return;
   }
 
-  // Si l’utilisateur change le réseau manuellement → on rescannera ce réseau
-  if (networkSel) {
-    networkSel.addEventListener('change', () => {
-      refresh();
-    });
+  // (1) Raccrocher une seule fois l’écouteur sur le <select id="network">
+  if (networkSel && !refresh._wired) {
+    networkSel.addEventListener('change', refresh);
+    refresh._wired = true;
+  }
+
+  // (2) Scanner selon le type d’adresse
+  if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
+    await scanEvm(window.ethereum, addr);
+  } else if (!addr.startsWith('0x')) {
+    await scanSolana(addr);
+  } else {
+    // Pas de provider EVM : au moins une liste par défaut
+    const items = [
+      {symbol:'ETH', amountStr:'0', amountNum:0},
+      {symbol:'USDT',amountStr:'0', amountNum:0},
+      {symbol:'USDC',amountStr:'0', amountNum:0},
+      {symbol:'DAI', amountStr:'0', amountNum:0},
+      {symbol:'WBTC',amountStr:'0', amountNum:0},
+      {symbol:'LINK',amountStr:'0', amountNum:0},
+    ];
+    setSelect(items);
+    const first = items[0];
+    if (first) setBalanceLine(first.symbol, first.amountStr);
+  }
+
+  // (3) Mettre à jour la ligne ≈ $ sous “Token”
+  const opt = currencySel.options[currencySel.selectedIndex];
+  if (opt){
+    const sym = opt.value;
+    const amountStr = (opt.textContent || '').split('—').pop().trim();
+    setBalanceLine(sym, amountStr);
   }
 }
     // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
