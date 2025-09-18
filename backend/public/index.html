@@ -243,7 +243,16 @@
     function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
     const isMobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
     function getProviderBy(match6963,matchLegacy){const d=discovered.find(x=>{try{return match6963(x)}catch{return false}});if(d&&d.provider)return d.provider;if(window.ethereum){if(Array.isArray(window.ethereum.providers)){const p=window.ethereum.providers.find(p=>{try{return matchLegacy(p)}catch{return false}});if(p)return p}if(matchLegacy(window.ethereum))return window.ethereum}return null}
-    function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Échec chargement "+src));document.head.appendChild(s))}
+    function loadScript(src){
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("Échec chargement " + src));
+      document.head.appendChild(s);
+    });
+  }
 
     function getWcGlobal(){
       const mod=window['@walletconnect/ethereum-provider'];
