@@ -958,16 +958,54 @@ setInterval(() => {
 
 // Expose pour la console (utile au debug)
 window.refresh = refresh;
-
-// Écoute EVM (si disponible)
+// Écoute EVM (si disponible) + synchro du <select id="network">
 const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
   ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
   : window.ethereum;
+
+// map chainId → libellé EXACT du select Réseau (tes options actuelles)
+const CHAIN_TO_LABEL = {
+  '0x1'   : 'Ethereum',
+  '0x38'  : 'BNB Chain',
+  '0x89'  : 'Polygon',
+  '0xa4b1': 'Arbitrum One',
+  '0xa86a': 'Avalanche'
+};
+
+// positionne le select réseau par libellé + déclenche 'change'
+function setNetworkByLabel(label){
+  const s = document.getElementById('network');
+  if (!s) return;
+  const opt = [...s.options].find(o => (o.textContent || '').trim().toLowerCase() === label.toLowerCase());
+  if (opt){
+    s.value = opt.value;
+    s.dispatchEvent(new Event('change'));
+  }
+}
+
+// appelé quand MetaMask change de chaîne
+async function onChainChanged(chainId){
+  try{
+    const label = CHAIN_TO_LABEL[chainId] || 'Ethereum';
+    setNetworkByLabel(label);
+    await refresh(); // relance un scan des soldes
+  }catch(e){ console.warn('chainChanged handler error:', e); }
+}
+
 if (eth && typeof eth.on === 'function') {
   eth.on('accountsChanged', refresh);
-  eth.on('chainChanged',  refresh);
+  eth.on('chainChanged',  onChainChanged);
+
+  // synchro initiale au chargement si possible
+  try{
+    const cid = await eth.request({ method:'eth_chainId' });
+    const label = CHAIN_TO_LABEL[cid] || 'Ethereum';
+    setNetworkByLabel(label);
+  }catch{}
 }
+
 })();
+
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
 <script>
