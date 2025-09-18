@@ -816,5 +816,94 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
+  <script>
+/* LinkiSend — Sync réseau/compte MetaMask + fallback
+   - Aligne le sélecteur "Réseau" au chargement
+   - Écoute chainChanged / accountsChanged
+   - Fallback polling si les events ne remontent pas
+   - Evite tout doublon via des garde-fous
+*/
+(function () {
+  if (window.__lsSyncAttached) return; // garde-fou
+  window.__lsSyncAttached = true;
+
+  const eth = window.ethereum;
+  if (!eth) { console.warn('MetaMask non détecté'); return; }
+
+  const MAP = {
+    '0x1': /ethereum/i,   // Ethereum Mainnet
+    '0xa4b1': /arbitrum/i // Arbitrum One
+  };
+
+  function findNetworkSelect() {
+    const selects = document.querySelectorAll('select');
+    for (const s of selects) {
+      const ok = [...s.options].some(o => /ethereum|arbitrum/i.test(o.textContent));
+      if (ok) return s;
+    }
+    return null;
+  }
+
+  async function readChainId() {
+    try { return await eth.request({ method: 'eth_chainId' }); }
+    catch { return null; }
+  }
+
+  async function alignUITo(chainId) {
+    const select = findNetworkSelect();
+    if (!select) return;
+    const want = MAP[chainId] || /ethereum/i;
+    const opt = [...select.options].find(o => want.test(o.textContent));
+    if (opt && select.value !== opt.value) {
+      select.value = opt.value;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('✅ Réseau UI aligné sur', opt.textContent.trim(), 'pour chainId', chainId);
+    }
+  }
+
+  function reloadSoon(reason) {
+    console.log('🔄 reload (raison =', reason, ')');
+    setTimeout(() => location.reload(), 150);
+  }
+
+  // --- Init : aligner l’UI sur le réseau réel
+  (async () => {
+    const cid = await readChainId();
+    window.__lsLastCid = cid;
+    await alignUITo(cid);
+  })();
+
+  // --- Events (quand dispo)
+  try {
+    eth.removeAllListeners?.('chainChanged');
+    eth.removeAllListeners?.('accountsChanged');
+
+    eth.on?.('chainChanged', (cid) => {
+      window.__lsLastCid = cid;
+      reloadSoon('chainChanged ' + cid);
+    });
+    eth.on?.('accountsChanged', (accs) => {
+      reloadSoon('accountsChanged ' + (accs[0] || 'none'));
+    });
+  } catch (e) { console.warn('listener error', e); }
+
+  // --- Fallback polling (si les events ne se déclenchent pas)
+  clearInterval(window.__lsPoll);
+  window.__lsPoll = setInterval(async () => {
+    const cid = await readChainId();
+    if (!cid) return;
+    if (window.__lsLastCid == null) { window.__lsLastCid = cid; return; }
+    if (cid !== window.__lsLastCid) reloadSoon('poll-chain ' + window.__lsLastCid + '→' + cid);
+  }, 1000);
+
+  // --- Resync au retour d’onglet
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+      const cid = await readChainId();
+      if (cid && cid !== window.__lsLastCid) reloadSoon('visibility');
+    }
+  });
+})();
+</script>
 </body>
 </html>
