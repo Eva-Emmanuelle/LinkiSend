@@ -19,7 +19,7 @@
     .lang-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;color:#9fb0c0;cursor:pointer;border:1px solid var(--stroke);padding:4px 8px;border-radius:999px;background:#0e141c}.lang-toggle:hover{background:#101924}
     .card{background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px}.card h2{margin:4px 2px 2px;font-size:22px;font-weight:750}.sub{color:var(--text-dim);margin:0 2px 14px;font-size:13px}
     .row{display:flex;gap:var(--gap)}.col{flex:1}label{display:block;margin:10px 2px 6px;font-size:13px;color:var(--text-dim)}
-    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:#var(--text);outline:none}
+    select,input{width:100%;height:44px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--stroke);background:#0e141c;color:var(--text);outline:none}
     select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(51,65,85,.35)}
     .hint{font-size:12px;color:var(--text-dim);margin:6px 2px 0}
     .btn{width:100%;height:46px;border:0;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;background:radial-gradient(circle at 20% 20%,#8b5cf6,#06b6d4,#22c55e);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.2);margin-top:14px}
@@ -32,7 +32,7 @@
     .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
     .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
     .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:#var(--text);cursor:pointer;font-weight:600}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
     .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
     .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
@@ -49,12 +49,21 @@
     @media (max-height:640px){.modal-card{max-height:84vh}}
     /* Effet sur 📖 et 💾 */
 .emoji-btn {
-  display: inline-block;
+  display: inline-block;            /* ← important pour que :hover/transform marchent */
   transition: transform 0.1s ease, opacity 0.1s ease;
   cursor: pointer;
 }
-.emoji-btn:hover { transform: scale(1.2); }
-.emoji-btn:active { transform: scale(0.9); opacity: 0.7; }
+
+/* Survol : léger zoom */
+.emoji-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Clic : bouton enfoncé */
+.emoji-btn:active {
+  transform: scale(0.9);
+  opacity: 0.7;
+}
   </style>
 
   <script>
@@ -170,7 +179,6 @@
       <select id="network">
         <option>Ethereum</option><option>BNB Chain</option>
         <option>Polygon</option><option>Solana</option><option>Avalanche</option>
-        <option>Arbitrum One</option><!-- AJOUT -->
       </select>
 
       <label id="lbl-phone">Numéro du destinataire</label>
@@ -243,16 +251,7 @@
     function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
     const isMobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
     function getProviderBy(match6963,matchLegacy){const d=discovered.find(x=>{try{return match6963(x)}catch{return false}});if(d&&d.provider)return d.provider;if(window.ethereum){if(Array.isArray(window.ethereum.providers)){const p=window.ethereum.providers.find(p=>{try{return matchLegacy(p)}catch{return false}});if(p)return p}if(matchLegacy(window.ethereum))return window.ethereum}return null}
-    function loadScript(src){
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.async = true;
-      s.onload = resolve;
-      s.onerror = () => reject(new Error("Échec chargement " + src));
-      document.head.appendChild(s);
-    });
-  }
+    function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Échec chargement "+src));document.head.appendChild(s)})}
 
     function getWcGlobal(){
       const mod=window['@walletconnect/ethereum-provider'];
@@ -261,7 +260,7 @@
     }
 
     async function loadWalletConnectProvider(){
-      try{await window.__wcProviderBootstrap}catch{} 
+      try{await window.__wcProviderBootstrap}catch{} // attend le bootstrap local/CDN
       let EP=getWcGlobal(); if(EP) return EP;
       const umd=["https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js","https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.umd.js"];
       for(const u of umd){try{await loadScript(u+"?v="+Date.now());EP=getWcGlobal();if(EP)return EP}catch{}}
@@ -277,6 +276,7 @@
             if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
           try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
+// 🔄 Mise à jour auto quand on change de sous-compte MetaMask
 if (eth && typeof eth.on === "function") {
   eth.on("accountsChanged", (accs) => {
     if (Array.isArray(accs) && accs[0]) {
@@ -286,6 +286,7 @@ if (eth && typeof eth.on === "function") {
     }
   });
 }
+          // 🕒 Fallback : vérifie régulièrement l’adresse MetaMask
 let lastMetaMaskAddr = walletInput.value;
 setInterval(async () => {
   try {
@@ -303,11 +304,13 @@ setInterval(async () => {
     console.warn("Polling MetaMask error:", e);
   }
 }, 2000);
+          // === LinkiSend · EVM balances (format MetaMask, auto-refresh) ===
 const walletEl   = document.getElementById('wallet');
 const tokenSel   = document.getElementById('token');
 const networkSel = document.getElementById('network');
 
 const ERC20_REGISTRY = {
+  // Tu pourras ajouter Polygon/Arbitrum ensuite : même structure.
   Ethereum: [
     { symbol: 'ETH',  native: true,  decimals: 18 },
     { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6  },
@@ -315,27 +318,37 @@ const ERC20_REGISTRY = {
     { symbol: 'DAI',  address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
   ],
 };
+
+// Arrondi “façon MetaMask” : 5 décimales max + trim des zéros
 function fmtAmount(n) {
   if (!isFinite(n) || n === 0) return '0';
   const s = n.toFixed(5);
   return s.replace(/\.?0+$/,'');
 }
+
+// Lecture balance ERC-20 par eth_call (balanceOf)
 async function readErc20Balance(eth, addr, tokenAddr, decimals) {
+  // balanceOf(address) => 0x70a08231 + 12*'00' + 20 bytes address
   const method = '0x70a08231';
   const paddedAddr = '0'.repeat(24) + addr.toLowerCase().replace(/^0x/,'');
   const data = method + paddedAddr;
   const res = await eth.request({ method: 'eth_call', params: [{ to: tokenAddr, data }, 'latest'] });
   const raw = BigInt(res || '0x0');
   const denom = 10n ** BigInt(decimals);
+  // conversion BigInt → Number en sécurité pour l’affichage
   const asNumber = Number(raw) / Number(denom);
   return asNumber;
 }
+
+// Lecture balance native (ETH) par eth_getBalance
 async function readNativeBalance(eth, addr) {
   const hex = await eth.request({ method: 'eth_getBalance', params: [addr, 'latest'] });
   const wei = BigInt(hex || '0x0');
   const ethNum = Number(wei) / 1e18;
   return ethNum;
 }
+
+// Reconstruit la liste Token avec les montants du réseau sélectionné
 async function refreshEvmBalances() {
   if (!walletEl || !tokenSel || !networkSel) return;
   const addr = (walletEl.value || '').trim();
@@ -348,6 +361,7 @@ async function refreshEvmBalances() {
   const registry = ERC20_REGISTRY[network];
   if (!registry) return;
 
+  // 1) Récupère les soldes
   const balances = [];
   for (const t of registry) {
     try {
@@ -360,7 +374,10 @@ async function refreshEvmBalances() {
       console.warn('balance error', t.symbol, e);
     }
   }
-  tokenSel.innerHTML = '';
+
+  // 2) Met à jour le <select id="token"> avec “SYMBOL — montant”
+  //    (on conserve uniquement les tokens connus du réseau actif)
+  tokenSel.innerHTML = ''; // on repart propre
   for (const b of balances) {
     const opt = document.createElement('option');
     opt.value = b.symbol;
@@ -368,15 +385,24 @@ async function refreshEvmBalances() {
     opt.dataset.balance = String(b.amount);
     tokenSel.appendChild(opt);
   }
+
+  // 3) Sélectionne par défaut le 1er token au solde > 0, sinon ETH
   const firstPos = Array.from(tokenSel.options).find(o => Number(o.dataset.balance) > 0);
   if (firstPos) tokenSel.value = firstPos.value;
   else if (Array.from(tokenSel.options).some(o => o.value === 'ETH')) tokenSel.value = 'ETH';
 }
+
+// --- Déclencheurs automatiques ---
+
+// a) À chaque changement d’adresse (listener + polling que tu as déjà) → on rafraîchit
 if (eth && typeof eth.on === 'function') {
   eth.on('accountsChanged', () => {
     refreshEvmBalances();
   });
 }
+
+// b) Sur notre polling d’adresse (toutes les 2s), on a déjà mis à jour walletEl.value.
+//    On ajoute ici un petit observateur qui relance le scan si la valeur change.
 let _lastAddrForScan = (walletEl?.value || '').trim();
 setInterval(() => {
   const cur = (walletEl?.value || '').trim();
@@ -385,11 +411,16 @@ setInterval(() => {
     refreshEvmBalances();
   }
 }, 1200);
+
+// c) Si l’utilisateur change le réseau manuellement → on rescannera ce réseau
 if (networkSel) {
   networkSel.addEventListener('change', () => {
+    // On respecte ton choix : on scanne la chaîne choisie
     refreshEvmBalances();
   });
 }
+
+// d) Premier affichage après connexion MetaMask
 refreshEvmBalances();
                 } else if (provider === "phantom") {
           const ph = window.solana;
@@ -397,6 +428,7 @@ refreshEvmBalances();
             try {
               const resp = await ph.connect();
               walletInput.value = resp.publicKey.toString();
+              // 🔄 garde le champ à jour si l'utilisateur change de compte ou se déconnecte
               if (typeof ph.on === "function") {
                 ph.on("accountChanged", (pubKey) => {
                   walletInput.value = pubKey ? pubKey.toString() : "";
@@ -416,15 +448,20 @@ refreshEvmBalances();
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
             p => !!p.isUniswap || p?.providerName === 'uniswap'
           );
+
+          // Extension détectée
           if (uni && typeof uni.request === "function") {
             try {
               const accounts = await uni.request({ method: "eth_requestAccounts" });
               if (accounts && accounts[0]) walletInput.value = accounts[0];
+
+              // 🔄 garde le champ à jour si le compte change
               if (typeof uni.on === "function") {
                 uni.on("accountsChanged", (acc) => {
                   if (Array.isArray(acc) && acc[0]) walletInput.value = acc[0];
                 });
               }
+
               closeModal();
               return;
             } catch (err) {
@@ -433,6 +470,8 @@ refreshEvmBalances();
               return;
             }
           }
+
+          // Pas d’extension : on ouvre l’app Uniswap
           if (isMobile) {
             alert("Sur mobile, la connexion directe au wallet Uniswap n’est pas dispo sans WalletConnect. J’ouvre l’app web.");
             window.open(`https://app.uniswap.org/#/swap?chain=ethereum`, "_blank", "noopener,noreferrer");
@@ -464,13 +503,19 @@ refreshEvmBalances();
                 ],
                 events: ["chainChanged","accountsChanged"]
               });
+
+              // 🔗 Auto-remplissage du champ au changement de compte
               window.__wcProvider.on("accountsChanged", (acc) => {
                 if (Array.isArray(acc) && acc[0]) {
                   walletInput.value = acc[0];
                 }
               });
             }
+
+            // ✅ Connexion (affiche le QR si nécessaire)
             await window.__wcProvider.connect();
+
+            // 🧾 Récupère et place l’adresse
             let accounts = null;
             try {
               accounts = await window.__wcProvider.request({ method: "eth_requestAccounts" });
@@ -480,6 +525,7 @@ refreshEvmBalances();
             if (accounts && accounts[0]) {
               walletInput.value = accounts[0];
             }
+
             closeModal();
           } catch (err) {
             console.error("WalletConnect connect error:", err);
@@ -550,6 +596,7 @@ refreshEvmBalances();
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
   <script>
+// Mapping entre symboles et IDs CoinGecko
 const COINGECKO_IDS = {
   ETH: "ethereum",
   BNB: "binancecoin",
@@ -564,18 +611,23 @@ const COINGECKO_IDS = {
   BONK: "bonk",
   RAY: "raydium"
 };
+
 async function updateUsdValue(){
   const amountEl = document.getElementById("amount");
   const tokenEl  = document.getElementById("currency");
   const usdEl    = document.getElementById("usdValue");
+
   if (!amountEl || !tokenEl || !usdEl) return;
+
   const amount = parseFloat(amountEl.value);
   const sym = tokenEl.value;
   const id = COINGECKO_IDS[sym];
+
   if (!amount || !id){
     usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
     return;
   }
+
   try {
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`;
     const res = await fetch(url);
@@ -588,15 +640,22 @@ async function updateUsdValue(){
     usdEl.textContent = "(Erreur CoinGecko)";
   }
 }
+
+// Mettre à jour quand on change le montant ou le token
 document.getElementById("amount")?.addEventListener("input", updateUsdValue);
 document.getElementById("currency")?.addEventListener("change", updateUsdValue);
 </script>
   <script>
+/* Fermer la liste de contacts par défaut et ne l’ouvrir que via 📖 */
 document.addEventListener('DOMContentLoaded', () => {
   const box = document.getElementById('contactsList');
   const btn = document.getElementById('showContacts');
   if (!box) return;
+
+  // 1) Toujours caché au chargement, même s'il y a des contacts
   box.style.display = 'none';
+
+  // 2) Ouvrir/fermer uniquement via le bouton 📖
   if (btn) {
     btn.onclick = () => {
       box.style.display = (box.style.display === 'block') ? 'none' : 'block';
@@ -612,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const balInfoEl   = document.getElementById('tokenBalanceInfo');
   if (!walletInput || !currencySel || !balInfoEl) return;
 
+  /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
   const CG_ID = {
     ETH:'ethereum', BNB:'binancecoin', MATIC:'matic-network', AVAX:'avalanche-2', SOL:'solana',
     USDT:'tether', USDC:'usd-coin', DAI:'dai', WBTC:'wrapped-bitcoin', LINK:'chainlink',
@@ -621,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try{
     const id = CG_ID[symbol];
     if (!id){ 
-      balInfoEl.textContent = "";
+      balInfoEl.textContent = ""; // rien en dessous si pas de prix
       return; 
     }
     const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
@@ -631,10 +691,12 @@ document.addEventListener('DOMContentLoaded', () => {
       balInfoEl.textContent = ""; 
       return; 
     }
+
     const usd = parseFloat(amountStr || "0") * p;
     balInfoEl.textContent = usd < 0.01 
       ? "≈ < 0.01 $" 
       : `≈ ${usd.toFixed(2)} $`;
+
   }catch{
     balInfoEl.textContent = "";
   }
@@ -647,6 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setBalanceLine(sym, amountStr);
   });
 
+  /* --- Outils EVM --- */
   function toDecimalString(hexOrStr, decimals){
     if (hexOrStr == null) return "0";
     let big;
@@ -691,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
       LINK:{addr:'0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD',dec:18}
     }},
     '0x89': { native:{symbol:'MATIC',dec:18}, tokens:{
-      USDT:{addr:'0xC2132D05D31c914a87C6611C10748AaCbD9b0c',dec:6},
+      USDT:{addr:'0xC2132D05D31c914a87C6611C10748AaCbD9b0f',dec:6},
       USDC:{addr:'0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',dec:6},
       DAI :{addr:'0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',dec:18},
       WBTC:{addr:'0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',dec:8},
@@ -703,36 +766,32 @@ document.addEventListener('DOMContentLoaded', () => {
       DAI :{addr:'0xd586E7F844cEa2F87f50152665BCbc2C279D8d70',dec:18},
       WBTC:{addr:'0x50b7545627a5162F82A992c33b87aDc75187B218',dec:8},
       LINK:{addr:'0x5947BB275c521040051D82396192181b413227A3',dec:18}
-    }},
-    /* === AJOUT : Arbitrum One (0xa4b1) === */
-    '0xa4b1': { native:{symbol:'ETH',dec:18}, tokens:{
-      USDT:{addr:'0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',dec:6},
-      USDC:{addr:'0xaf88d065e77c8cc2239327c5edb3a432268e5831',dec:6}, /* USDC natif */
-      DAI :{addr:'0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',dec:18},
-      WBTC:{addr:'0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',dec:8},
-      LINK:{addr:'0xf97f4df75117a78c1a5a0dbb814af92458539fb4',dec:18}
     }}
   };
-  const NATIVE_FALLBACK = {
+  const NATIVE_FALLBACK = { // pour testnets ou réseau non mappé → on montre au moins le natif
     '0x1':'ETH','0x5':'ETH','0xaa36a7':'ETH',
     '0x38':'BNB','0x61':'BNB',
     '0x89':'MATIC','0x13881':'MATIC',
-    '0xa86a':'AVAX','0xa869':'AVAX',
-    '0xa4b1':'ETH' /* AJOUT : Arbitrum */
+    '0xa86a':'AVAX','0xa869':'AVAX'
   };
   const DEFAULT_EVM_TOKENS = ['USDT','USDC','DAI','WBTC','LINK'];
 
   async function scanEvm(eth, account){
     let chainId;
     try{ chainId = await eth.request({method:'eth_chainId'}); }catch{ chainId = undefined; }
+
     const reg = chainId ? EVM[chainId] : undefined;
     const items = [];
+
+    // Natif
     let natSymbol = (chainId && (reg?.native?.symbol || NATIVE_FALLBACK[chainId])) || 'ETH';
     let natDec    = (reg?.native?.dec) ?? 18;
     let nativeHex = '0x0';
     try{ nativeHex = await eth.request({method:'eth_getBalance', params:[account,'latest']}); }catch{}
     const natStr = toDecimalString(nativeHex, natDec);
     items.push({symbol:natSymbol, amountStr:natStr, amountNum:parseFloat(natStr||'0')});
+
+    // ERC20 (soit adresses connues du réseau, soit tokens par défaut à 0 si réseau inconnu)
     if (reg){
       const data = erc20BalanceOfData(account);
       for (const [sym,tok] of Object.entries(reg.tokens)){
@@ -749,11 +808,13 @@ document.addEventListener('DOMContentLoaded', () => {
         items.push({symbol:sym, amountStr:'0', amountNum:0});
       }
     }
+
     items.sort((a,b)=> b.amountNum - a.amountNum);
     setSelect(items);
     const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
   }
 
+  /* --- Solana (SOL + quelques SPL connus) --- */
   const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
   const TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
   const SOLANA = {
@@ -771,6 +832,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   async function scanSolana(address){
     const items = [];
+
+    // SOL
     let lamports = 0;
     try{
       const r = await solanaRpc({jsonrpc:"2.0", id:1, method:"getBalance", params:[address]});
@@ -778,6 +841,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }catch{}
     const solStr = (lamports/1e9).toString();
     items.push({symbol:'SOL', amountStr:solStr, amountNum:parseFloat(solStr||'0')});
+
+    // Comptes SPL de l’adresse
     let accs = [];
     try{
       const r = await solanaRpc({
@@ -786,6 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       accs = r?.result?.value || [];
     }catch{}
+
     const found = {};
     for(const a of accs){
       const info = a?.account?.data?.parsed?.info;
@@ -793,28 +859,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const ui   = info?.tokenAmount?.uiAmount || 0;
       found[mint] = ui;
     }
+
     for (const [sym,t] of Object.entries(SOLANA.tokens)){
       const ui = found[t.mint] ?? 0;
       const str = (typeof ui === 'number') ? ui.toString() : String(ui);
       items.push({symbol:sym, amountStr:str, amountNum:parseFloat(str||'0')});
     }
+
     items.sort((a,b)=> b.amountNum - a.amountNum);
     setSelect(items);
     const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
   }
 
+  /* --- Orchestration --- */
   async function refresh(){
     const addr = (walletInput.value || '').trim();
     if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent='Solde: 0'; return; }
+
+    // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
     if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
       await scanEvm(window.ethereum, addr);
     } else if (!addr.startsWith('0x')) {
       await scanSolana(addr);
     } else {
+      // Pas de provider EVM accessible : afficher au moins une liste par défaut à 0
       const items = [{symbol:'ETH',amountStr:'0',amountNum:0},{symbol:'USDT',amountStr:'0',amountNum:0},{symbol:'USDC',amountStr:'0',amountNum:0},{symbol:'DAI',amountStr:'0',amountNum:0},{symbol:'WBTC',amountStr:'0',amountNum:0},{symbol:'LINK',amountStr:'0',amountNum:0}];
       setSelect(items);
       const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
     }
+
     const opt = currencySel.options[currencySel.selectedIndex];
     if (opt){
       const sym = opt.value;
@@ -822,12 +895,16 @@ document.addEventListener('DOMContentLoaded', () => {
       setBalanceLine(sym, amountStr);
     }
   }
+
+  // Lancement immédiat + surveillance des changements d’adresse
   refresh();
   let last = walletInput.value;
   setInterval(()=>{
     const cur = walletInput.value;
     if (cur !== last){ last = cur; refresh(); }
   }, 1000);
+
+  // Écoute EVM (si disponible)
   const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
     ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
     : window.ethereum;
@@ -839,52 +916,73 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
 <script>
+/**
+ * Remplit le select des tokens selon le réseau choisi
+ * et affiche le solde à côté du symbole (par défaut "— 0").
+ * Aucune dépendance externe.
+ */
 (() => {
+  // 1) Configuration simple des tokens par réseau
   const TOKENS_BY_NETWORK = {
     ethereum: ['ETH', 'USDT', 'USDC', 'DAI'],
     polygon:  ['MATIC', 'USDT', 'USDC', 'DAI'],
-    bnb:      ['BNB', 'USDT', 'USDC'],
-    /* AJOUT */
-    arbitrum: ['ETH', 'USDT', 'USDC', 'DAI']
+    bnb:      ['BNB', 'USDT', 'USDC']
   };
+
+  // 2) On essaie de repérer automatiquement les <select>
+  //    - networkSelect : celui qui contient "Ethereum/Polygon/BNB"
+  //    - tokenSelect   : un select vide au chargement (ta liste est vide actuellement)
   const selects = Array.from(document.querySelectorAll('select'));
+
   const networkSelect = selects.find(s =>
     Array.from(s.options).some(o =>
-      /ethereum|polygon|bnb|arbitrum/i.test((o.textContent || '').trim())
+      /ethereum|polygon|bnb/i.test((o.textContent || '').trim())
     )
   );
+
   const tokenSelect = selects.find(s =>
     s !== networkSelect &&
     (s.options.length === 0 || Array.from(s.options).every(o => (o.value || '').trim() === ''))
   );
+
   if (!networkSelect || !tokenSelect) {
     console.warn('[LinkiSend] Impossible de trouver les selects réseau/token automatiquement.');
     return;
   }
+
+  // 3) Utilitaires
   const normaliseNetwork = (label) => {
     const t = (label || '').toLowerCase();
     if (t.includes('ethereum')) return 'ethereum';
     if (t.includes('polygon'))  return 'polygon';
     if (t.includes('bnb'))      return 'bnb';
-    if (t.includes('arbitrum')) return 'arbitrum'; /* AJOUT */
-    return 'ethereum';
+    return 'ethereum'; // fallback
   };
+
   const createOption = (symbol, balanceText = '0') => {
     const opt = document.createElement('option');
+    // Affichage demandé : "USDT — 0"
     opt.value = symbol;
     opt.textContent = `${symbol} — ${balanceText}`;
     return opt;
   };
+
+  // 4) Peupler la liste de tokens selon le réseau
   const populateTokens = () => {
     const netKey = normaliseNetwork(networkSelect.options[networkSelect.selectedIndex]?.textContent);
     const tokens = TOKENS_BY_NETWORK[netKey] || TOKENS_BY_NETWORK.ethereum;
+
+    // vide puis remplit
     tokenSelect.innerHTML = '';
     tokens.forEach((sym, i) => {
-      const opt = createOption(sym, '0');
+      const opt = createOption(sym, '0'); // solde affiché même à 0
       tokenSelect.appendChild(opt);
+      // par défaut : le token natif du réseau en premier (déjà le cas dans la config)
       if (i === 0) tokenSelect.selectedIndex = 0;
     });
   };
+
+  // 5) Init + écoute des changements de réseau
   populateTokens();
   networkSelect.addEventListener('change', populateTokens);
 })();
