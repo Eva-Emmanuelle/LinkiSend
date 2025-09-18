@@ -817,92 +817,125 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
   <script>
-/* LinkiSend — Sync réseau/compte MetaMask + fallback
-   - Aligne le sélecteur "Réseau" au chargement
-   - Écoute chainChanged / accountsChanged
-   - Fallback polling si les events ne remontent pas
-   - Evite tout doublon via des garde-fous
+/* LinkiSend — réseau piloté par l’UI + resync au chargement
+   - L’UI s’aligne au chargement sur le chainId réel du provider
+   - Le changement dans le sélecteur "Réseau" déclenche un wallet_switchEthereumChain
+   - Fallback: si Arbitrum n’est pas ajouté, on l’ajoute (wallet_addEthereumChain)
+   - Garde-fou contre doublons
 */
 (function () {
-  if (window.__lsSyncAttached) return; // garde-fou
+  if (window.__lsSyncAttached) return;
   window.__lsSyncAttached = true;
 
   const eth = window.ethereum;
   if (!eth) { console.warn('MetaMask non détecté'); return; }
 
-  const MAP = {
-    '0x1': /ethereum/i,   // Ethereum Mainnet
-    '0xa4b1': /arbitrum/i // Arbitrum One
+  // --- Mapping chaînes
+  const NAME_TO_ID = {
+    ethereum: '0x1',
+    arbitrum: '0xa4b1',
+  };
+  const ID_TO_REGEX = {
+    '0x1': /ethereum/i,
+    '0xa4b1': /arbitrum/i,
   };
 
-  function findNetworkSelect() {
+  function getNetworkSelect() {
     const selects = document.querySelectorAll('select');
     for (const s of selects) {
-      const ok = [...s.options].some(o => /ethereum|arbitrum/i.test(o.textContent));
-      if (ok) return s;
+      if ([...s.options].some(o => /ethereum|arbitrum/i.test(o.textContent))) return s;
     }
     return null;
   }
 
-  async function readChainId() {
+  async function currentChainId() {
     try { return await eth.request({ method: 'eth_chainId' }); }
     catch { return null; }
   }
 
   async function alignUITo(chainId) {
-    const select = findNetworkSelect();
+    const select = getNetworkSelect();
     if (!select) return;
-    const want = MAP[chainId] || /ethereum/i;
+    const want = ID_TO_REGEX[chainId] || /ethereum/i;
     const opt = [...select.options].find(o => want.test(o.textContent));
     if (opt && select.value !== opt.value) {
       select.value = opt.value;
       select.dispatchEvent(new Event('change', { bubbles: true }));
-      console.log('✅ Réseau UI aligné sur', opt.textContent.trim(), 'pour chainId', chainId);
+      console.log('✅ UI alignée sur', opt.textContent.trim(), '(', chainId, ')');
     }
   }
 
-  function reloadSoon(reason) {
-    console.log('🔄 reload (raison =', reason, ')');
-    setTimeout(() => location.reload(), 150);
+  function parseSelectedChainId(select) {
+    const label = (select.options[select.selectedIndex]?.textContent || '').toLowerCase();
+    return /arbitrum/.test(label) ? NAME_TO_ID.arbitrum : NAME_TO_ID.ethereum;
   }
 
-  // --- Init : aligner l’UI sur le réseau réel
+  async function ensureArbitrumAdded() {
+    try {
+      await eth.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0xa4b1',
+          chainName: 'Arbitrum One',
+          nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+          rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+          blockExplorerUrls: ['https://arbiscan.io/']
+        }]
+      });
+    } catch (e) {
+      // 4001 user rejected; autres codes => on laisse l’utilisateur décider
+      console.warn('addChain Arbitrum:', e?.code || e);
+    }
+  }
+
+  async function switchTo(chainId) {
+    try {
+      await eth.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId }]
+      });
+      // Laisse MetaMask finaliser, puis recharge pour resynchroniser montants/listes
+      setTimeout(() => location.reload(), 150);
+    } catch (e) {
+      // 4902 = chaîne inconnue, on tente de l’ajouter (Arbitrum) puis on recommence
+      if (e && e.code === 4902 && chainId === '0xa4b1') {
+        await ensureArbitrumAdded();
+        await switchTo(chainId);
+      } else if (e && e.code !== 4001) {
+        console.warn('switch error:', e);
+      }
+    }
+  }
+
+  // --- 1) Alignement initial sur le provider réel
   (async () => {
-    const cid = await readChainId();
+    const cid = await currentChainId();
     window.__lsLastCid = cid;
     await alignUITo(cid);
   })();
 
-  // --- Events (quand dispo)
-  try {
-    eth.removeAllListeners?.('chainChanged');
-    eth.removeAllListeners?.('accountsChanged');
+  // --- 2) L’UI pilote MetaMask : on hook le select
+  const select = getNetworkSelect();
+  if (select && !select.__lsBound) {
+    select.__lsBound = true;
+    select.addEventListener('change', async () => {
+      const targetId = parseSelectedChainId(select);
+      const current = await currentChainId();
+      if (current !== targetId) {
+        await switchTo(targetId);
+      }
+    });
+  }
 
-    eth.on?.('chainChanged', (cid) => {
+  // --- 3) Sécurité : si le provider change en arrière-plan, on s’aligne
+  clearInterval(window.__lsAlignPoll);
+  window.__lsAlignPoll = setInterval(async () => {
+    const cid = await currentChainId();
+    if (cid && cid !== window.__lsLastCid) {
       window.__lsLastCid = cid;
-      reloadSoon('chainChanged ' + cid);
-    });
-    eth.on?.('accountsChanged', (accs) => {
-      reloadSoon('accountsChanged ' + (accs[0] || 'none'));
-    });
-  } catch (e) { console.warn('listener error', e); }
-
-  // --- Fallback polling (si les events ne se déclenchent pas)
-  clearInterval(window.__lsPoll);
-  window.__lsPoll = setInterval(async () => {
-    const cid = await readChainId();
-    if (!cid) return;
-    if (window.__lsLastCid == null) { window.__lsLastCid = cid; return; }
-    if (cid !== window.__lsLastCid) reloadSoon('poll-chain ' + window.__lsLastCid + '→' + cid);
-  }, 1000);
-
-  // --- Resync au retour d’onglet
-  document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'visible') {
-      const cid = await readChainId();
-      if (cid && cid !== window.__lsLastCid) reloadSoon('visibility');
+      await alignUITo(cid); // pas de popup, on reflète juste l’état réel
     }
-  });
+  }, 1500);
 })();
 </script>
 </body>
