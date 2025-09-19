@@ -296,13 +296,13 @@
         await eth.request({ method: 'personal_sign', params: [msg, accounts[0]] });
         window.__lsConnected = true; // marquer la connexion valide
         walletInput.value = accounts[0]; // renseigner l’adresse seulement après validation
+        closeModal();
       } catch (sigErr) {
         console.warn('Signature refusée ou échec de déverrouillage:', sigErr);
         alert("Connexion MetaMask annulée. Aucune adresse n’a été enregistrée.");
         return; // on sort sans rien remplir
       }
     }
-    closeModal();
   } catch(e) {
     console.error(e);
     alert("Connexion MetaMask refusée ou erreur.");
