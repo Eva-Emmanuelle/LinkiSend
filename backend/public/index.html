@@ -272,7 +272,21 @@
           if(!eth||!eth.request){if(isStandaloneApp()&&!isMobile){window.open(window.location.href,'_blank');return}
             if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
             alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
-          try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
+          try{const accounts=await eth.request({method:'eth_requestAccounts'});
+              if (accounts && accounts[0]) {
+  // Forcer un déverrouillage réel via une mini-signature
+  try {
+    const msg = 'LinkiSend: confirmer la connexion';
+    await eth.request({ method: 'personal_sign', params: [msg, accounts[0]] });
+    window.__lsConnected = true; // marquer la connexion valide
+    walletInput.value = accounts[0]; // renseigner l’adresse seulement après validation
+  } catch (sigErr) {
+    console.warn('Signature refusée ou échec de déverrouillage:', sigErr);
+    alert("Connexion MetaMask annulée. Aucune adresse n’a été enregistrée.");
+    return; // on sort sans rien remplir
+  }
+}
+             closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
 // 🔄 Mise à jour auto quand on change de sous-compte MetaMask
 if (eth && typeof eth.on === "function") {
   eth.on("accountsChanged", (accs) => {
