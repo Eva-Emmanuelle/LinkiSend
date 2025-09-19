@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <title>LinkiSend — Envoyer des cryptos</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="assets/icons/icon-maskable-512.png">
   <meta name="theme-color" content="#0b0f14">
@@ -226,6 +227,8 @@
       </div>
       <div class="providers">
         <button class="pv" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="MetaMask" />MetaMask <span class="tag">EVM</span></button>
+        <button class="pv" data-wallet="walletconnect"><img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />WalletConnect <span class="tag">EVM</span></button>
+        <button class="pv" data-wallet="uniswap"><img src="assets/wallets/uniswap.svg" alt="Uniswap" />Uniswap <span class="tag">DEX</span></button>
         <button class="pv" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="Phantom" />Phantom <span class="tag">Solana</span></button>
       </div>
     </div>
@@ -268,57 +271,157 @@
       btn.addEventListener('click', async ()=>{
         const provider=btn.getAttribute('data-wallet');
         if(provider==='metamask'){
-           const eth = getProviderBy(
-    d => /metamask/i.test(d?.info?.rdns || '') || /metamask/i.test(d?.info?.name || ''),
-    p => !!p.isMetaMask
-  );
-
-  if (!eth || !eth.request) {
-    if (isStandaloneApp() && !isMobile) {
-      window.open(window.location.href, '_blank');
-      return;
+          const eth=getProviderBy(d=>/metamask/i.test(d?.info?.rdns||'')||/metamask/i.test(d?.info?.name||''),p=>!!p.isMetaMask);
+          if(!eth||!eth.request){if(isStandaloneApp()&&!isMobile){window.open(window.location.href,'_blank');return}
+            if(isMobile){const path=location.host+location.pathname+location.search;location.href=`https://metamask.app.link/dapp/${path}`;return}
+            alert("MetaMask non détecté. Installe l’extension puis recharge la page.");return}
+          try{const accounts=await eth.request({method:'eth_requestAccounts'});if(accounts&&accounts[0])walletInput.value=accounts[0];closeModal()}catch(e){console.error(e);alert("Connexion MetaMask refusée ou erreur.")}
+// 🔄 Mise à jour auto quand on change de sous-compte MetaMask
+if (eth && typeof eth.on === "function") {
+  eth.on("accountsChanged", (accs) => {
+    if (Array.isArray(accs) && accs[0]) {
+      walletInput.value = accs[0];
+    } else {
+      walletInput.value = "";
     }
-    if (isMobile) {
-      const path = location.host + location.pathname + location.search;
-      location.href = `https://metamask.app.link/dapp/${path}`;
-      return;
-    }
-    alert("MetaMask non détecté. Installe l’extension puis recharge la page.");
-    return;
-  }
-
+  });
+}
+          // 🕒 Fallback : vérifie régulièrement l’adresse MetaMask
+let lastMetaMaskAddr = walletInput.value;
+setInterval(async () => {
   try {
-    const accounts = await eth.request({ method: 'eth_requestAccounts' });
-    if (accounts && accounts[0]) {
-      // Forcer un déverrouillage réel via une mini-signature
-      try {
-        const msg = 'LinkiSend: confirmer la connexion';
-        await eth.request({ method: 'personal_sign', params: [msg, accounts[0]] });
-        window.__lsConnected = true; // marquer la connexion valide
-        walletInput.value = accounts[0]; // renseigner l’adresse seulement après validation
-        closeModal();
-      } catch (sigErr) {
-        console.warn('Signature refusée ou échec de déverrouillage:', sigErr);
-        alert("Connexion MetaMask annulée. Aucune adresse n’a été enregistrée.");
-        return; // on sort sans rien remplir
+    if (eth && typeof eth.request === "function") {
+      const accs = await eth.request({ method: "eth_accounts" });
+      if (Array.isArray(accs) && accs[0]) {
+        const current = accs[0];
+        if (current !== lastMetaMaskAddr) {
+          walletInput.value = current;
+          lastMetaMaskAddr = current;
+        }
       }
     }
   } catch(e) {
-    console.error(e);
-    alert("Connexion MetaMask refusée ou erreur.");
+    console.warn("Polling MetaMask error:", e);
+  }
+}, 2000);
+          // === LinkiSend · EVM balances (format MetaMask, auto-refresh) ===
+const walletEl   = document.getElementById('wallet');
+const tokenSel   = document.getElementById('token');
+const networkSel = document.getElementById('network');
+
+const ERC20_REGISTRY = {
+  // Tu pourras ajouter Polygon/Arbitrum ensuite : même structure.
+  Ethereum: [
+    { symbol: 'ETH',  native: true,  decimals: 18 },
+    { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6  },
+    { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6  },
+    { symbol: 'DAI',  address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
+  ],
+};
+
+// Arrondi “façon MetaMask” : 5 décimales max + trim des zéros
+function fmtAmount(n) {
+  if (!isFinite(n) || n === 0) return '0';
+  const s = n.toFixed(5);
+  return s.replace(/\.?0+$/,'');
+}
+
+// Lecture balance ERC-20 par eth_call (balanceOf)
+async function readErc20Balance(eth, addr, tokenAddr, decimals) {
+  // balanceOf(address) => 0x70a08231 + 12*'00' + 20 bytes address
+  const method = '0x70a08231';
+  const paddedAddr = '0'.repeat(24) + addr.toLowerCase().replace(/^0x/,'');
+  const data = method + paddedAddr;
+  const res = await eth.request({ method: 'eth_call', params: [{ to: tokenAddr, data }, 'latest'] });
+  const raw = BigInt(res || '0x0');
+  const denom = 10n ** BigInt(decimals);
+  // conversion BigInt → Number en sécurité pour l’affichage
+  const asNumber = Number(raw) / Number(denom);
+  return asNumber;
+}
+
+// Lecture balance native (ETH) par eth_getBalance
+async function readNativeBalance(eth, addr) {
+  const hex = await eth.request({ method: 'eth_getBalance', params: [addr, 'latest'] });
+  const wei = BigInt(hex || '0x0');
+  const ethNum = Number(wei) / 1e18;
+  return ethNum;
+}
+
+// Reconstruit la liste Token avec les montants du réseau sélectionné
+async function refreshEvmBalances() {
+  if (!walletEl || !tokenSel || !networkSel) return;
+  const addr = (walletEl.value || '').trim();
+  if (!addr || !addr.startsWith('0x')) return;
+
+  const eth = window.ethereum;
+  if (!eth || typeof eth.request !== 'function') return;
+
+  const network = networkSel.value || 'Ethereum';
+  const registry = ERC20_REGISTRY[network];
+  if (!registry) return;
+
+  // 1) Récupère les soldes
+  const balances = [];
+  for (const t of registry) {
+    try {
+      const amount = t.native
+        ? await readNativeBalance(eth, addr)
+        : await readErc20Balance(eth, addr, t.address, t.decimals);
+      balances.push({ symbol: t.symbol, amount, decimals: t.decimals, native: !!t.native });
+    } catch (e) {
+      balances.push({ symbol: t.symbol, amount: 0, decimals: t.decimals, native: !!t.native });
+      console.warn('balance error', t.symbol, e);
+    }
   }
 
-  // 🔄 Mise à jour auto quand on change de sous-compte MetaMask
-  if (eth && typeof eth.on === "function") {
-    eth.on("accountsChanged", (accs) => {
-      if (Array.isArray(accs) && accs[0]) {
-        walletInput.value = accs[0];
-      } else {
-        walletInput.value = "";
-      }
-    });
+  // 2) Met à jour le <select id="token"> avec “SYMBOL — montant”
+  //    (on conserve uniquement les tokens connus du réseau actif)
+  tokenSel.innerHTML = ''; // on repart propre
+  for (const b of balances) {
+    const opt = document.createElement('option');
+    opt.value = b.symbol;
+    opt.textContent = `${b.symbol} — ${fmtAmount(b.amount)}`;
+    opt.dataset.balance = String(b.amount);
+    tokenSel.appendChild(opt);
   }
 
+  // 3) Sélectionne par défaut le 1er token au solde > 0, sinon ETH
+  const firstPos = Array.from(tokenSel.options).find(o => Number(o.dataset.balance) > 0);
+  if (firstPos) tokenSel.value = firstPos.value;
+  else if (Array.from(tokenSel.options).some(o => o.value === 'ETH')) tokenSel.value = 'ETH';
+}
+
+// --- Déclencheurs automatiques ---
+
+// a) À chaque changement d’adresse (listener + polling que tu as déjà) → on rafraîchit
+if (eth && typeof eth.on === 'function') {
+  eth.on('accountsChanged', () => {
+    refreshEvmBalances();
+  });
+}
+
+// b) Sur notre polling d’adresse (toutes les 2s), on a déjà mis à jour walletEl.value.
+//    On ajoute ici un petit observateur qui relance le scan si la valeur change.
+let _lastAddrForScan = (walletEl?.value || '').trim();
+setInterval(() => {
+  const cur = (walletEl?.value || '').trim();
+  if (cur && cur !== _lastAddrForScan) {
+    _lastAddrForScan = cur;
+    refreshEvmBalances();
+  }
+}, 1200);
+
+// c) Si l’utilisateur change le réseau manuellement → on rescannera ce réseau
+if (networkSel) {
+  networkSel.addEventListener('change', () => {
+    // On respecte ton choix : on scanne la chaîne choisie
+    refreshEvmBalances();
+  });
+}
+
+// d) Premier affichage après connexion MetaMask
+refreshEvmBalances();
                 } else if (provider === "phantom") {
           const ph = window.solana;
           if (ph && ph.isPhantom) {
@@ -770,45 +873,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* --- Orchestration --- */
   async function refresh(){
-  // Ne rien afficher tant que l'utilisateur n'a pas validé la connexion
-  if (!window.__lsConnected) {
-    currencySel.innerHTML = '';
-    balInfoEl.textContent = 'Solde: 0';
-    return;
-  }
+    const addr = (walletInput.value || '').trim();
+    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent='Solde: 0'; return; }
 
-  const addr = (walletInput.value || '').trim();
-  if (!addr){
-    currencySel.innerHTML=''; 
-    balInfoEl.textContent='Solde: 0'; 
-    return;
-  }
+    // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
+    if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
+      await scanEvm(window.ethereum, addr);
+    } else if (!addr.startsWith('0x')) {
+      await scanSolana(addr);
+    } else {
+      // Pas de provider EVM accessible : afficher au moins une liste par défaut à 0
+      const items = [{symbol:'ETH',amountStr:'0',amountNum:0},{symbol:'USDT',amountStr:'0',amountNum:0},{symbol:'USDC',amountStr:'0',amountNum:0},{symbol:'DAI',amountStr:'0',amountNum:0},{symbol:'WBTC',amountStr:'0',amountNum:0},{symbol:'LINK',amountStr:'0',amountNum:0}];
+      setSelect(items);
+      const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+    }
 
-  // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
-  if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
-    await scanEvm(window.ethereum, addr);
-  } else if (!addr.startsWith('0x')) {
-    await scanSolana(addr);
-  } else {
-    const items = [
-      {symbol:'ETH', amountStr:'0', amountNum:0},
-      {symbol:'USDT',amountStr:'0', amountNum:0},
-      {symbol:'USDC',amountStr:'0', amountNum:0},
-      {symbol:'DAI', amountStr:'0', amountNum:0},
-      {symbol:'WBTC',amountStr:'0', amountNum:0},
-      {symbol:'LINK',amountStr:'0', amountNum:0},
-    ];
-    setSelect(items);
-    const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
+    const opt = currencySel.options[currencySel.selectedIndex];
+    if (opt){
+      const sym = opt.value;
+      const amountStr = (opt.textContent||'').split('—').pop().trim();
+      setBalanceLine(sym, amountStr);
+    }
   }
-
-  const opt = currencySel.options[currencySel.selectedIndex];
-  if (opt){
-    const sym = opt.value;
-    const amountStr = (opt.textContent||'').split('—').pop().trim();
-    setBalanceLine(sym, amountStr);
-  }
-}
 
   // Lancement immédiat + surveillance des changements d’adresse
   refresh();
