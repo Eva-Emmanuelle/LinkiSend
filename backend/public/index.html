@@ -226,7 +226,7 @@
         <button class="x" id="walletModalClose" aria-label="Fermer">✕</button>
       </div>
       <div class="providers">
-        <button class="pv" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="MetaMask" />MetaMask <span class="tag">EVM</span></button>
+        <button class="pv" data-wallet=""><img src="assets/wallets/.svg" alt="" /> <span class="tag">EVM</span></button>
         <button class="pv" data-wallet="walletconnect"><img src="assets/wallets/walletconnect.svg" alt="WalletConnect" />WalletConnect <span class="tag">EVM</span></button>
         <button class="pv" data-wallet="uniswap"><img src="assets/wallets/uniswap.svg" alt="Uniswap" />Uniswap <span class="tag">DEX</span></button>
         <button class="pv" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="Phantom" />Phantom <span class="tag">Solana</span></button>
@@ -270,7 +270,7 @@
     modal.querySelectorAll('.pv').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const provider=btn.getAttribute('data-wallet');
-        if (provider === 'metamask') {
+   if (provider === 'metamask') {
   // Détection MetaMask (EIP-6963 + legacy)
   const eth = getProviderBy(
     d => /metamask/i.test(d?.info?.rdns || '') || /metamask/i.test(d?.info?.name || ''),
@@ -290,13 +290,14 @@
   }
 
   try {
-    // 🔐 EXIGENCE : on force une VRAIE connexion utilisateur
+    // 🔐 Force une vraie connexion utilisateur
     const accounts = await eth.request({ method: 'eth_requestAccounts' });
     if (!accounts || !accounts[0]) throw new Error('Aucun compte');
 
     // ✅ On ne remplit l’UI qu’après accord explicite
     walletInput.value = accounts[0];
-    // On démarre l’orchestration et les listeners *après* connexion
+
+    // Démarre l’orchestration (scanner + listeners) après connexion
     if (typeof window.LinkiSend_onConnected === 'function') {
       window.LinkiSend_onConnected('evm', eth);
     }
@@ -305,15 +306,13 @@
     console.error(e);
     alert("Connexion MetaMask refusée ou erreur.");
   }
-}
-                } else if (provider === 'phantom') {
-  const ph = window.solana;
+                  const ph = window.solana;
   if (!ph || !ph.isPhantom) {
     window.open('https://phantom.app/', '_blank');
     return;
   }
   try {
-    // 🔐 EXIGENCE : on force une VRAIE connexion utilisateur
+    // 🔐 Force une vraie connexion utilisateur
     const resp = await ph.connect();
     const addr = resp?.publicKey?.toString();
     if (!addr) throw new Error('Aucune adresse Phantom');
@@ -326,7 +325,6 @@
       window.LinkiSend_onConnected('solana', ph);
     }
 
-    // Suivre changements de compte/déconnexion
     if (typeof ph.on === 'function') {
       ph.on('accountChanged', (pubKey) => {
         walletInput.value = pubKey ? pubKey.toString() : '';
@@ -337,7 +335,6 @@
     console.error(err);
     alert("Connexion Phantom refusée ou erreur.");
   }
-
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
