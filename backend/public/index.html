@@ -292,8 +292,10 @@
       }
 
       // ❗️IMPORTANT : on ne fait QUE eth_requestAccounts (ouvre la popup + demande déverrouillage)
-      const accounts = await eth.request({ method: "eth_requestAccounts" });
-
+      const accounts = await eth.request({
+  method: "wallet_requestPermissions",
+  params: [{ eth_accounts: {} }]
+});
       closeModal();
     } catch (err) {
       console.error(err);
