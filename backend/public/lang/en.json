@@ -1,0 +1,23 @@
+{
+  "title": "Send crypto",
+  "subtitle": "Generate a link in 10 seconds.",
+  "wallet": "Your wallet (sender)",
+  "token": "Token",
+  "amount": "Amount",
+  "network": "Network",
+  "phone": "Recipient phone",
+  "hint": "No on-chain transfer happens until the link is claimed.",
+  "generate": "Generate link",
+  "search": "Search...",
+  "resultTitle": "Link ready ✅",
+  "validity": "⏳ Valid for 24h • No on-chain transfer until the link is claimed.",
+  "connectWallet": "Connect a wallet",
+  "savePh": "Contact name",
+  "save": "Save",
+  "cancel": "Cancel",
+  "saved": "Contact saved ✅",
+  "needNumber": "Enter a number first.",
+  "delete": "Delete",
+  "errorRequired": "Please fill in all required fields.",
+  "errorNetwork": "Network error"
+}
