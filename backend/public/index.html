@@ -64,6 +64,7 @@
   transform: scale(0.9);
   opacity: 0.7;
 }
+  .dial-btn img.flag{display:inline-block;vertical-align:middle}  
   </style>
 
   <script>
@@ -184,7 +185,10 @@
       <label id="lbl-phone">Numéro du destinataire</label>
       <div class="phone-row">
         <div class="dial">
-          <button id="dialBtn" class="dial-btn"><span class="iso">FR</span><span id="dialCode">+33</span></button>
+          <button id="dialBtn" class="dial-btn">
+  <img class="flag" src="assets/flags/fr.svg" alt="FR" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;">
+  <span class="iso">FR</span><span id="dialCode">+33</span>
+</button>
           <div id="dialPanel" class="dial-panel">
             <div class="dial-head"><input id="dialSearch" class="dial-search-input" placeholder="Rechercher..."/></div>
             <div id="dialList" class="dial-list"></div>
