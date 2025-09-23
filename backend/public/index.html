@@ -29,34 +29,20 @@
     .result,.error{margin:14px 2px 0;padding:10px 12px;border-radius:10px;font-size:13px;border:1px solid var(--stroke)}.error{background:#fee2e2;color:#991b1b;border:1px solid #f87171}
     .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity 
-    .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);
-    background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:
-    var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;
-    color:var(--text);cursor:pointer;font-weight:600}
+    .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
+    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
-    .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}
-    .dial-btn{height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer;line-height:1}
-    .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:200px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
-    .flag {
-  vertical-align: middle;
-  margin-top: 1px;
-  margin-bottom: 1px;
-}
-    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);
-      background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
+    .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+    .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
+    .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
     .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}.dialcode{color:#cfe1ff}.country{color:#9fb0c0;font-size:12px}
-    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;
-    max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
-    #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);
-    background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
+    #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
     #installBtn:active{transform:translateY(1px)}
-    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),
-    radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
+    #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
     #splash img{width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96}#splash.hide{opacity:0;pointer-events:none}
     .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}.modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
     @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
@@ -163,24 +149,7 @@
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
       <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
       <span id="langToggle" class="lang-toggle">FR / EN</span>
-    <!-- Nouveau sélecteur langue -->
-<div class="lang-menu" style="position:absolute;right:0;top:50%;transform:translateY(-50%);">
-  <button id="langBtn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" title="Language" 
-          style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--stroke);background:#0e141c;color:#9fb0c0;border-radius:999px;height:28px;padding:0 10px;cursor:pointer;">
-    🌐
-  </button>
-  <div id="langMenu" class="lang-dropdown" role="listbox" 
-       style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;">
-    <button data-lang="fr" role="option" 
-            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
-      Français
-    </button>
-    <button data-lang="en" role="option" 
-            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;">
-      English
-    </button>
-  </div>
-</div>
+    </div>
 
     <div class="card" role="region" aria-label="Formulaire d’envoi">
       <h2 id="title">Envoyer des cryptos</h2>
@@ -283,35 +252,6 @@
     network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",
     validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",
     needNumber:"Enter a number first."}};
-    // --- Globe + menu langues ---
-const langBtn  = document.getElementById('langBtn');
-const langMenu = document.getElementById('langMenu');
-
-function closeLangMenuOnOutside(e){
-  if (!langMenu.contains(e.target) && !langBtn.contains(e.target)){
-    langMenu.style.display = 'none';
-    langBtn.setAttribute('aria-expanded','false');
-    document.removeEventListener('click', closeLangMenuOnOutside);
-  }
-}
-
-langBtn.addEventListener('click', (e)=>{
-  e.stopPropagation();
-  const open = langMenu.style.display === 'block';
-  langMenu.style.display = open ? 'none' : 'block';
-  langBtn.setAttribute('aria-expanded', String(!open));
-  if (!open) document.addEventListener('click', closeLangMenuOnOutside);
-});
-
-langMenu.querySelectorAll('button[data-lang]').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    lang = b.dataset.lang;               // réutilise la variable existante
-    localStorage.setItem('lang', lang);   // persiste le choix
-    applyLang();                          // rafraîchit les textes
-    langMenu.style.display = 'none';
-    langBtn.setAttribute('aria-expanded','false');
-  });
-});
     function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet").textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document.getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang].hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch").placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document.getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')
     renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;
     if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
