@@ -186,8 +186,8 @@
       <div class="phone-row">
         <div class="dial">
           <button id="dialBtn" class="dial-btn">
-  <img class="flag" src="assets/flags/fr.svg" alt="FR" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;">
-  <span class="iso">FR</span><span id="dialCode">+33</span>
+  <img class="flag" src="assets/flags/fr.svg" alt="FR" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;">
+  <span id="dialCode">+33</span>
 </button>
           <div id="dialPanel" class="dial-panel">
             <div class="dial-head"><input id="dialSearch" class="dial-search-input" placeholder="Rechercher..."/></div>
@@ -472,8 +472,7 @@ dialPanel.style.display="none"};dialList.appendChild(row)})}
         const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";
         del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
         left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};
-        dialBtn.innerHTML = `<img class="flag" src="assets/flags/${c.iso.toLowerCase()}.svg" alt="${c.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;"/> 
-        <span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+        dialBtn.innerHTML = `<img class="flag" src="assets/flags/${c.iso.toLowerCase()}.svg" alt="${c.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;"/><span id="dialCode">${c.code}</span>`;
         contactsList.style.display="none"};
         del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
         row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
