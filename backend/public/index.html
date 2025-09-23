@@ -863,7 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opt = document.createElement('option');
     // Affichage demandé : "USDT — 0"
     opt.value = symbol;
-    opt.textContent = `${symbol} — ${balanceText}`;
+    opt.textContent = `${symbol} – ${parseFloat(balanceText).toFixed(5)}`;
     return opt;
   };
 
