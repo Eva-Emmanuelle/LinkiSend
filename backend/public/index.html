@@ -466,7 +466,9 @@ dialPanel.style.display="none"};dialList.appendChild(row)})}
         const left=document.createElement("div");left.textContent=`${c.name} (${c.phone})`;left.style.flex="1 1 auto";left.style.whiteSpace="nowrap";left.style.overflow="hidden";left.style.textOverflow="ellipsis";
         const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";
         del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
-        left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};dialBtn.innerHTML=`<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
+        left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};dialBtn.innerHTML = `<img class="flag" src="assets/flags/${d.iso.toLowerCase()}.svg" 
+        alt="${d.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;" /><span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+<span class="iso">${c.iso}</span><span id="dialCode">${c.code}</span>`;
         contactsList.style.display="none"};
         del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
         row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
