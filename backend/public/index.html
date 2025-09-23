@@ -631,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
     items.forEach(it=>{
       const o = document.createElement('option');
       o.value = it.symbol;
-      o.textContent = `${it.symbol} — ${it.amountStr}`;
+      o.textContent = `${it.symbol} — ${parseFloat(it.amountStr).toFixed(5)}`;
       currencySel.appendChild(o);
     });
     if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
