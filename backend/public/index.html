@@ -35,7 +35,8 @@
     .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
     .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
     .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0a1220;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-    .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:200px;background:#0e141c;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
+    .dial-btn:hover{background:#0d1729}
+    .dial-panel{position:absolute;left:0;top:44px;z-index:30;width:200px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
     .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}.dialcode{color:#cfe1ff}.country{color:#9fb0c0;font-size:12px}
@@ -148,9 +149,27 @@
     <div class="brand">
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
       <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
-      <span id="langToggle" class="lang-toggle">FR / EN</span>
-    </div>
+      <!-- Ancien toggle conservé mais caché -->
+<span id="langToggle" class="lang-toggle" style="display:none">FR / EN</span>
 
+<!-- Nouveau sélecteur langue -->
+<div class="lang-menu" style="position:absolute;right:0;top:50%;transform:translateY(-50%);">
+  <button id="langBtn" aria-haspopup="listbox" aria-expanded="false" title="Language"
+          style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--stroke);background:#0e141c;color:#9fb0c0;border-radius:999px;height:28px;padding:0 10px;cursor:pointer;">
+    🌐
+  </button>
+  <div id="langMenu" role="listbox"
+       style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;">
+    <button data-lang="fr" role="option"
+            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
+      Français
+    </button>
+    <button data-lang="en" role="option"
+            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;">
+      English
+    </button>
+  </div>
+</div>
     <div class="card" role="region" aria-label="Formulaire d’envoi">
       <h2 id="title">Envoyer des cryptos</h2>
       <p class="sub" id="subtitle">Génère un lien en 10&nbsp;secondes.</p>
@@ -512,6 +531,35 @@ dialPanel.style.display="none"};dialList.appendChild(row)})}
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='inline-flex'});
     document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
     window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
+    // --- Globe + menu langues ---
+const langBtn  = document.getElementById('langBtn');
+const langMenu = document.getElementById('langMenu');
+
+function closeLangMenuOnOutside(e){
+  if (!langMenu.contains(e.target) && !langBtn.contains(e.target)){
+    langMenu.style.display = 'none';
+    langBtn.setAttribute('aria-expanded','false');
+    document.removeEventListener('click', closeLangMenuOnOutside);
+  }
+}
+
+langBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = langMenu.style.display === 'block';
+  langMenu.style.display = open ? 'none' : 'block';
+  langBtn.setAttribute('aria-expanded', String(!open));
+  if (!open) document.addEventListener('click', closeLangMenuOnOutside);
+});
+
+langMenu.querySelectorAll('button[data-lang]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    lang = b.dataset.lang;               // réutilise la variable existante
+    localStorage.setItem('lang', lang);   // persiste le choix
+    applyLang();                          // rafraîchit les textes
+    langMenu.style.display = 'none';
+    langBtn.setAttribute('aria-expanded','false');
+  });
+});
     applyLang();
   });
   </script>
