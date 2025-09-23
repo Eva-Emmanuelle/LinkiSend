@@ -263,7 +263,7 @@
     const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
     let currentDial={iso:"FR",code:"+33"};
-    const langToggle=document.getElementById('langToggle');const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
+    const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
     const t={fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",
     hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",
     validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",
@@ -274,7 +274,6 @@
     function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet").textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document.getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang].hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch").placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document.getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')
     renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;
     if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
-    langToggle.addEventListener('click',()=>{lang=(lang==='fr')?'en':'fr';localStorage.setItem('lang',lang);applyLang()});
 
     const modal=document.getElementById('walletModal');const openModal=()=>{modal.classList.add('open')};const closeModal=()=>{modal.classList.remove('open')};
     document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose').addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
