@@ -80,7 +80,7 @@
   <script src="config.js"></script>
   <script src="countries.js"></script>
 
-  <!-- CHARGEUR ROBUSTE WalletConnect: local si OK, sinon fallback CDN -->
+  <!-- CHARGEUR ROBUSTE WalletConnect: local si OK, sinon  CDN -->
   <script>
     (function(){
       function inject(src){
@@ -286,24 +286,7 @@ if (eth && typeof eth.on === "function") {
     }
   });
 }
-          // 🕒 Fallback : vérifie régulièrement l’adresse MetaMask
-let lastMetaMaskAddr = walletInput.value;
-setInterval(async () => {
-  try {
-    if (eth && typeof eth.request === "function") {
-      const accs = await eth.request({ method: "eth_accounts" });
-      if (Array.isArray(accs) && accs[0]) {
-        const current = accs[0];
-        if (current !== lastMetaMaskAddr) {
-          walletInput.value = current;
-          lastMetaMaskAddr = current;
-        }
-      }
-    }
-  } catch(e) {
-    console.warn("Polling MetaMask error:", e);
-  }
-}, 2000);
+        
           // === LinkiSend · EVM balances (format MetaMask, auto-refresh) ===
 const walletEl   = document.getElementById('wallet');
 const tokenSel   = document.getElementById('token');
@@ -682,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 (function(){
   const walletInput = document.getElementById('wallet');
+  walletInput.value = '';
   const currencySel = document.getElementById('currency');
   const balInfoEl   = document.getElementById('tokenBalanceInfo');
   if (!walletInput || !currencySel || !balInfoEl) return;
