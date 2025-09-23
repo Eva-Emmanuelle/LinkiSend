@@ -438,7 +438,9 @@ closeModal();
       });
     });
 
-    function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML=`<span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;dialPanel.style.display="none"};dialList.appendChild(row)})}
+    function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";row.innerHTML=`<img class="flag" src="assets/flags/4x3/${d.iso.toLowerCase()}.svg" alt="${d.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover" /><span class="iso">${d.iso}</span><span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
+row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML=`<img class="flag" src="assets/flags/4x3/${d.iso.toLowerCase()}.svg" alt="${d.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover" /><span class="iso">${d.iso}</span><span id="dialCode">${d.code}</span>`;
+dialPanel.style.display="none"};dialList.appendChild(row)})}
     dialBtn.addEventListener('click',(e)=>{e.stopPropagation();dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");if(dialPanel.style.display==="block"){renderDialList("");dialSearch.value="";dialSearch.focus()}});
     dialSearch.oninput=()=>renderDialList(dialSearch.value);
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
