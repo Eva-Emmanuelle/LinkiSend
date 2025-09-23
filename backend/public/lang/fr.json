@@ -1,0 +1,23 @@
+{
+  "title": "Envoyer des cryptos",
+  "subtitle": "Génère un lien en 10 secondes.",
+  "wallet": "Ton wallet (expéditeur)",
+  "token": "Token",
+  "amount": "Montant",
+  "network": "Réseau",
+  "phone": "Numéro du destinataire",
+  "hint": "Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",
+  "generate": "Générer le lien",
+  "search": "Rechercher...",
+  "resultTitle": "Lien prêt ✅",
+  "validity": "⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",
+  "connectWallet": "Connecter un wallet",
+  "savePh": "Nom du contact",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "saved": "Contact enregistré ✅",
+  "needNumber": "Saisis un numéro avant.",
+  "delete": "Supprimer",
+  "errorRequired": "Merci de remplir tous les champs obligatoires.",
+  "errorNetwork": "Erreur réseau"
+}
