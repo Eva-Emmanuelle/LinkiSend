@@ -296,7 +296,9 @@
   method: "wallet_requestPermissions",
   params: [{ eth_accounts: {} }]
 });
-      closeModal();
+     const accs = await eth.request({ method: "eth_requestAccounts" });
+walletInput.value = (accs && accs[0]) ? accs[0] : "";
+closeModal();
     } catch (err) {
       console.error(err);
       alert("Connexion MetaMask refusée ou erreur.");
