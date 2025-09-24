@@ -262,9 +262,19 @@
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
     let currentDial={iso:"FR",code:"+33"};
     const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
-    needNumber:"Enter a number first."}};
     // --- Chargement des traductions depuis les fichiers JSON ---
 let translations = {};
+    Promise.all([
+  fetch('/lang/fr.json').then(r => r.json()),
+  fetch('/lang/en.json').then(r => r.json())
+]).then(([fr, en]) => {
+  translations = { fr, en };
+  applyLang();
+}).catch(err => {
+  console.error('i18n load failed:', err);
+  translations = {};             // évite les plantages
+  applyLang();                   // laisse le FR par défaut si t’as gardé un fallback
+});
 
 Promise.all([
   fetch('/lang/fr.json').then(res => res.json()),
