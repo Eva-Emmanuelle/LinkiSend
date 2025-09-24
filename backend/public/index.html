@@ -148,8 +148,24 @@
     <div class="brand">
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
       <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
-      <span id="langToggle" class="lang-toggle">FR / EN</span>
-    </div>
+      <!-- Sélecteur de langue (globe) -->
+<div class="lang-menu" style="position:absolute;right:0;top:50%;transform:translateY(-50%);">
+  <button id="langBtn" aria-haspopup="listbox" aria-expanded="false" title="Language"
+          style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--stroke);background:#0e141c;color:#9fb0c0;border-radius:999px;height:28px;padding:0 10px;cursor:pointer;">
+    🌐
+  </button>
+  <div id="langMenu" role="listbox"
+       style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;">
+    <button data-lang="fr" role="option"
+            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
+      Français
+    </button>
+    <button data-lang="en" role="option"
+            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;">
+      English
+    </button>
+  </div>
+</div>
 
     <div class="card" role="region" aria-label="Formulaire d’envoi">
       <h2 id="title">Envoyer des cryptos</h2>
