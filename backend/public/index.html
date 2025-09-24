@@ -262,18 +262,38 @@
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
     let currentDial={iso:"FR",code:"+33"};
     const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
-    const t={fr:{title:"Envoyer des cryptos",subtitle:"Génère un lien en 10 secondes.",wallet:"Ton wallet (expéditeur)",token:"Token",amount:"Montant",network:"Réseau",phone:"Numéro du destinataire",
-    hint:"Aucun transfert on-chain n’est effectué tant que le lien n’est pas réclamé.",generate:"Générer le lien",search:"Rechercher...",resultTitle:"Lien prêt ✅",
-    validity:"⏳ Validité : 24h • Aucun transfert on-chain n’a lieu tant que le lien n’est pas réclamé.",connectWallet:"Connecter un wallet",savePh:"Nom du contact",save:"Enregistrer",cancel:"Annuler",
-    saved:"Contact enregistré ✅",needNumber:"Saisis un numéro avant."},en:{title:"Send crypto",subtitle:"Generate a link in 10 seconds.",wallet:"Your wallet (sender)",token:"Token",amount:"Amount",
-    network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",
-    validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",
     needNumber:"Enter a number first."}};
-    function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet")
-    .textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document
-    .getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang]
-    .hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch")
-    .placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;
+    // --- Chargement des traductions depuis les fichiers JSON ---
+let translations = {};
+
+Promise.all([
+  fetch('/lang/fr.json').then(res => res.json()),
+  fetch('/lang/en.json').then(res => res.json())
+]).then(([fr, en]) => {
+  translations = { fr, en };
+  applyLang(); // applique directement la langue au chargement
+});
+    function applyLang() {
+  if (!translations || !translations[lang]) return;
+  const tr = translations[lang];
+  document.getElementById("title").textContent       = tr.title;
+  document.getElementById("subtitle").textContent    = tr.subtitle;
+  document.getElementById("lbl-wallet").textContent  = tr.wallet;
+  document.getElementById("lbl-token").textContent   = tr.token;
+  document.getElementById("lbl-amount").textContent  = tr.amount;
+  document.getElementById("lbl-network").textContent = tr.network;
+  document.getElementById("lbl-phone").textContent   = tr.phone;
+  document.getElementById("hint").textContent        = tr.hint;
+  document.getElementById("generateBtn").textContent = tr.generate;
+  document.getElementById("connectWalletLink").textContent = tr.connectWallet;
+  document.getElementById("dialSearch").placeholder  = tr.search;
+  document.getElementById("resultTitle").textContent = tr.resultTitle;
+  document.getElementById("validityText").textContent= tr.validity;
+
+  if (saveNameInput)  saveNameInput.placeholder = tr.savePh;
+  if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save}`;
+  if (saveCancelBtn)  saveCancelBtn.textContent  = `✖️ ${tr.cancel}`;
+}
    if(dialPanel.style.display==='block')
     renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;
     if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
