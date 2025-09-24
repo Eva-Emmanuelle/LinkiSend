@@ -304,10 +304,9 @@ Promise.all([
   if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save}`;
   if (saveCancelBtn)  saveCancelBtn.textContent  = `✖️ ${tr.cancel}`;
 }
-   if(dialPanel.style.display==='block')
-    renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;
-    if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
-    
+   if (dialPanel.style.display === 'block') {
+  renderDialList(dialSearch.value.toLowerCase());
+}    
     // --- Globe + menu langues ---
 const langBtn  = document.getElementById('langBtn');
 const langMenu = document.getElementById('langMenu');
