@@ -560,9 +560,9 @@ dialPanel.style.display="none"};dialList.appendChild(row)})}
     saveNameInput.style.padding='8px 10px';saveNameInput.style.border='1px solid var(--stroke)';saveNameInput.style.borderRadius='6px';saveNameInput.style.background='#0a1220';saveNameInput.style.color='#e6edf3';
     saveNameInput.style.marginRight='8px';
     const btnsWrap=document.createElement('div');btnsWrap.style.display='flex';btnsWrap.style.gap='8px';btnsWrap.style.marginTop='8px';
-  saveConfirmBtn=document.createElement('button');saveConfirmBtn.type='button';saveConfirmBtn.textContent = '✅';saveConfirmBtn.style.border='1px solid var(--stroke)';
+  saveConfirmBtn=document.createElement('button');saveConfirmBtn.textContent = '✅';saveConfirmBtn.style.border='1px solid var(--stroke)';
     saveConfirmBtn.style.background='#0a1220';saveConfirmBtn.style.color='#ffffff';saveConfirmBtn.style.borderRadius='8px';saveConfirmBtn.style.padding='6px 10px';saveConfirmBtn.style.cursor='pointer';
-    saveCancelBtn.type='button';saveCancelBtn.textContent = '✖️';saveCancelBtn.style.border='1px solid var(--stroke)';
+    saveCancelBtn.textContent = '✖️';saveCancelBtn.style.border='1px solid var(--stroke)';
     saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
     saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
     function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
