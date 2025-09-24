@@ -261,6 +261,7 @@
     const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
     let currentDial={iso:"FR",code:"+33"};
+    let saveNameInput, saveConfirmBtn, saveCancelBtn;
     const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
     // --- Chargement des traductions depuis les fichiers JSON ---
 let translations = {};
@@ -274,14 +275,6 @@ let translations = {};
   console.error('i18n load failed:', err);
   translations = {};             // évite les plantages
   applyLang();                   // laisse le FR par défaut si t’as gardé un fallback
-});
-
-Promise.all([
-  fetch('/lang/fr.json').then(res => res.json()),
-  fetch('/lang/en.json').then(res => res.json())
-]).then(([fr, en]) => {
-  translations = { fr, en };
-  applyLang(); // applique directement la langue au chargement
 });
     function applyLang() {
   if (!translations || !translations[lang]) return;
@@ -560,16 +553,23 @@ dialPanel.style.display="none"};dialList.appendChild(row)})}
         row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
     }renderContacts();
 
-    const actionsBar=document.querySelector('.contact-actions');const saveInline=document.createElement('div');saveInline.style.display='none';saveInline.style.marginTop='8px';saveInline.style.padding='10px';saveInline.style.border='1px solid var(--stroke)';saveInline.style.borderRadius='8px';saveInline.style.background='#0e1420';saveInline.style.boxShadow='var(--shadow)';saveInline.style.gap='8px';saveInline.style.alignItems='center';saveInline.style.justifyContent='space-between';
-    const saveNameInput=document.createElement('input');saveNameInput.type='text';saveNameInput.id='saveName';saveNameInput.placeholder=t[lang].savePh;saveNameInput.style.width='100%';saveNameInput.style.padding='8px 10px';saveNameInput.style.border='1px solid var(--stroke)';saveNameInput.style.borderRadius='6px';saveNameInput.style.background='#0a1220';saveNameInput.style.color='#e6edf3';saveNameInput.style.marginRight='8px';
+    const actionsBar=document.querySelector('.contact-actions');const saveInline=document.createElement('div');saveInline.style.display='none';saveInline.style.marginTop='8px';
+    saveInline.style.padding='10px';saveInline.style.border='1px solid var(--stroke)';saveInline.style.borderRadius='8px';saveInline.style.background='#0e1420';saveInline.style.boxShadow='var(--shadow)';
+    saveInline.style.gap='8px';saveInline.style.alignItems='center';saveInline.style.justifyContent='space-between';
+    saveNameInput = document.createElement('input');saveNameInput.type='text';saveNameInput.id='saveName';saveNameInput.placeholder=tr.savePh;saveNameInput.style.width='100%';
+    saveNameInput.style.padding='8px 10px';saveNameInput.style.border='1px solid var(--stroke)';saveNameInput.style.borderRadius='6px';saveNameInput.style.background='#0a1220';saveNameInput.style.color='#e6edf3';
+    saveNameInput.style.marginRight='8px';
     const btnsWrap=document.createElement('div');btnsWrap.style.display='flex';btnsWrap.style.gap='8px';btnsWrap.style.marginTop='8px';
-    const saveConfirmBtn=document.createElement('button');saveConfirmBtn.type='button';saveConfirmBtn.textContent=`✅ ${t[lang].save}`;saveConfirmBtn.style.border='1px solid var(--stroke)';saveConfirmBtn.style.background='#0a1220';saveConfirmBtn.style.color='#ffffff';saveConfirmBtn.style.borderRadius='8px';saveConfirmBtn.style.padding='6px 10px';saveConfirmBtn.style.cursor='pointer';
-    const saveCancelBtn=document.createElement('button');saveCancelBtn.type='button';saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;saveCancelBtn.style.border='1px solid var(--stroke)';saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
+  saveConfirmBtn=document.createElement('button');saveConfirmBtn.type='button';saveConfirmBtn.textContent=`✅ ${tr.save}`;saveConfirmBtn.style.border='1px solid var(--stroke)';
+    saveConfirmBtn.style.background='#0a1220';saveConfirmBtn.style.color='#ffffff';saveConfirmBtn.style.borderRadius='8px';saveConfirmBtn.style.padding='6px 10px';saveConfirmBtn.style.cursor='pointer';
+    saveConfirmBtn = document.createElement('button');saveCancelBtn.type='button';saveCancelBtn.textContent=`✖️ ${tr.cancel}`;saveCancelBtn.style.border='1px solid var(--stroke)';
+    saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
     saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
     function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
     document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
-    document.getElementById('saveContact').onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}toggleSaveInline(true)};
-    saveConfirmBtn.onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(t[lang].needNumber);return}const pseudo=saveNameInput.value.trim();if(!pseudo){saveNameInput.focus();return}const phone=currentDial.code+num;contacts.push({name:pseudo,phone,iso:currentDial.iso,code:currentDial.code});persistContacts();renderContacts();toggleSaveInline(false)};
+    document.getElementById('saveContact').onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(tr.needNumber);return}toggleSaveInline(true)};
+    saveConfirmBtn.onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(tr.needNumber);return}const pseudo=saveNameInput.value.trim();if(!pseudo){saveNameInput.focus();
+    return}const phone=currentDial.code+num;contacts.push({name:pseudo,phone,iso:currentDial.iso,code:currentDial.code});persistContacts();renderContacts();toggleSaveInline(false)};
     saveCancelBtn.onclick=()=>toggleSaveInline(false);
 
     document.getElementById('generateBtn').addEventListener('click',async()=>{
