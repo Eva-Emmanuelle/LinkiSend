@@ -149,13 +149,13 @@
       <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
       <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
       <!-- Sélecteur de langue (globe) -->
-<div class="lang-menu" style="position:absolute;right:0;top:50%;transform:translateY(-50%);">
+<div class="lang-menu" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:12;">
   <button id="langBtn" aria-haspopup="listbox" aria-expanded="false" title="Language"
           style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--stroke);background:#0e141c;color:#9fb0c0;border-radius:999px;height:28px;padding:0 10px;cursor:pointer;">
     🌐
   </button>
   <div id="langMenu" role="listbox"
-       style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;">
+     style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:20;">
     <button data-lang="fr" role="option"
             style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
       Français
@@ -268,13 +268,49 @@
     network:"Network",phone:"Recipient phone",hint:"No on-chain transfer happens until the link is claimed.",generate:"Generate link",search:"Search...",resultTitle:"Link ready ✅",
     validity:"⏳ Valid for 24h • No on-chain transfer until the link is claimed.",connectWallet:"Connect a wallet",savePh:"Contact name",save:"Save",cancel:"Cancel",saved:"Contact saved ✅",
     needNumber:"Enter a number first."}};
-    function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet").textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document.getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang].hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch").placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document.getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')
+    function applyLang(){document.getElementById("title").textContent=t[lang].title;document.getElementById("subtitle").textContent=t[lang].subtitle;document.getElementById("lbl-wallet")
+    .textContent=t[lang].wallet;document.getElementById("lbl-token").textContent=t[lang].token;document.getElementById("lbl-amount").textContent=t[lang].amount;document
+    .getElementById("lbl-network").textContent=t[lang].network;document.getElementById("lbl-phone").textContent=t[lang].phone;document.getElementById("hint").textContent=t[lang]
+    .hint;document.getElementById("generateBtn").textContent=t[lang].generate;document.getElementById("connectWalletLink").textContent=t[lang].connectWallet;document.getElementById("dialSearch")
+    .placeholder=t[lang].search;document.getElementById("resultTitle").textContent=t[lang].resultTitle;document.getElementById("validityText").textContent=t[lang].validity;document
+    .getElementById("langToggle").textContent=(lang==='fr')?'FR / EN':'EN / FR';if(dialPanel.style.display==='block')
     renderDialList(dialSearch.value.toLowerCase());if(saveNameInput)saveNameInput.placeholder=t[lang].savePh;if(saveConfirmBtn)saveConfirmBtn.textContent=`✅ ${t[lang].save}`;
     if(saveCancelBtn)saveCancelBtn.textContent=`✖️ ${t[lang].cancel}`;}
-    langToggle.addEventListener('click',()=>{lang=(lang==='fr')?'en':'fr';localStorage.setItem('lang',lang);applyLang()});
+    
+    // --- Globe + menu langues ---
+const langBtn  = document.getElementById('langBtn');
+const langMenu = document.getElementById('langMenu');
 
+function closeLangMenuOnOutside(e){
+  if (!langMenu.contains(e.target) && !langBtn.contains(e.target)){
+    langMenu.style.display = 'none';
+    langBtn.setAttribute('aria-expanded','false');
+    document.removeEventListener('click', closeLangMenuOnOutside);
+  }
+}
+
+if (langBtn && langMenu){
+  langBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const open = langMenu.style.display === 'block';
+    langMenu.style.display = open ? 'none' : 'block';
+    langBtn.setAttribute('aria-expanded', String(!open));
+    if (!open) document.addEventListener('click', closeLangMenuOnOutside);
+  });
+
+  langMenu.querySelectorAll('button[data-lang]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      lang = b.dataset.lang;               // variable lang déjà existante dans ton code
+      localStorage.setItem('lang', lang);
+      applyLang();
+      langMenu.style.display = 'none';
+      langBtn.setAttribute('aria-expanded','false');
+    });
+  });
+}
     const modal=document.getElementById('walletModal');const openModal=()=>{modal.classList.add('open')};const closeModal=()=>{modal.classList.remove('open')};
-    document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose').addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
+    document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose')
+    .addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
 
     const discovered=[];window.addEventListener('eip6963:announceProvider',(event)=>{try{discovered.push(event.detail)}catch{}});try{window.dispatchEvent(new Event('eip6963:requestProvider'))}catch{}
     function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
