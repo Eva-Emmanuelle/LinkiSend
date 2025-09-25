@@ -1,10 +1,10 @@
 # main.py — LinkiSend backend (API + frontend statique)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pathlib import Path
 import os, secrets, time, re
 
@@ -22,20 +22,20 @@ app.add_middleware(
 # Config
 # ----------------------------
 BASE_DIR = Path(__file__).resolve().parent
-PUBLIC_DIR = BASE_DIR / "public"  # contient index.html et claim.html
+PUBLIC_DIR = BASE_DIR / "public"  # contient index.html, claim.html, assets, manifest, etc.
 
 FRONTEND_BASE = os.getenv("FRONTEND_BASE", "")  # vide = servir localement
 LINK_TTL_SECONDS = int(os.getenv("LINK_TTL_SECONDS", "86400"))  # 24h
 
 RESERVED = {
     "", "docs", "openapi.json", "favicon.ico", "health",
-    "create-link", "claim", "claim-status", "s", "assets", "static"
+    "create-link", "claim", "claim-status", "s", "assets", "static",
+    "manifest.json", "service-worker.js", "config.js", "countries.js", "lang"
 }
 
 # ----------------------------
 # Stockage POC en mémoire
 # ----------------------------
-# LINKS[short_id] = { payload: {...}, created_at, expires_at, claimed, ... }
 LINKS: Dict[str, Dict[str, Any]] = {}
 
 # ----------------------------
@@ -50,7 +50,7 @@ class CreateLinkIn(BaseModel):
 
 class CreateLinkOut(BaseModel):
     short_id: str
-    expires_in: int  # secondes restantes
+    expires_in: int
 
 class ClaimIn(BaseModel):
     short_id: str
@@ -79,7 +79,6 @@ def is_expired(item: Dict[str, Any]) -> bool:
 PHONE_RE = re.compile(r"[^\d+]")
 
 def normalize_phone(p: str) -> str:
-    # garde + et chiffres, retire le reste (POC)
     p = PHONE_RE.sub("", p or "")
     return p
 
@@ -153,13 +152,14 @@ def claim_status(short_id: str):
     }
 
 # ----------------------------
-# Frontend statique (index.html / claim.html)
+# Frontend statique
 # ----------------------------
-# Si FRONTEND_BASE est vide → on sert les fichiers locaux depuis /backend/public
 if not FRONTEND_BASE:
-    # Dossier d'assets (si besoin)
-    app.mount("/assets", StaticFiles(directory=PUBLIC_DIR), name="assets")
+    # Montages statiques
+    app.mount("/assets", StaticFiles(directory=PUBLIC_DIR / "assets"), name="assets")
+    app.mount("/", StaticFiles(directory=PUBLIC_DIR), name="public")
 
+    # Routes explicites
     @app.get("/", include_in_schema=False)
     def serve_index():
         index_file = PUBLIC_DIR / "index.html"
@@ -174,10 +174,24 @@ if not FRONTEND_BASE:
             raise HTTPException(status_code=500, detail="claim.html manquant.")
         return FileResponse(claim_file)
 
+    @app.get("/manifest.json", include_in_schema=False)
+    def serve_manifest():
+        mf = PUBLIC_DIR / "manifest.json"
+        if not mf.exists():
+            raise HTTPException(status_code=500, detail="manifest.json manquant.")
+        return FileResponse(mf)
+
+    @app.get("/service-worker.js", include_in_schema=False)
+    def serve_sw():
+        sw = PUBLIC_DIR / "service-worker.js"
+        if not sw.exists():
+            raise HTTPException(status_code=500, detail="service-worker.js manquant.")
+        return FileResponse(sw)
+
 # ----------------------------
 # Redirections courtes
 # ----------------------------
-@app.get("/s/{short_id}")  # compat legacy
+@app.get("/s/{short_id}")
 def redirect_legacy(short_id: str):
     item = LINKS.get(short_id)
     if not item or is_expired(item):
@@ -185,12 +199,10 @@ def redirect_legacy(short_id: str):
     if FRONTEND_BASE:
         target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
         return RedirectResponse(url=target, status_code=307)
-    # sinon, on sert localement
     return RedirectResponse(url=f"/claim?sid={short_id}", status_code=307)
 
 @app.get("/{short_id}")
 def redirect_root(short_id: str):
-    # Empêche de capturer les routes réservées
     if short_id in RESERVED:
         raise HTTPException(status_code=404, detail="Not found.")
     item = LINKS.get(short_id)
