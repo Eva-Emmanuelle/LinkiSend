@@ -23,7 +23,7 @@ app.add_middleware(
 # ----------------------------
 BASE_DIR = Path(__file__).resolve().parent
 PUBLIC_DIR = BASE_DIR / "public"  # contient index.html, claim.html, assets, manifest, etc.
-PUBLIC_DIR = /home/centralbox/projects/linkisend/backend/public
+
 
 FRONTEND_BASE = os.getenv("FRONTEND_BASE", "")  # vide = servir localement
 LINK_TTL_SECONDS = int(os.getenv("LINK_TTL_SECONDS", "86400"))  # 24h
