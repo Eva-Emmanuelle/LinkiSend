@@ -41,6 +41,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   // Ne jamais intercepter ton API backend
+  if (url.pathname.endsWith('/manifest.json')) return;
   if (url.pathname.startsWith("/create-link")) return;
 
   // 1) Requêtes de navigation (tap sur liens / rechargement)
