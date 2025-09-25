@@ -113,4 +113,4 @@ const COUNTRIES = [
   { iso: "KE", code: "+254", en: "Kenya", fr: "Kenya" }
 ];
 
-export default COUNTRIES;
+window.COUNTRIES = COUNTRIES;
