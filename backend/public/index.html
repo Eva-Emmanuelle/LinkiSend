@@ -7,9 +7,9 @@
   <link rel="manifest" href="/manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/assets/icons/icon-maskable-512.png">
+<link rel="apple-touch-icon" href="/static/assets/icons/icon-maskable-512.png">
 <meta name="theme-color" content="#0b0f14">
-<link rel="icon" href="/assets/icons/icon-maskable-512.png" />
+<link rel="icon" href="/static/assets/icons/icon-maskable-512.png">
 
   <style>
     :root{--bg:#0b0f14;--bg-soft:#0f141b;--card:#121821;--card-2:#0f1620;--text:#e6edf3;--text-dim:#9fb0c0;--stroke:#1f2a37;--focus:#334155;--shadow:0 12px 40px rgba(0,0,0,.45);--radius:14px;--radius-sm:10px;--gap:12px}
@@ -127,7 +127,7 @@
       document.write(`
         <style>body > :not(#install-gate){display:none!important}</style>
         <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
-          <img src="assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
+          <img src="/static/assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
           <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
           <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
@@ -143,12 +143,12 @@
   })();
   </script>
 
-  <div id="splash"><img src="assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
+  <div id="splash"><img src="/static/assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
 
   <div class="wrap">
     <div class="brand">
-      <img src="assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
-      <img src="assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
+      <img src="/static/assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
+      <img src="/static/assets/branding/logo-word.svg" alt="LinkiSend" class="word" />
       <!-- Sélecteur de langue (globe) -->
 <div class="lang-menu" style="position:absolute;right:0;top:0;z-index:12;">
   <button id="langBtn" aria-haspopup="listbox" aria-expanded="false" title="Language"
