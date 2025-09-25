@@ -29,8 +29,7 @@ LINK_TTL_SECONDS = int(os.getenv("LINK_TTL_SECONDS", "86400"))  # 24h
 
 RESERVED = {
     "", "docs", "openapi.json", "favicon.ico", "health",
-    "create-link", "claim", "claim-status", "s", "assets", "static",
-    "manifest.json", "service-worker.js"
+    "create-link", "claim", "claim-status", "s", "assets", "static"
 }
 
 # ----------------------------
@@ -158,14 +157,8 @@ def claim_status(short_id: str):
 # ----------------------------
 # Si FRONTEND_BASE est vide → on sert les fichiers locaux depuis /backend/public
 if not FRONTEND_BASE:
-    # Sert tout le dossier public (css, js, images, logos…)
-    @app.get("/manifest.json", include_in_schema=False)
-def serve_manifest():
-    mf = PUBLIC_DIR / "manifest.json"
-    if not mf.exists():
-        raise HTTPException(status_code=500, detail="manifest.json manquant.")
-    return FileResponse(mf)
-    app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="public")
+    # Dossier d'assets (si besoin)
+    app.mount("/assets", StaticFiles(directory=PUBLIC_DIR), name="assets")
 
     @app.get("/", include_in_schema=False)
     def serve_index():
