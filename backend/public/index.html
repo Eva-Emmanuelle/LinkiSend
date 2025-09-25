@@ -266,8 +266,8 @@
     // --- Chargement des traductions depuis les fichiers JSON ---
 let translations = {};
     Promise.all([
-  fetch('/lang/fr.json').then(r => r.json()),
-  fetch('/lang/en.json').then(r => r.json())
+  fetch('/static/lang/fr.json').then(r => r.json())
+  fetch('/static/lang/en.json').then(r => r.json())
 ]).then(([fr, en]) => {
   translations = { fr, en };
   applyLang();
