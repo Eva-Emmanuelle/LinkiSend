@@ -157,7 +157,7 @@ def claim_status(short_id: str):
 if not FRONTEND_BASE:
     # Montages statiques
     app.mount("/assets", StaticFiles(directory=PUBLIC_DIR / "assets"), name="assets")
-    app.mount("/", StaticFiles(directory=PUBLIC_DIR), name="public")
+    app.mount("/static", StaticFiles(directory=PUBLIC_DIR), name="public")
 
     # Routes explicites
     @app.get("/", include_in_schema=False)
