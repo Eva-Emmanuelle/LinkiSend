@@ -1,0 +1,23 @@
+{
+  "title": "Enviar criptomonedas",
+  "subtitle": "Genera un enlace en 10 segundos.",
+  "wallet": "Tu wallet (remitente)",
+  "token": "Token",
+  "amount": "Cantidad",
+  "network": "Red",
+  "phone": "Teléfono del destinatario",
+  "hint": "No se realiza ninguna transferencia on-chain hasta que el enlace sea reclamado.",
+  "generate": "Generar enlace",
+  "search": "Buscar...",
+  "resultTitle": "Enlace listo ✅",
+  "validity": "⏳ Válido por 24h • No se realiza ninguna transferencia on-chain hasta que el enlace sea reclamado.",
+  "connectWallet": "Conectar un wallet",
+  "savePh": "Nombre del contacto",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "saved": "Contacto guardado ✅",
+  "needNumber": "Introduce un número primero.",
+  "delete": "Eliminar",
+  "errorRequired": "Por favor, completa todos los campos obligatorios.",
+  "errorNetwork": "Error de red"
+}
