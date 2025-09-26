@@ -19,6 +19,7 @@
   "needNumber": "أدخل رقمًا أولاً.",
   "delete": "حذف",
   "errorRequired": "يرجى ملء جميع الحقول المطلوبة.",
-  "errorNetwork": "خطأ في الشبكة"
+  "errorNetwork": "خطأ في الشبكة",
   "balance": "الرصيد"
 }
+
