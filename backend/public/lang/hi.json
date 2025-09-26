@@ -19,6 +19,7 @@
   "needNumber": "पहले एक नंबर दर्ज करें।",
   "delete": "हटाएं",
   "errorRequired": "कृपया सभी आवश्यक फ़ील्ड भरें।",
-  "errorNetwork": "नेटवर्क त्रुटि"
+  "errorNetwork": "नेटवर्क त्रुटि",
   "balance": "बैलेंस"
 }
+
