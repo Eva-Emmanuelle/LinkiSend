@@ -528,15 +528,49 @@ closeModal();
       });
     });
 
-    function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||
-    d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";
-    row.innerHTML=`<span class="fi fi-${d.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block"></span>
-    <span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
-row.onclick = () => {
-  currentDial = { iso: d.iso, code: d.code };
-  dialBtn.innerHTML = `<span class="fi fi-${d.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span><span id="dialCode">${d.code}</span>`;
-  dialPanel.style.display = "none";
-};
+    function renderDialList(f = "") {
+  dialList.innerHTML = "";
+  const filter = (f || "").toLowerCase();
+
+  COUNTRIES
+    .filter(d =>
+      !filter ||
+      d.en.toLowerCase().includes(filter) ||
+      d.fr.toLowerCase().includes(filter) ||
+      d.code.includes(filter) ||
+      d.iso.toLowerCase().includes(filter)
+    )
+    .forEach(d => {
+      const name = (lang === "fr") ? d.fr : d.en;
+      const row = document.createElement("div");
+      row.className = "dial-item";
+
+      row.innerHTML = `
+        <span class="fi fi-${d.iso.toLowerCase()}"
+              style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block"></span>
+        <span class="dialcode">${d.code}</span>
+        <span class="country">${name}</span>
+      `;
+
+      row.onclick = () => {
+        currentDial = { iso: d.iso, code: d.code };
+        dialBtn.innerHTML =
+          `<span class="fi fi-${d.iso.toLowerCase()}"
+                  style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
+           <span id="dialCode">${d.code}</span>`;
+        dialPanel.style.display = "none";
+      };
+
+      dialList.appendChild(row);
+    });
+}
+
+// Fermer le panneau quand on clique ailleurs (en dehors de la fonction)
+document.addEventListener("click", (e) => {
+  if (!dialPanel.contains(e.target) && !dialBtn.contains(e.target)) {
+    dialPanel.style.display = "none";
+  }
+});
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
 
     const contactsList=document.getElementById("contactsList");const showContacts=document.getElementById("showContacts");const saveContact=document.getElementById("saveContact");
