@@ -262,6 +262,16 @@
     const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
     const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
+    // Ouvrir/fermer le panneau des indicatifs quand on clique sur le bouton
+dialBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // éviter que le clic ferme le panneau directement
+  dialPanel.style.display = dialPanel.style.display === "block" ? "none" : "block";
+  if (dialPanel.style.display === "block") {
+    renderDialList(""); // afficher la liste complète des pays
+    dialSearch.value = ""; // reset de la recherche
+    dialSearch.focus(); // focus dans la barre de recherche
+  }
+});
     let currentDial={iso:"FR",code:"+33"};
     let saveNameInput, saveConfirmBtn, saveCancelBtn;
     const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
