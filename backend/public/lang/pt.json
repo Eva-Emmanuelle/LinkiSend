@@ -19,6 +19,7 @@
   "needNumber": "Digite um número primeiro.",
   "delete": "Excluir",
   "errorRequired": "Preencha todos os campos obrigatórios.",
-  "errorNetwork": "Erro de rede"
+  "errorNetwork": "Erro de rede",
   "balance": "Saldo"
 }
+
