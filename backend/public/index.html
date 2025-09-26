@@ -205,7 +205,7 @@
       <div class="phone-row">
         <div class="dial">
           <button id="dialBtn" class="dial-btn">
-  <img class="flag" src="assets/flags/fr.svg" alt="FR" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;">
+  <span class="fi fi-fr" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;display:inline-block"></span>
   <span id="dialCode">+33</span>
 </button>
           <div id="dialPanel" class="dial-panel">
@@ -530,9 +530,9 @@ closeModal();
 
     function renderDialList(f=""){dialList.innerHTML="";const filter=f.toLowerCase();COUNTRIES.filter(d=>!filter||d.en.toLowerCase().includes(filter)||d.fr.toLowerCase().includes(filter)||d.code.includes(filter)||
     d.iso.toLowerCase().includes(filter)).forEach(d=>{const name=(lang==="fr")?d.fr:d.en;const row=document.createElement("div");row.className="dial-item";
-    row.innerHTML=`<img class="flag" src="assets/flags/${d.iso.toLowerCase()}.svg" alt="${d.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover" />
+    row.innerHTML=`<span class="fi fi-${d.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block"></span>
     <span class="dialcode">${d.code}</span><span class="country">${name}</span>`;
-row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML = `<img class="flag" src="assets/flags/${d.iso.toLowerCase()}.svg" alt="${d.iso}" 
+row.onclick=()=>{currentDial={iso:d.iso,code:d.code};dialBtn.innerHTML = `<span class="fi fi-${c.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;display:inline-block"></span><span id="dialCode">${c.code}</span>`;
 style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:4px;" /><span id="dialCode">${d.code}</span>`;
 dialPanel.style.display="none"};dialList.appendChild(row)})}
     dialBtn.addEventListener('click',(e)=>{e.stopPropagation();dialPanel.style.display=(dialPanel.style.display==="block"?"none":"block");if(dialPanel.style.display==="block"){renderDialList("");dialSearch.value="";
