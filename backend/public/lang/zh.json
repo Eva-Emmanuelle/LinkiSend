@@ -1,0 +1,23 @@
+{
+  "title": "发送加密货币",
+  "subtitle": "10 秒生成一个链接。",
+  "wallet": "你的钱包 (发送方)",
+  "token": "代币",
+  "amount": "数量",
+  "network": "网络",
+  "phone": "收件人电话",
+  "hint": "在链接被领取之前，不会发生链上转账。",
+  "generate": "生成链接",
+  "search": "搜索...",
+  "resultTitle": "链接已准备好 ✅",
+  "validity": "⏳ 有效期 24 小时 • 在链接被领取之前，不会发生链上转账。",
+  "connectWallet": "连接钱包",
+  "savePh": "联系人姓名",
+  "save": "保存",
+  "cancel": "取消",
+  "saved": "联系人已保存 ✅",
+  "needNumber": "请先输入号码。",
+  "delete": "删除",
+  "errorRequired": "请填写所有必填字段。",
+  "errorNetwork": "网络错误"
+}

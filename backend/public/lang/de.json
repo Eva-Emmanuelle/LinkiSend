@@ -1,0 +1,23 @@
+{
+  "title": "Krypto senden",
+  "subtitle": "Generiere einen Link in 10 Sekunden.",
+  "wallet": "Dein Wallet (Absender)",
+  "token": "Token",
+  "amount": "Betrag",
+  "network": "Netzwerk",
+  "phone": "Empfängertelefon",
+  "hint": "Keine On-Chain-Übertragung, bis der Link eingelöst wird.",
+  "generate": "Link generieren",
+  "search": "Suchen...",
+  "resultTitle": "Link bereit ✅",
+  "validity": "⏳ Gültig für 24h • Keine On-Chain-Übertragung, bis der Link eingelöst wird.",
+  "connectWallet": "Wallet verbinden",
+  "savePh": "Kontaktname",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "saved": "Kontakt gespeichert ✅",
+  "needNumber": "Bitte zuerst eine Nummer eingeben.",
+  "delete": "Löschen",
+  "errorRequired": "Bitte alle Pflichtfelder ausfüllen.",
+  "errorNetwork": "Netzwerkfehler"
+}

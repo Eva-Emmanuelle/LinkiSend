@@ -1,0 +1,23 @@
+{
+  "title": "Invia criptovalute",
+  "subtitle": "Genera un link in 10 secondi.",
+  "wallet": "Il tuo wallet (mittente)",
+  "token": "Token",
+  "amount": "Importo",
+  "network": "Rete",
+  "phone": "Telefono del destinatario",
+  "hint": "Nessun trasferimento on-chain avviene finché il link non viene riscattato.",
+  "generate": "Genera link",
+  "search": "Cerca...",
+  "resultTitle": "Link pronto ✅",
+  "validity": "⏳ Valido per 24h • Nessun trasferimento on-chain finché il link non viene riscattato.",
+  "connectWallet": "Connetti un wallet",
+  "savePh": "Nome del contatto",
+  "save": "Salva",
+  "cancel": "Annulla",
+  "saved": "Contatto salvato ✅",
+  "needNumber": "Inserisci prima un numero.",
+  "delete": "Elimina",
+  "errorRequired": "Compila tutti i campi obbligatori.",
+  "errorNetwork": "Errore di rete"
+}
