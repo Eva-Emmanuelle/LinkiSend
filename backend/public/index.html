@@ -159,11 +159,7 @@
   </button>
   <div id="langMenu" role="listbox"
      style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:20;">
-    <button data-lang="fr" role="option"
-            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
-      Français
-    </button>
-    <button data-lang="en" role="option"
+   <button data-lang="en" role="option"
             style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;">
       English
     </button>
@@ -171,6 +167,11 @@
         style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-top:6px;">
   Español
 </button>
+    <button data-lang="fr" role="option"
+            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
+      Français
+    </button>
+       
   </div>
 </div>
 </div>
@@ -283,7 +284,8 @@ dialBtn.addEventListener("click", (e) => {
 let translations = {};
     Promise.all([
   fetch('/static/lang/fr.json').then(r => r.json()),
-fetch('/static/lang/en.json').then(r => r.json())
+fetch('/static/lang/en.json').then(r => r.json()),
+      fetch('/static/lang/es.json').then(r => r.json())
 ]).then(([fr, en]) => {
   translations = { fr, en };
   applyLang();
