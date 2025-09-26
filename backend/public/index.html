@@ -972,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* --- Orchestration --- */
   async function refresh(){
     const addr = (walletInput.value || '').trim();
-    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent='Solde: 0'; return; }
+    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent = `${translations?.[lang]?.balance || 'Solde'}: 0`; return; }
 
     // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
     if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
