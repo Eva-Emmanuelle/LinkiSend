@@ -19,6 +19,7 @@
   "needNumber": "请先输入号码。",
   "delete": "删除",
   "errorRequired": "请填写所有必填字段。",
-  "errorNetwork": "网络错误"
+  "errorNetwork": "网络错误",
   "balance": "余额"
 }
+
