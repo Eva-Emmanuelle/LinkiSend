@@ -20,4 +20,5 @@
   "delete": "Delete",
   "errorRequired": "Please fill in all required fields.",
   "errorNetwork": "Network error"
+  "balance": "Balance"
 }

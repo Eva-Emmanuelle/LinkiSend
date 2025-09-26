@@ -20,4 +20,5 @@
   "delete": "Supprimer",
   "errorRequired": "Merci de remplir tous les champs obligatoires.",
   "errorNetwork": "Erreur réseau"
+  "balance": "Solde"
 }
