@@ -158,21 +158,46 @@
     🌐
   </button>
   <div id="langMenu" role="listbox"
-     style="display:none;position:absolute;right:0;top:36px;min-width:160px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:20;">
-   <button data-lang="en" role="option"
-            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;">
-      English
-    </button>
-    <button data-lang="es" role="option"
-        style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-top:6px;">
-  Español
-</button>
-    <button data-lang="fr" role="option"
-            style="width:100%;text-align:left;padding:8px 10px;background:#0e141c;color:#e6edf3;border:1px solid var(--stroke);border-radius:8px;cursor:pointer;margin-bottom:6px;">
-      Français
-    </button>
-       
+     style="display:none;position:absolute;right:0;top:36px;min-width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);padding:8px;z-index:20;">
+
+  <!-- Grille responsive : 1 colonne mobile, 2 colonnes desktop -->
+  <style>
+    /* scope local au menu */
+    #langMenu .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    @media (min-width: 520px) {
+      #langMenu .lang-grid { grid-template-columns: 1fr 1fr; }
+    }
+    #langMenu .lang-btn {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      background: #0e141c;
+      color: #e6edf3;
+      border: 1px solid var(--stroke);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #langMenu .lang-btn:hover { background:#0d1729; }
+  </style>
+
+  <div class="lang-grid">
+    <!-- Ordre alphabétique (English): Arabic, Chinese, English, French, German, Hindi, Italian, Portuguese, Russian, Spanish -->
+    <button data-lang="ar" class="lang-btn" role="option">العربية</button>
+    <button data-lang="zh" class="lang-btn" role="option">中文</button>
+    <button data-lang="en" class="lang-btn" role="option">English</button>
+    <button data-lang="fr" class="lang-btn" role="option">Français</button>
+    <button data-lang="de" class="lang-btn" role="option">Deutsch</button>
+    <button data-lang="hi" class="lang-btn" role="option">हिन्दी</button>
+    <button data-lang="it" class="lang-btn" role="option">Italiano</button>
+    <button data-lang="pt" class="lang-btn" role="option">Português</button>
+    <button data-lang="ru" class="lang-btn" role="option">Русский</button>
+    <button data-lang="es" class="lang-btn" role="option">Español</button>
   </div>
+</div>
 </div>
 </div>
     <div class="card" role="region" aria-label="Formulaire d’envoi">
@@ -282,17 +307,32 @@ dialBtn.addEventListener("click", (e) => {
     const userPref=localStorage.getItem('lang');let lang=userPref||((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en');
     // --- Chargement des traductions depuis les fichiers JSON ---
 let translations = {};
-    Promise.all([
-  fetch('/static/lang/fr.json').then(r => r.json()),
-fetch('/static/lang/en.json').then(r => r.json()),
-      fetch('/static/lang/es.json').then(r => r.json())
-]).then(([fr, en]) => {
-  translations = { fr, en };
-  applyLang();
+    // --- Chargement i18n (multi-langues) ---
+const SUPPORTED_LANGS = ['fr','en','es','pt','de','it','ar','zh','hi','ru'];
+
+Promise.allSettled(
+  SUPPORTED_LANGS.map(code =>
+    fetch(`/static/lang/${code}.json`, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject(code))
+      .then(json => [code, json])
+  )
+).then(results => {
+  // Remplit l'objet translations uniquement avec les langues chargées avec succès
+  translations = results.reduce((acc, res) => {
+    if (res.status === 'fulfilled') {
+      const [code, json] = res.value;
+      acc[code] = json;
+    } else {
+      console.warn('[i18n] Fichier manquant ou invalide :', res.reason);
+    }
+    return acc;
+  }, {});
+
+  applyLang(); // applique selon la variable 'lang' déjà gérée (localStorage / navigateur)
 }).catch(err => {
   console.error('i18n load failed:', err);
-  translations = {};             // évite les plantages
-  applyLang();                   // laisse le FR par défaut si t’as gardé un fallback
+  translations = {};
+  applyLang();
 });
     function applyLang() {
   if (!translations || !translations[lang]) return;
