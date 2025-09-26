@@ -19,6 +19,7 @@
   "needNumber": "Enter a number first.",
   "delete": "Delete",
   "errorRequired": "Please fill in all required fields.",
-  "errorNetwork": "Network error"
+  "errorNetwork": "Network error",
   "balance": "Balance"
+
 }
