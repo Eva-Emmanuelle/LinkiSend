@@ -19,6 +19,7 @@
   "needNumber": "Bitte zuerst eine Nummer eingeben.",
   "delete": "Löschen",
   "errorRequired": "Bitte alle Pflichtfelder ausfüllen.",
-  "errorNetwork": "Netzwerkfehler"
+  "errorNetwork": "Netzwerkfehler",
   "balance": "Guthaben"
 }
+
