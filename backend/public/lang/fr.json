@@ -19,6 +19,7 @@
   "needNumber": "Saisis un numéro avant.",
   "delete": "Supprimer",
   "errorRequired": "Merci de remplir tous les champs obligatoires.",
-  "errorNetwork": "Erreur réseau"
+  "errorNetwork": "Erreur réseau",
   "balance": "Solde"
+
 }
