@@ -212,9 +212,7 @@
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
 <select id="currency"></select>
-<span id="tokenBalanceInfo" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:4px;">
-  Solde: 0
-</span>
+<span id="tokenBalanceInfo" style="..."></span>
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
@@ -350,6 +348,7 @@ Promise.allSettled(
   document.getElementById("dialSearch").placeholder  = tr.search;
   document.getElementById("resultTitle").textContent = tr.resultTitle;
   document.getElementById("validityText").textContent= tr.validity;
+  document.getElementById("tokenBalanceInfo").textContent = `${tr.balance}: 0`;
 
   if (saveNameInput)  saveNameInput.placeholder = tr.savePh;
   if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save}`;
