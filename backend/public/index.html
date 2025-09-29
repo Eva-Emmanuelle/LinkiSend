@@ -602,10 +602,13 @@ closeModal();
       d.code.replace("+","").includes(normFilter) ||
       d.iso.toLowerCase().includes(filter)
     )
-    .sort(...)   // ← c’est là qu’on insère le tri
-  .forEach(d => {
-    ...
-  });
+    .sort((a, b) => {
+  // si l'indicatif commence exactement par la recherche → priorité
+  if (a.code.startsWith(filter) && !b.code.startsWith(filter)) return -1;
+  if (!a.code.startsWith(filter) && b.code.startsWith(filter)) return 1;
+  // sinon tri alphabétique des codes (ou des noms)
+  return a.code.localeCompare(b.code);
+})
     .forEach(d => {
       const name = (lang === "fr") ? d.fr : d.en;
       const row = document.createElement("div");
