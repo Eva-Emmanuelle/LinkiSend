@@ -402,15 +402,7 @@ if (langBtn && langMenu){
   });
 }
     const modal=document.getElementById('walletModal');const openModal=()=>{modal.classList.add('open')};const closeModal=()=>{modal.classList.remove('open')};
-    document.getElementById('connectWalletLink')
-  .addEventListener('click', (e) => {
-    e.preventDefault();
-    // reset du message d’erreur si affiché
-    const errorDiv = document.getElementById("errorDiv");
-    if (errorDiv) errorDiv.style.display = "none";
-    openModal();
-  });
-    document.getElementById('walletModalClose')
+    document.getElementById('connectWalletLink').addEventListener('click',(e)=>{e.preventDefault();openModal()});document.getElementById('walletModalClose')
     .addEventListener('click',closeModal);modal.addEventListener('click',(e)=>{if(e.target===modal)closeModal()});
 
     const discovered=[];window.addEventListener('eip6963:announceProvider',(event)=>{try{discovered.push(event.detail)}catch{}});try{window.dispatchEvent(new Event('eip6963:requestProvider'))}catch{}
@@ -451,7 +443,6 @@ if (langBtn && langMenu){
       // Écoute les changements de compte APRES connexion
       const onAccChanged = (accounts) => {
         walletInput.value = (accounts && accounts[0]) ? accounts[0] : "";
-        refresh();
       };
       window.__ls_onMMAccChanged = onAccChanged;
       if (typeof eth.on === "function") {
@@ -459,9 +450,12 @@ if (langBtn && langMenu){
       }
 
       // ❗️IMPORTANT : on ne fait QUE eth_requestAccounts (ouvre la popup + demande déverrouillage)
+      const accounts = await eth.request({
+  method: "wallet_requestPermissions",
+  params: [{ eth_accounts: {} }]
+});
      const accs = await eth.request({ method: "eth_requestAccounts" });
 walletInput.value = (accs && accs[0]) ? accs[0] : "";
-      refresh();
 closeModal();
     } catch (err) {
       console.error(err);
@@ -1049,7 +1043,6 @@ document.addEventListener('DOMContentLoaded', () => {
     eth.on('accountsChanged', refresh);
     eth.on('chainChanged',  refresh);
   }
-  window.refresh = refresh;
 })();
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
@@ -1087,17 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('[LinkiSend] Impossible de trouver les selects réseau/token automatiquement.');
     return;
   }
-// Quand on change de token, on réinitialise l'erreur et on met à jour le solde
-tokenSelect.addEventListener('change', (e) => {
-  // reset du message d’erreur si affiché
-  const errorDiv = document.getElementById("errorDiv");
-  if (errorDiv) errorDiv.style.display = "none";
 
-  // appel de ta logique de mise à jour des soldes
-  if (typeof updateSelectedToken === "function") {
-    updateSelectedToken(e.target.value);
-  }
-});
   // 3) Utilitaires
   const normaliseNetwork = (label) => {
     const t = (label || '').toLowerCase();
