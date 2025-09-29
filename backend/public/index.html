@@ -651,7 +651,7 @@ document.addEventListener("click", (e) => {
         const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";
         del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
         left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};
-        dialBtn.innerHTML = `<img class="flag" src="assets/flags/${c.iso.toLowerCase()}.svg" alt="${c.iso}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;"/><span id="dialCode">${c.code}</span>`;
+        dialBtn.innerHTML = `<span class="fi fi-${c.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;display:inline-block"></span><span id="dialCode">${c.code}</span>`;
         contactsList.style.display="none"};
         del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
         row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
