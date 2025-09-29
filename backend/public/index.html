@@ -700,12 +700,20 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       
       // Vérifie que le wallet contient bien des fonds
 const selOpt = currencySel.options[currencySel.selectedIndex];
-const balanceText = selOpt ? (selOpt.textContent.split('—')[1] || "0").trim() : "0";
-const balanceNum = parseFloat(balanceText.replace(",","."));
+let balanceNum = 0;
+
+if (selOpt) {
+  // Exemple d'option : "USDC — 117.91809"
+  const parts = selOpt.textContent.split("—");
+  if (parts.length > 1) {
+    balanceNum = parseFloat(parts[1].trim().replace(",", "."));
+  }
+}
+
 if (isNaN(balanceNum) || balanceNum <= 0) {
-  errorDiv.textContent = translations?.[lang]?.noBalance || 
-    (lang === 'fr' ? "Solde insuffisant pour générer un lien." : "Insufficient balance to generate a link.");
-  errorDiv.style.display = 'block';
+  errorDiv.textContent = translations?.[lang]?.noBalance ||
+    (lang === "fr" ? "Solde insuffisant pour générer un lien." : "Insufficient balance to generate a link.");
+  errorDiv.style.display = "block";
   return;
 }
       try{
