@@ -689,6 +689,7 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       resultDiv.style.display='none';errorDiv.style.display='none';
       if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
       errorDiv.style.display='block';return}
+      
       // Vérifie que le wallet contient bien des fonds
 const selOpt = currencySel.options[currencySel.selectedIndex];
 const balanceText = selOpt ? (selOpt.textContent.split('—')[1] || "0").trim() : "0";
