@@ -151,7 +151,59 @@ def claim_status(short_id: str):
         "expires_at": item["expires_at"],
         "claim": item["claim"],
     }
+# -----------------------
+# API CoinGecko relay
+# -----------------------
+import time, httpx
 
+PRICE_CACHE = {}  # { "symbol": { "ts": timestamp, "usd": float } }
+CACHE_TTL = 30    # secondes
+
+@app.get("/price")
+def get_price(symbol: str):
+    """
+    Retourne le prix USD d'un token via CoinGecko, avec cache 30s.
+    Exemple : /price?symbol=ETH
+    """
+    sym = symbol.upper()
+
+    # 1. Vérifier le cache
+    now = time.time()
+    if sym in PRICE_CACHE and now - PRICE_CACHE[sym]["ts"] < CACHE_TTL:
+        return {"symbol": sym, "usd": PRICE_CACHE[sym]["usd"], "cached": True}
+
+    # 2. Mapper symbol -> id CoinGecko
+    COINGECKO_IDS = {
+        "ETH": "ethereum",
+        "BNB": "binancecoin",
+        "MATIC": "matic-network",
+        "AVAX": "avalanche-2",
+        "SOL": "solana",
+        "USDT": "tether",
+        "USDC": "usd-coin",
+        "DAI": "dai",
+        "WBTC": "wrapped-bitcoin",
+        "LINK": "chainlink",
+        "BONK": "bonk",
+        "RAY": "raydium",
+    }
+    if sym not in COINGECKO_IDS:
+        raise HTTPException(status_code=400, detail="Token non supporté")
+
+    # 3. Appeler CoinGecko côté serveur
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={COINGECKO_IDS[sym]}&vs_currencies=usd"
+    try:
+        r = httpx.get(url, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        price = data[COINGECKO_IDS[sym]]["usd"]
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Erreur CoinGecko: {str(e)}")
+
+    # 4. Mettre à jour le cache
+    PRICE_CACHE[sym] = {"ts": now, "usd": price}
+
+    return {"symbol": sym, "usd": price, "cached": False}
 # ----------------------------
 # Frontend statique
 # ----------------------------
