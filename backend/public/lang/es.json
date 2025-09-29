@@ -21,5 +21,7 @@
   "errorRequired": "Por favor, completa todos los campos obligatorios.",
   "errorNetwork": "Error de red",
   "balance": "Saldo"
+  "noBalance": "Saldo insuficiente para generar un enlace."
 }
+
 
