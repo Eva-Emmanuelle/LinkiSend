@@ -1049,6 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
     eth.on('accountsChanged', refresh);
     eth.on('chainChanged',  refresh);
   }
+  window.refresh = refresh;
 })();
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
