@@ -288,8 +288,15 @@
   <script>
     const BACKEND = `${location.protocol}//${location.hostname}`;
   document.addEventListener('DOMContentLoaded', ()=> {
-    const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
-    const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
+    const resultDiv=document.getElementById('result');
+    const errorDiv=document.getElementById('error');
+    const walletInput=document.getElementById('wallet');
+    const currencySel = document.getElementById('currency');
+    const linkEl=document.getElementById('the-link');
+    const dialBtn=document.getElementById('dialBtn');
+    const dialPanel=document.getElementById('dialPanel');
+    const dialSearch=document.getElementById('dialSearch');
+    const dialList=document.getElementById('dialList');
     dialSearch.addEventListener("input", () => {
   renderDialList(dialSearch.value.toLowerCase());
   dialList.scrollTop = 0; // pour que la liste remonte en haut
@@ -791,7 +798,6 @@ document.addEventListener('DOMContentLoaded', () => {
 (function(){
   const walletInput = document.getElementById('wallet');
   walletInput.value = '';
-  const currencySel = document.getElementById('currency');
   const balInfoEl   = document.getElementById('tokenBalanceInfo');
   if (!walletInput || !currencySel || !balInfoEl) return;
 
