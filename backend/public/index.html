@@ -286,12 +286,12 @@
   </div>
 
   <script>
+    let currencySel;
     const BACKEND = `${location.protocol}//${location.hostname}`;
   document.addEventListener('DOMContentLoaded', ()=> {
     const resultDiv=document.getElementById('result');
     const errorDiv=document.getElementById('error');
     const walletInput=document.getElementById('wallet');
-    const currencySel = document.getElementById('currency');
     const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');
     const dialPanel=document.getElementById('dialPanel');
