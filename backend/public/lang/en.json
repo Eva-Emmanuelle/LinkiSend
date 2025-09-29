@@ -20,8 +20,9 @@
   "delete": "Delete",
   "errorRequired": "Please fill in all required fields.",
   "errorNetwork": "Network error",
-  "balance": "Balance"
+  "balance": "Balance",
   "noBalance": "Insufficient balance to generate a link."
 
 }
+
 
