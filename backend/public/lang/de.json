@@ -20,8 +20,9 @@
   "delete": "Löschen",
   "errorRequired": "Bitte alle Pflichtfelder ausfüllen.",
   "errorNetwork": "Netzwerkfehler",
-  "balance": "Guthaben"
+  "balance": "Guthaben",
   "noBalance": "Unzureichendes Guthaben, um einen Link zu erstellen."
 }
+
 
 
