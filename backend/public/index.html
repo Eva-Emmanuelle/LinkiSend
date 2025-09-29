@@ -461,7 +461,7 @@ if (langBtn && langMenu){
       // ❗️IMPORTANT : on ne fait QUE eth_requestAccounts (ouvre la popup + demande déverrouillage)
      const accs = await eth.request({ method: "eth_requestAccounts" });
 walletInput.value = (accs && accs[0]) ? accs[0] : "";
-      refresh();
+      window.refresh();
 closeModal();
     } catch (err) {
       console.error(err);
