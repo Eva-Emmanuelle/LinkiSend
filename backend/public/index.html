@@ -290,6 +290,11 @@
     const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
     const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
+    dialSearch.addEventListener("input", () => {
+  renderDialList(dialSearch.value.toLowerCase());
+  dialList.scrollTop = 0; // pour que la liste remonte en haut
+});
+
     // Ouvrir/fermer le panneau des indicatifs quand on clique sur le bouton
 dialBtn.addEventListener("click", (e) => {
   e.stopPropagation(); // éviter que le clic ferme le panneau directement
