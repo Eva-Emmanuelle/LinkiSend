@@ -451,7 +451,7 @@ if (langBtn && langMenu){
       // Écoute les changements de compte APRES connexion
       const onAccChanged = (accounts) => {
         walletInput.value = (accounts && accounts[0]) ? accounts[0] : "";
-        refresh();
+        window.refresh();
       };
       window.__ls_onMMAccChanged = onAccChanged;
       if (typeof eth.on === "function") {
