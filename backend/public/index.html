@@ -687,7 +687,18 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       const recipient_phone=`${currentDial.code}${localPhone}`;
       const network=document.getElementById('network').value;
       resultDiv.style.display='none';errorDiv.style.display='none';
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";errorDiv.style.display='block';return}
+      if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
+      errorDiv.style.display='block';return}
+      // Vérifie que le wallet contient bien des fonds
+const selOpt = currencySel.options[currencySel.selectedIndex];
+const balanceText = selOpt ? (selOpt.textContent.split('—')[1] || "0").trim() : "0";
+const balanceNum = parseFloat(balanceText.replace(",","."));
+if (isNaN(balanceNum) || balanceNum <= 0) {
+  errorDiv.textContent = translations?.[lang]?.noBalance || 
+    (lang === 'fr' ? "Solde insuffisant pour générer un lien." : "Insufficient balance to generate a link.");
+  errorDiv.style.display = 'block';
+  return;
+}
       try{
         const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});
         const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur lors de la génération du lien");
