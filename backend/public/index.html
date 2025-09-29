@@ -586,13 +586,15 @@ closeModal();
     function renderDialList(f = "") {
   dialList.innerHTML = "";
   const filter = (f || "").toLowerCase();
+  const normFilter = filter.replace(/^\+/, "");
+
 
   COUNTRIES
     .filter(d =>
       !filter ||
       d.en.toLowerCase().includes(filter) ||
       d.fr.toLowerCase().includes(filter) ||
-      d.code.includes(filter) ||
+      d.code.replace("+","").includes(normFilter) ||
       d.iso.toLowerCase().includes(filter)
     )
     .forEach(d => {
