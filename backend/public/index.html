@@ -286,8 +286,8 @@
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=> {
     const BACKEND=(window.LINKISEND_CONFIG&&window.LINKISEND_CONFIG.BACKEND_BASE)?window.LINKISEND_CONFIG.BACKEND_BASE:`${location.protocol}//${location.hostname}:8000`;
+  document.addEventListener('DOMContentLoaded', ()=> {
     const resultDiv=document.getElementById('result');const errorDiv=document.getElementById('error');const walletInput=document.getElementById('wallet');const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');const dialPanel=document.getElementById('dialPanel');const dialSearch=document.getElementById('dialSearch');const dialList=document.getElementById('dialList');
     dialSearch.addEventListener("input", () => {
