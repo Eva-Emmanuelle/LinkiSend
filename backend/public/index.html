@@ -809,6 +809,62 @@ document.addEventListener('DOMContentLoaded', () => {
   walletInput.value = '';
   const balInfoEl   = document.getElementById('tokenBalanceInfo');
   if (!walletInput || !currencySel || !balInfoEl) return;
+// === Rafraîchissement des soldes ===
+async function refreshBalances() {
+  const accounts = await ethereum.request({ method: 'eth_accounts' });
+  if (!accounts || accounts.length === 0) return;
+
+  const wallet = accounts[0];
+
+  // Récupérer le chainId courant
+  const chainId = await ethereum.request({ method: 'eth_chainId' });
+  const chainData = EVM[chainId];
+  if (!chainData) {
+    console.warn("[LinkiSend] Réseau non supporté:", chainId);
+    return;
+  }
+
+  for (const opt of currencySel.options) {
+    const symbol = opt.value;
+    try {
+      let balance = 0;
+
+      if (symbol === chainData.native.symbol) {
+        // Balance du token natif (ETH, BNB, MATIC…)
+        const raw = await ethereum.request({
+          method: 'eth_getBalance',
+          params: [wallet, 'latest']
+        });
+        balance = parseInt(raw, 16) / (10 ** chainData.native.dec);
+      } else {
+        // Balance d’un token ERC20
+        const tokenInfo = chainData.tokens[symbol];
+        if (!tokenInfo) {
+          opt.textContent = `${symbol} – 0.00000`;
+          continue;
+        }
+
+        const abi = ["function balanceOf(address) view returns (uint256)"];
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const contract = new ethers.Contract(tokenInfo.addr, abi, provider);
+        const raw = await contract.balanceOf(wallet);
+        balance = Number(raw) / (10 ** tokenInfo.dec);
+      }
+
+      // Mise à jour de l’affichage
+      opt.textContent = `${symbol} – ${balance.toFixed(5)}`;
+
+    } catch (err) {
+      console.warn("Balance error", symbol, err);
+      opt.textContent = `${symbol} – 0.00000`;
+    }
+  }
+}
+
+// Premier scan au chargement
+refreshBalances();
+ethereum.on('accountsChanged', refreshBalances);
+ethereum.on('chainChanged', refreshBalances);
 
   /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
   const CG_ID = {
