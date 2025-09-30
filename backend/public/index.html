@@ -760,7 +760,7 @@ async function updateUsdValue(){
 
   const amount = parseFloat(amountEl.value);
 const raw = tokenEl.value;
-const sym = raw.split("—")[0].trim();
+const sym = raw.split("—")[0].trim().toUpperCase();
 const id = COINGECKO_IDS[sym];
 
   if (!amount || !id){
