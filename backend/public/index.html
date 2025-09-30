@@ -1086,7 +1086,7 @@ ethereum.on('chainChanged', refreshBalances);
     const opt = currencySel.options[currencySel.selectedIndex];
     if (opt){
       const sym = opt.value;
-      const amountStr = (||'').split('—').pop().trim();
+      const amountStr = (opt.textContent || '').split('–').pop().trim();
       setBalanceLine(sym, amountStr);
     }
   }
