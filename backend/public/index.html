@@ -704,7 +704,7 @@ let balanceNum = 0;
 
 if (selOpt) {
   // Exemple d'option : "USDC — 117.91809"
-  const parts = selOpt.textContent.split("—");
+  const parts = sel.split("—");
   if (parts.length > 1) {
     balanceNum = parseFloat(parts[1].trim().replace(",", "."));
   }
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opt = currencySel.options[currencySel.selectedIndex];
     if (!opt) return;
     const sym = opt.value;
-    const amountStr = (opt.textContent||'').split('—').pop().trim();
+    const amountStr = (||'').split('—').pop().trim();
     setBalanceLine(sym, amountStr);
   });
 
@@ -1030,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opt = currencySel.options[currencySel.selectedIndex];
     if (opt){
       const sym = opt.value;
-      const amountStr = (opt.textContent||'').split('—').pop().trim();
+      const amountStr = (||'').split('—').pop().trim();
       setBalanceLine(sym, amountStr);
     }
   }
@@ -1098,13 +1098,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'ethereum'; // fallback
   };
 
-  const createOption = (symbol, balanceText = '0') => {
-    const opt = document.createElement('option');
-    // Affichage demandé : "USDT — ..."
-    opt.value = symbol;
-    opt.textContent = `${symbol} – ${parseFloat(balanceText).toFixed(5)}`;
-    return opt;
-  };
+  const createOption = (symbol) => {
+  const opt = document.createElement('option');
+  opt.value = symbol;
+  opt.textContent = `${symbol} – 0.00000`; // valeur par défaut, sera remplacée par le scanner
+  return opt;
+};
 
   // 4) Peupler la liste de tokens selon le réseau
   const populateTokens = () => {
