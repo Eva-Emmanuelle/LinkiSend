@@ -837,14 +837,14 @@ async function refreshBalances() {
           method: 'eth_getBalance',
           params: [wallet, 'latest']
         });
-        balance = parseInt(raw, 16) / (10 ** chainData.native.dec);
-      } else {
-        // Balance d’un token ERC20
-        const tokenInfo = chainData.tokens[symbol];
-        if (!tokenInfo) {
-          opt.textContent = `${symbol} – 0.00000`;
-          continue;
-        }
+        balance = parseInt(raw, 16) / (10 ** chainData.native.dec);} 
+      else {
+  // Balance d’un token ERC20
+  const tokenInfo = chainData.tokens[symbol];
+  if (!tokenInfo) {
+    opt.textContent = `${symbol} – 0.00000`;
+    continue;
+  }
 
         const abi = ["function balanceOf(address) view returns (uint256)"];
         const provider = new ethers.providers.Web3Provider(window.ethereum);
