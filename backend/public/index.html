@@ -814,10 +814,26 @@ document.addEventListener('DOMContentLoaded', () => {
 // === Rafraîchissement des soldes ===
 async function refreshBalances() {
   const accounts = await ethereum.request({ method: 'eth_accounts' });
-  if (!accounts || accounts.length === 0) return;
-
+  
+  // APRÈS — remet tout à zéro si aucun compte n’est connecté
+if (!accounts || accounts.length === 0) {
+  for (const opt of currencySel.options) {
+    const sym = opt.value;
+    opt.textContent = `${sym} – 0.00000`;
+  }
+  balInfoEl.textContent = "";
+  return;
+}
   const wallet = accounts[0];
-
+// sécurité supplémentaire
+if (!wallet) {
+  for (const opt of currencySel.options) {
+    const sym = opt.value;
+    opt.textContent = `${sym} – 0.00000`;
+  }
+  balInfoEl.textContent = "";
+  return;
+}
   // Récupérer le chainId courant
   const chainId = await ethereum.request({ method: 'eth_chainId' });
   const chainData = EVM[chainId];
