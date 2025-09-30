@@ -808,7 +808,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const walletInput = document.getElementById('wallet');
   walletInput.value = '';
   const balInfoEl   = document.getElementById('tokenBalanceInfo');
+  const currencySel = document.getElementById('currency');
   if (!walletInput || !currencySel || !balInfoEl) return;
+  
 // === Rafraîchissement des soldes ===
 async function refreshBalances() {
   const accounts = await ethereum.request({ method: 'eth_accounts' });
