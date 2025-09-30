@@ -759,8 +759,9 @@ async function updateUsdValue(){
   if (!amountEl || !tokenEl || !usdEl) return;
 
   const amount = parseFloat(amountEl.value);
-  const sym = tokenEl.value;
-  const id = COINGECKO_IDS[sym];
+const raw = tokenEl.value;
+const sym = raw.split("—")[0].trim();
+const id = COINGECKO_IDS[sym];
 
   if (!amount || !id){
     usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
