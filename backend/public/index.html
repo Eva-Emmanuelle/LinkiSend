@@ -867,16 +867,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return '0x70a08231' + owner.replace(/^0x/,'').padStart(64,'0');
   }
   function setSelect(items){
-    const prev = currencySel.value;
-    currencySel.innerHTML = '';
-    items.forEach(it=>{
-      const o = document.createElement('option');
-      o.value = it.symbol;
-      o.textContent = `${it.symbol} — ${parseFloat(it.amountStr).toFixed(5)}`;
-      currencySel.appendChild(o);
-    });
-    if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
-  }
+  const prev = currencySel.value;
+  currencySel.innerHTML = '';
+  items.forEach(it=>{
+    const o = document.createElement('option');
+    o.value = it.symbol;
+    // ✅ on sécurise ici : si amountStr n’est pas un nombre → 0
+    const num = parseFloat(it.amountStr);
+    const safe = isNaN(num) ? 0 : num;
+    o.textContent = `${it.symbol} — ${safe.toFixed(5)}`;
+    currencySel.appendChild(o);
+  });
+  if (items.some(i=>i.symbol===prev)) currencySel.value = prev;
+}
 
   /* --- Registres supports (mainnets) --- */
   const EVM = {
