@@ -752,33 +752,46 @@ const COINGECKO_IDS = {
 };
 
 async function updateUsdValue(){
-  const amountEl = document.getElementById("amount");
-  const tokenEl  = document.getElementById("currency");
-  const usdEl    = document.getElementById("usdValue");
+    const amountEl = document.getElementById("amount");
+    const tokenEl = document.getElementById("currency");
+    const usdEl = document.getElementById("usdValue");
 
-  if (!amountEl || !tokenEl || !usdEl) return;
+    if (!amountEl || !tokenEl || !usdEl) return;
 
-  const amount = parseFloat(amountEl.value);
-const raw = tokenEl.value;
-const sym = raw.split("—")[0].trim().toUpperCase();
-const id = COINGECKO_IDS[sym];
+    // valeur saisie par l’utilisateur
+    const amount = parseFloat(amountEl.value);
 
-  if (!amount || !id){
-    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
-    return;
-  }
+    // option sélectionnée dans le <select>
+    const opt = tokenEl.options[tokenEl.selectedIndex];
+    if (!opt) return;
 
-  try {
-    const url = `${BACKEND}/price?symbol=${sym}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const price = data.usd;
-    const usdVal = (amount * price).toFixed(2);
-    usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
-  } catch(e){
-    console.error("Erreur CoinGecko", e);
-    usdEl.textContent = "(Erreur CoinGecko)";
-  }
+    // symbole du token (avant le tiret)
+    const sym = opt.value.toUpperCase();
+
+    // solde affiché dans l’option (après le tiret)
+    const parts = opt.textContent.split("—");
+    const balanceStr = parts.length > 1 ? parts[1].trim() : "0";
+    const balanceNum = parseFloat(balanceStr.replace(",", "."));
+
+    const id = COINGECKO_IDS[sym];
+    if (!amount || !id){
+        usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
+        return;
+    }
+
+    try {
+        const url = `${BACKEND}/price?symbol=${sym}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const price = data.usd;
+
+        // on calcule à partir du solde du token
+        const usdVal = (balanceNum * price).toFixed(2);
+        usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
+    } catch(e){
+        console.error("Erreur CoinGecko", e);
+        usdEl.textContent = "(Erreur CoinGecko)";
+    }
 }
 
 // Mettre à jour quand on change le montant ou le token
