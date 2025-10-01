@@ -769,20 +769,23 @@ const id = COINGECKO_IDS[sym];
   }
 
   try {
-    const url = `${BACKEND}/price?symbol=${sym}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const price = parseFloat(data.usd);
-if (!price) {
-  usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
-  return;
-}
-    const usdVal = (amount * price).toFixed(2);
-    usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
-  } catch(e){
-    console.error("Erreur CoinGecko", e);
-    usdEl.textContent = "(Erreur CoinGecko)";
+  const url = `${BACKEND}/price?symbol=${sym}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const price = parseFloat(data.usd);
+
+  if (!price) {
+    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
+    return;
   }
+
+  const usdVal = (amount * price).toFixed(2);
+  usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
+
+} catch(e) {
+  console.error("Erreur CoinGecko", e);
+  usdEl.textContent = "(Erreur CoinGecko)";
+}
 }
 
 // Mettre à jour quand on change le montant ou le token
