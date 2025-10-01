@@ -752,42 +752,54 @@ const COINGECKO_IDS = {
 };
 
 async function updateUsdValue(){
-  const amountEl = document.getElementById("amount");
-  const tokenEl  = document.getElementById("currency");
-  const usdEl    = document.getElementById("usdValue");
+    const amountEl = document.getElementById("amount");
+    const tokenEl = document.getElementById("currency");
+    const usdEl = document.getElementById("usdValue");
 
-  if (!amountEl || !tokenEl || !usdEl) return;
+    if (!amountEl || !tokenEl || !usdEl) return;
 
-  const amount = parseFloat(amountEl.value);
-const raw = tokenEl.value;
-const sym = raw.trim();
-const id = COINGECKO_IDS[sym];
+    const amount = parseFloat(amountEl.value);
+    const raw = tokenEl.value;
+    console.log("raw =", raw);   // 👈 valeur brute de l'option
 
-  if (!amount || !id){
-    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
-    return;
-  }
+    const sym = raw.trim();
+    console.log("sym =", sym);   // 👈 symbole extrait
 
-  try {
-  const url = `${BACKEND}/price?symbol=${sym}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const price = parseFloat(data.usd);
+    const id = COINGECKO_IDS[sym];
+    console.log("id =", id);     // 👈 mapping vers CoinGecko
 
-  if (!price) {
-    usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
-    return;
-  }
+    console.log("amount =", amount); // 👈 montant saisi
 
-  const usdVal = (amount * price).toFixed(2);
-  usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
+    if (!amount || !id){
+        usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
+        return;
+    }
 
-} catch(e) {
-  console.error("Erreur CoinGecko", e);
-  usdEl.textContent = "(Erreur CoinGecko)";
+    try {
+        const url = `${BACKEND}/price?symbol=${sym}`;
+        console.log("URL fetch =", url); // 👈 URL utilisée
+
+        const res = await fetch(url);
+        const data = await res.json();
+        console.log("data =", data);     // 👈 réponse brute du backend
+
+        const price = parseFloat(data.usd);
+        console.log("price =", price);  // 👈 prix extrait
+
+        if (!price) {
+            usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
+            return;
+        }
+
+        const usdVal = (amount * price).toFixed(2);
+        console.log("usdVal =", usdVal); // 👈 résultat final
+
+        usdEl.textContent = `≈ ${usdVal} $ (indexé sur CoinGecko)`;
+    } catch(e){
+        console.error("Erreur CoinGecko", e);
+        usdEl.textContent = "(Erreur CoinGecko)";
+    }
 }
-}
-
 // Mettre à jour quand on change le montant ou le token
 document.getElementById("amount")?.addEventListener("input", updateUsdValue);
 document.getElementById("currency")?.addEventListener("change", updateUsdValue);
