@@ -770,7 +770,7 @@ async function updateUsdValue(){
 
     console.log("amount =", amount); // 👈 montant saisi
 
-    if (!amount || !id){
+    if (isNaN(amount) || !id) {
         usdEl.textContent = "≈ 0.00 $ (indexé sur CoinGecko)";
         return;
     }
