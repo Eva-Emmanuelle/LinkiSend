@@ -457,6 +457,18 @@ if (langBtn && langMenu){
      const accs = await eth.request({ method: "eth_requestAccounts" });
 walletInput.value = (accs && accs[0]) ? accs[0] : "";
 closeModal();
+      // Désactiver tous les autres réseaux sauf Ethereum
+const netSel = document.getElementById('network');
+if (netSel) {
+  Array.from(netSel.options).forEach(opt => {
+    const txt = (opt.textContent || '').toLowerCase();
+    if (!txt.includes('ethereum')) {
+      opt.disabled = true;
+      opt.textContent += ' (non dispo avec MetaMask)';
+    }
+  });
+  netSel.value = 'Ethereum';
+}
     } catch (err) {
       console.error(err);
       alert("Connexion MetaMask refusée ou erreur.");
