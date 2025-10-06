@@ -468,29 +468,35 @@ closeModal();
   const ph = window.solana;
   if (ph && ph.isPhantom) {
     try {
-      // 🔄 Attacher les écouteurs Phantom dès le départ
-      if (typeof ph.on === "function") {
-        // Quand l'utilisateur connecte et déverrouille Phantom
-        ph.on("connect", () => {
-          if (ph.publicKey) {
-            walletInput.value = ph.publicKey.toString();
-          }
-          closeModal();
-        });
+      // 🧹 Toujours forcer une reconnexion propre
+      try { await ph.disconnect(); } catch {}
 
-        // Quand l'utilisateur change de compte
+      // 🔄 Supprimer anciens écouteurs éventuels
+      if (typeof ph.removeAllListeners === "function") {
+        ph.removeAllListeners("connect");
+        ph.removeAllListeners("disconnect");
+        ph.removeAllListeners("accountChanged");
+      }
+
+      // 🎯 Demande explicite de connexion (affiche la popup Phantom)
+      const res = await ph.connect({ onlyIfTrusted: false });
+
+      if (res && res.publicKey) {
+        walletInput.value = res.publicKey.toString();
+        closeModal();
+      } else {
+        walletInput.value = "";
+      }
+
+      // 🧩 Écoute les changements après connexion
+      if (typeof ph.on === "function") {
         ph.on("accountChanged", (pubKey) => {
           walletInput.value = pubKey ? pubKey.toString() : "";
         });
-
-        // Quand l'utilisateur se déconnecte
         ph.on("disconnect", () => {
           walletInput.value = "";
         });
       }
-
-      // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
-      await ph.connect({ onlyIfTrusted: false });
 
     } catch (err) {
       console.error(err);
@@ -499,8 +505,8 @@ closeModal();
   } else {
     window.open("https://phantom.app/", "_blank");
   }
-
-                } else if (provider === "uniswap") {
+}
+               } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
             p => !!p.isUniswap || p?.providerName === 'uniswap'
