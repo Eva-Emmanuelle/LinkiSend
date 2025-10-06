@@ -1056,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
     : window.ethereum;
   if (eth && eth.on){
     eth.on('accountsChanged', refresh);
-    eth.on('chainChanged',  refresh);
+    eth.on('chainChanged', () => setTimeout(refresh, 600));
   }
   document.getElementById('network')?.addEventListener('change', refresh);
 })();
