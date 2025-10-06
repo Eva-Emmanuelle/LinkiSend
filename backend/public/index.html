@@ -1051,9 +1051,15 @@ setInterval(async ()=>{
   try{
     const id = await window.ethereum?.request?.({method:'eth_chainId'});
     if(id && id !== lastChain){
-      lastChain = id;
-      refresh();
+  lastChain = id;
+  try{
+    const accs = await window.ethereum.request({ method:'eth_requestAccounts' });
+    if(accs && accs[0]){
+      walletInput.value = accs[0];
     }
+  }catch{}
+  refresh();
+}
   }catch{}
 }, 1200);
 
