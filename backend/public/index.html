@@ -457,18 +457,6 @@ if (langBtn && langMenu){
      const accs = await eth.request({ method: "eth_requestAccounts" });
 walletInput.value = (accs && accs[0]) ? accs[0] : "";
 closeModal();
-      // Désactiver tous les autres réseaux sauf Ethereum
-const netSel = document.getElementById('network');
-if (netSel) {
-  Array.from(netSel.options).forEach(opt => {
-    const txt = (opt.textContent || '').toLowerCase();
-    if (!txt.includes('ethereum')) {
-      opt.disabled = true;
-      opt.textContent += ' (non dispo avec MetaMask)';
-    }
-  });
-  netSel.value = 'Ethereum';
-}
     } catch (err) {
       console.error(err);
       alert("Connexion MetaMask refusée ou erreur.");
@@ -476,37 +464,34 @@ if (netSel) {
   } else {
     window.open("https://metamask.io/download/", "_blank");
   }
-                else if (provider === "phantom") {
+                } else if (provider === "phantom") {
   const ph = window.solana;
   if (ph && ph.isPhantom) {
     try {
-      // 🔁 Toujours forcer une reconnexion manuelle
-      try { await ph.disconnect(); } catch {}
-
-      // Demande de connexion explicite
-      const res = await ph.connect({ onlyIfTrusted: false });
-
-      if (res && res.publicKey) {
-        walletInput.value = res.publicKey.toString();
-        closeModal();
-      } else {
-        walletInput.value = "";
-      }
-
-      // Écoute les changements (optionnel, comme MetaMask)
+      // 🔄 Attacher les écouteurs Phantom dès le départ
       if (typeof ph.on === "function") {
+        // Quand l'utilisateur connecte et déverrouille Phantom
+        ph.on("connect", () => {
+          if (ph.publicKey) {
+            walletInput.value = ph.publicKey.toString();
+          }
+          closeModal();
+        });
+
+        // Quand l'utilisateur change de compte
         ph.on("accountChanged", (pubKey) => {
           walletInput.value = pubKey ? pubKey.toString() : "";
         });
+
+        // Quand l'utilisateur se déconnecte
         ph.on("disconnect", () => {
           walletInput.value = "";
         });
       }
 
-      // ⚙️ Limiter réseau
-      if (typeof afterPhantomConnected === "function") {
-        afterPhantomConnected();
-      }
+      // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
+      await ph.connect({ onlyIfTrusted: false });
+
     } catch (err) {
       console.error(err);
       alert("Connexion Phantom refusée ou erreur.");
@@ -514,7 +499,7 @@ if (netSel) {
   } else {
     window.open("https://phantom.app/", "_blank");
   }
-}
+
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
@@ -719,7 +704,7 @@ let balanceNum = 0;
 
 if (selOpt) {
   // Exemple d'option : "USDC — 117.91809"
-  const parts = (selOpt.textContent || "").split(/—|–|-/);
+  const parts = sel.split("—");
   if (parts.length > 1) {
     balanceNum = parseFloat(parts[1].trim().replace(",", "."));
   }
@@ -1145,57 +1130,6 @@ document.addEventListener('DOMContentLoaded', () => {
   populateTokens();
   networkSelect.addEventListener('change', populateTokens);
 })();
-  /* ====== LIMITATION DES RÉSEAUX SELON LE WALLET CONNECTÉ ====== */
-function limitNetworkTo(chainName, label){
-  const netSel = document.getElementById('network');
-  if (!netSel) return;
-
-  Array.from(netSel.options).forEach(opt => {
-    const txt = (opt.textContent || '').toLowerCase();
-    if (!txt.includes(chainName.toLowerCase())) {
-      opt.disabled = true;
-      if (!opt.textContent.includes('non dispo'))
-        opt.textContent += ` (non dispo avec ${label})`;
-    } else {
-      opt.disabled = false;
-    }
-  });
-
-  // Sélectionne automatiquement le bon réseau
-  const match = Array.from(netSel.options).find(o => 
-    (o.textContent || '').toLowerCase().includes(chainName.toLowerCase())
-  );
-  if (match) netSel.value = match.value;
-}
-
-/* ====== APPLIQUER SELON LE WALLET ====== */
-
-// 1️⃣ MetaMask
-async function afterMetaMaskConnected(){
-  limitNetworkTo('ethereum', 'MetaMask');
-}
-
-// 2️⃣ Phantom
-async function afterPhantomConnected(){
-  limitNetworkTo('solana', 'Phantom');
-}
-
-// 3️⃣ WalletConnect (auto selon le chainId)
-async function afterWalletConnectConnected(){
-  try{
-    const MAP = {
-      '0x1':'ethereum',
-      '0x38':'bnb',
-      '0x89':'polygon',
-      '0xa86a':'avalanche'
-    };
-    const id = await window.__wcProvider?.request?.({ method:'eth_chainId' });
-    const chainName = MAP[id] || 'ethereum';
-    limitNetworkTo(chainName, 'WalletConnect');
-  }catch{
-    limitNetworkTo('ethereum', 'WalletConnect');
-  }
-}
 </script>
 </body>
 </html>
