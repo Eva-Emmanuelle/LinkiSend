@@ -1046,6 +1046,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const cur = walletInput.value;
     if (cur !== last){ last = cur; refresh(); }
   }, 1000);
+  let lastChain = null;
+setInterval(async ()=>{
+  try{
+    const id = await window.ethereum?.request?.({method:'eth_chainId'});
+    if(id && id !== lastChain){
+      lastChain = id;
+      refresh();
+    }
+  }catch{}
+}, 1200);
 
   // Écoute EVM (si disponible)
   const eth = (window.ethereum && Array.isArray(window.ethereum.providers))
