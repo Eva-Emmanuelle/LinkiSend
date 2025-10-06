@@ -503,7 +503,18 @@ if (netSel) {
 
       // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
       await ph.connect({ onlyIfTrusted: false });
-
+      // Désactiver tous les autres réseaux sauf Solana
+const netSel = document.getElementById('network');
+if (netSel) {
+  Array.from(netSel.options).forEach(opt => {
+    const txt = (opt.textContent || '').toLowerCase();
+    if (!txt.includes('solana')) {
+      opt.disabled = true;
+      opt.textContent += ' (non dispo avec Phantom)';
+    }
+  });
+  netSel.value = 'Solana';
+}
     } catch (err) {
       console.error(err);
       alert("Connexion Phantom refusée ou erreur.");
