@@ -807,6 +807,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+  <script>
+// ==== Neutralisation Phantom auto-connect (avant le scanner interne) ====
+(async () => {
+  try {
+    if (window.solana && window.solana.isPhantom) {
+      // Déconnexion silencieuse si besoin
+      if (typeof window.solana.disconnect === "function") {
+        await window.solana.disconnect().catch(()=>{});
+      }
+
+      // Empêche lecture automatique
+      Object.defineProperty(window.solana, "publicKey", {
+        get: () => undefined,
+        configurable: true
+      });
+
+      // Empêche statut de connexion fantôme
+      try {
+        Object.defineProperty(window.solana, "isConnected", {
+          get: () => false,
+          configurable: true
+        });
+      } catch (_) {}
+    }
+  } catch (err) {
+    console.warn("Neutralisation Phantom (pré-scan) :", err);
+  }
+})();
+</script>
   <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
 <script>
 (function(){
