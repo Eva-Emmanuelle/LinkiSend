@@ -471,13 +471,12 @@ closeModal();
       // 🔄 Attacher les écouteurs Phantom dès le départ
       if (typeof ph.on === "function") {
         // Quand l'utilisateur connecte et déverrouille Phantom
-        ph.on("connect", () => {
-          if (ph.publicKey) {
-            walletInput.value = ph.publicKey.toString();
-          }
-          closeModal();
-        });
-
+        //ph.on("connect", () => {
+          //if (ph.publicKey) {
+            //walletInput.value = ph.publicKey.toString();
+         // }
+         // closeModal();
+       // });
         // Quand l'utilisateur change de compte
         ph.on("accountChanged", (pubKey) => {
           walletInput.value = pubKey ? pubKey.toString() : "";
@@ -491,7 +490,10 @@ closeModal();
 
       // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
       await ph.connect({ onlyIfTrusted: false });
-
+      if (ph.publicKey) {
+  walletInput.value = ph.publicKey.toString();
+  closeModal();
+}
     } catch (err) {
       console.error(err);
       alert("Connexion Phantom refusée ou erreur.");
