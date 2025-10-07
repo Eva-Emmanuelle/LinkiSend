@@ -467,6 +467,9 @@ closeModal();
                 } else if (provider === "phantom") {
   const ph = window.solana;
   if (ph && ph.isPhantom) {
+    walletInput.value = "";                // efface toute adresse précédente
+document.getElementById("currency").innerHTML = ""; // vide la liste des tokens
+document.getElementById("tokenBalanceInfo").textContent = ""; // masque le solde
     try {
       // 🔄 Attacher les écouteurs Phantom dès le départ
       if (typeof ph.on === "function") {
