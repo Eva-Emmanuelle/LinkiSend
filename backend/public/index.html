@@ -466,6 +466,7 @@ closeModal();
   }
                 } else if (provider === "phantom") {
   const ph = window.solana;
+          if (ph && ph.isPhantom) ph.isConnected = false;
           try { await ph.disconnect(); } catch(e) {}
   if (ph && ph.isPhantom) {
     try {
