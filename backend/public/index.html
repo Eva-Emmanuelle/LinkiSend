@@ -466,13 +466,7 @@ closeModal();
   }
                 } else if (provider === "phantom") {
   const ph = window.solana;
- if (ph && ph.isPhantom) {
-  if (ph.publicKey) {
-    walletInput.value = "";
-    document.getElementById("currency").innerHTML = "";
-    document.getElementById("tokenBalanceInfo").textContent = "";
-  }
-
+  if (ph && ph.isPhantom) {
     try {
       // 🔄 Attacher les écouteurs Phantom dès le départ
       if (typeof ph.on === "function") {
