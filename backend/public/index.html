@@ -490,8 +490,11 @@ closeModal();
 
       // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
       await ph.connect({ onlyIfTrusted: false });
-      if (ph.publicKey) {
-  walletInput.value = ph.publicKey.toString();
+
+// Empêche les "fausses" connexions (clé vide ou nulle)
+const pk = ph.publicKey?.toString();
+if (pk && pk !== "11111111111111111111111111111111") {
+  walletInput.value = pk;
   closeModal();
 }
     } catch (err) {
