@@ -464,39 +464,47 @@ closeModal();
   } else {
     window.open("https://metamask.io/download/", "_blank");
   }
-                } else if (provider === "phantom") {
+} else if (provider === "phantom") {
   const ph = window.solana;
   if (ph && ph.isPhantom) {
     try {
-      // Déconnexion forcée pour éviter les fausses sessions
-      await ph.disconnect().catch(() => {});
+      // 🚫 1. Vide toujours le champ dès le départ
+      walletInput.value = "";
 
-      // Attache les écouteurs
+      // 🚫 2. Déconnexion forcée pour effacer toute session "fantôme"
+      if (ph.isConnected) {
+        await ph.disconnect().catch(() => {});
+      }
+
+      // 🎧 3. Attache les écouteurs nécessaires
       if (typeof ph.on === "function") {
-        //ph.on("accountChanged", (pubKey) => {
-         // walletInput.value = pubKey ? pubKey.toString() : "";
-        //});
         ph.on("disconnect", () => {
           walletInput.value = "";
         });
       }
 
-      // ✅ Demande explicite de connexion
-      await ph.connect({ onlyIfTrusted: false });
+      // ✅ 4. Demande explicite de connexion (ouvre Phantom si verrouillé)
+      const res = await ph.connect({ onlyIfTrusted: false });
 
-      // 🔒 Ne remplit que si la clé est réelle
+      // 🔒 5. Vérifie que la clé est valide et réelle (non fantôme)
       const pk = ph.publicKey?.toString();
       if (pk && pk !== "11111111111111111111111111111111") {
         walletInput.value = pk;
         closeModal();
+      } else {
+        // Cas où Phantom retourne une clé invalide (wallet verrouillé)
+        walletInput.value = "";
       }
+
     } catch (err) {
       console.error(err);
       alert("Connexion Phantom refusée ou erreur.");
+      walletInput.value = "";
     }
   } else {
     window.open("https://phantom.app/", "_blank");
   }
+}
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
