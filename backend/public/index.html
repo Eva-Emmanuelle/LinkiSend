@@ -466,6 +466,7 @@ closeModal();
   }
                 } else if (provider === "phantom") {
   const ph = window.solana;
+          try { await ph.disconnect(); } catch(e) {}
   if (ph && ph.isPhantom) {
     try {
       // 🔄 Attacher les écouteurs Phantom dès le départ
