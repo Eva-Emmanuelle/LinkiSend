@@ -468,35 +468,28 @@ closeModal();
   const ph = window.solana;
   if (ph && ph.isPhantom) {
     try {
-      // 🔄 Attacher les écouteurs Phantom dès le départ
+      // Déconnexion forcée pour éviter les fausses sessions
+      await ph.disconnect().catch(() => {});
+
+      // Attache les écouteurs
       if (typeof ph.on === "function") {
-        // Quand l'utilisateur connecte et déverrouille Phantom
-        //ph.on("connect", () => {
-          //if (ph.publicKey) {
-            //walletInput.value = ph.publicKey.toString();
-         // }
-         // closeModal();
-       // });
-        // Quand l'utilisateur change de compte
         ph.on("accountChanged", (pubKey) => {
           walletInput.value = pubKey ? pubKey.toString() : "";
         });
-
-        // Quand l'utilisateur se déconnecte
         ph.on("disconnect", () => {
           walletInput.value = "";
         });
       }
 
-      // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
+      // ✅ Demande explicite de connexion
       await ph.connect({ onlyIfTrusted: false });
 
-// Empêche les "fausses" connexions (clé vide ou nulle)
-const pk = ph.publicKey?.toString();
-if (pk && pk !== "11111111111111111111111111111111") {
-  walletInput.value = pk;
-  closeModal();
-}
+      // 🔒 Ne remplit que si la clé est réelle
+      const pk = ph.publicKey?.toString();
+      if (pk && pk !== "11111111111111111111111111111111") {
+        walletInput.value = pk;
+        closeModal();
+      }
     } catch (err) {
       console.error(err);
       alert("Connexion Phantom refusée ou erreur.");
@@ -504,7 +497,7 @@ if (pk && pk !== "11111111111111111111111111111111") {
   } else {
     window.open("https://phantom.app/", "_blank");
   }
-
+}
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
