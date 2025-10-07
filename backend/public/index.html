@@ -1022,6 +1022,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* --- Orchestration --- */
   async function refresh(){
+    // 🚫 Empêche toute lecture auto si Phantom n’est pas connecté manuellement
+  if (window.solana && window.solana.isPhantom && !window.solana.isConnected) {
+    return; // on quitte immédiatement, rien ne se passe
+  }
     const addr = (walletInput.value || '').trim();
     if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent = (window.translations && window.translations[lang] && window.translations[lang].balance ? window.translations[lang].balance : 'Solde') + ': 0'; return; }
 
