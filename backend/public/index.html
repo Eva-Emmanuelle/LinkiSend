@@ -473,9 +473,9 @@ closeModal();
 
       // Attache les écouteurs
       if (typeof ph.on === "function") {
-        ph.on("accountChanged", (pubKey) => {
-          walletInput.value = pubKey ? pubKey.toString() : "";
-        });
+        //ph.on("accountChanged", (pubKey) => {
+         // walletInput.value = pubKey ? pubKey.toString() : "";
+        //});
         ph.on("disconnect", () => {
           walletInput.value = "";
         });
