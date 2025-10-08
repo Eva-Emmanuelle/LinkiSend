@@ -465,44 +465,38 @@ closeModal();
     window.open("https://metamask.io/download/", "_blank");
   }
 } else if (provider === "phantom") {
-  const ph = window.solana;
-  if (ph && ph.isPhantom) {
-    try {
-      // 🚫 1. Vide toujours le champ dès le départ
-      walletInput.value = "";
+  try {
+    // Nettoie le champ au clic
+    walletInput.value = "";
 
-      // 🚫 2. Déconnexion forcée pour effacer toute session "fantôme"
-      if (ph.isConnected) {
-        await ph.disconnect().catch(() => {});
-      }
+    // Si Phantom n'est pas présent → redirection
+    if (!window.solana || !window.solana.isPhantom) {
+      window.open("https://phantom.app/", "_blank");
+      return;
+    }
 
-      // 🎧 3. Attache les écouteurs nécessaires
-      if (typeof ph.on === "function") {
-        ph.on("disconnect", () => {
-          walletInput.value = "";
-        });
-      }
+    const ph = window.solana;
 
-      // ✅ 4. Demande explicite de connexion (ouvre Phantom si verrouillé)
-      const res = await ph.connect({ onlyIfTrusted: false });
+    // Force la reconnexion (ouvre Phantom si verrouillé)
+    const res = await ph.connect({ onlyIfTrusted: false });
 
-      // 🔒 5. Vérifie que la clé est valide et réelle (non fantôme)
-      const pk = ph.publicKey?.toString();
-      if (pk && pk !== "11111111111111111111111111111111") {
-        walletInput.value = pk;
-        closeModal();
-      } else {
-        // Cas où Phantom retourne une clé invalide (wallet verrouillé)
-        walletInput.value = "";
-      }
-
-    } catch (err) {
-      console.error(err);
-      alert("Connexion Phantom refusée ou erreur.");
+    // Vérifie la clé renvoyée
+    const pk = ph.publicKey?.toString() || "";
+    if (pk && pk !== "11111111111111111111111111111111") {
+      walletInput.value = pk;
+      closeModal();
+    } else {
       walletInput.value = "";
     }
-  } else {
-    window.open("https://phantom.app/", "_blank");
+
+    // Si l’utilisateur déconnecte dans Phantom → on vide
+    ph.on("disconnect", () => {
+      walletInput.value = "";
+    });
+  } catch (err) {
+    console.error("Erreur Phantom:", err);
+    walletInput.value = "";
+    alert("Connexion Phantom refusée ou erreur.");
   }
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
@@ -806,35 +800,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 });
-</script>
-  <script>
-// ==== Neutralisation Phantom auto-connect (avant le scanner interne) ====
-(async () => {
-  try {
-    if (window.solana && window.solana.isPhantom) {
-      // Déconnexion silencieuse si besoin
-      if (typeof window.solana.disconnect === "function") {
-        await window.solana.disconnect().catch(()=>{});
-      }
-
-      // Empêche lecture automatique
-      Object.defineProperty(window.solana, "publicKey", {
-        get: () => undefined,
-        configurable: true
-      });
-
-      // Empêche statut de connexion fantôme
-      try {
-        Object.defineProperty(window.solana, "isConnected", {
-          get: () => false,
-          configurable: true
-        });
-      } catch (_) {}
-    }
-  } catch (err) {
-    console.warn("Neutralisation Phantom (pré-scan) :", err);
-  }
-})();
 </script>
   <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
 <script>
