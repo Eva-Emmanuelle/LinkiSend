@@ -248,10 +248,28 @@
         <input type="text" id="phone" placeholder="612345678" inputmode="tel"/>
       </div>
 
-       <div class="contact-actions" style="margin-top:16px; display:flex; align-items:center; gap:8px;">
-  <a href="content://contacts/people/" class="emoji-btn" id="openContacts" title="Ouvrir mes contacts" style="text-decoration:none;">📖</a>
+       <div class="contact-actions" style="margin-top:16px; display:flex; align-items:center; gap:8px; cursor:pointer;" id="openContactsArea">
+  <span class="emoji-btn" title="Ouvrir mes contacts">📖</span>
   <span style="font-size:13px; color:var(--text-dim);">Ouvrir mes contacts</span>
 </div>
+
+<script>
+document.getElementById('openContactsArea').addEventListener('click', async () => {
+  if ('contacts' in navigator && 'select' in navigator.contacts) {
+    try {
+      const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+      if (contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) phoneInput.value = contacts[0].tel[0];
+      }
+    } catch (err) {
+      alert("Impossible d'accéder aux contacts : " + err.message);
+    }
+  } else {
+    alert("Cette fonction n’est pas disponible sur ton appareil ou navigateur.");
+  }
+});
+</script>
       <div class="contacts" id="contactsList"></div>
 
       <button id="generateBtn" class="btn">Générer le lien</button>
