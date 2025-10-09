@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setBalanceLine(sym, amountStr);
     }
   }
-
+window.refresh = refresh;
   // Lancement immédiat + surveillance des changements d’adresse
   refresh();
   let last = walletInput.value;
