@@ -258,10 +258,15 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
   if ('contacts' in navigator && 'select' in navigator.contacts) {
     try {
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-      if (contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
-        const phoneInput = document.getElementById('phone');
-        if (phoneInput) phoneInput.value = contacts[0].tel[0];
-      }
+      if (contacts.length > 0) {
+  const phoneInput = document.getElementById('phone');
+  const telField =
+    contacts[0].tel?.[0]?.number ||
+    contacts[0].tel?.[0] ||
+    contacts[0].tel ||
+    "";
+  if (phoneInput && telField) phoneInput.value = telField;
+}
     } catch (err) {
       alert("Impossible d'accéder aux contacts : " + err.message);
     }
