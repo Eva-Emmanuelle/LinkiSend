@@ -73,7 +73,23 @@
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
     .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
     .iso{font-weight:600;color:#e6edf3;width:26px;display:inline-block}.dialcode{color:#cfe1ff}.country{color:#9fb0c0;font-size:12px}
-    @media (max-width:540px){.brand{justify-content:flex-start!important;gap:8px!important;margin:10px 0 20px!important;padding:0 8px}.brand img.arrow{position:static!important;transform:none!important;max-width:28px!important;height:auto!important;margin-right:6px}.brand img.word{max-width:170px!important}.lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}}
+@media (max-width:540px){
+  .brand{
+    justify-content:center!important;
+    gap:10px!important;
+    margin:10px 0 20px!important;
+    padding:0 8px;
+  }
+  .brand img.arrow{
+    position:static!important;
+    transform:none!important;
+    max-width:70px!important;
+    height:auto!important;
+    margin-right:6px;
+  }
+  .brand img.word{max-width:170px!important}
+  .lang-toggle{right:8px!important;font-size:11px;padding:3px 8px}
+}
     #installBtn{position:fixed;right:14px;bottom:90px;z-index:80;display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
     #installBtn:active{transform:translateY(1px)}
     #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
@@ -586,10 +602,6 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       // Vérifie que le wallet contient bien des fonds
 const selOpt = currencySel.options[currencySel.selectedIndex];
 let balanceNum = 0;
-
-const selOpt = currencySel.options[currencySel.selectedIndex];
-let balanceNum = 0;
-
 if (selOpt) {
   // Exemple d'option : "USDC — 117.91809"
   const txt = selOpt.textContent || "";
@@ -606,13 +618,6 @@ if (!balanceNum || isNaN(balanceNum) || balanceNum <= 0) {
     (lang === "fr"
       ? "Solde insuffisant pour générer un lien."
       : "Insufficient balance to generate a link.");
-  errorDiv.style.display = "block";
-  return;
-}
-
-if (isNaN(balanceNum) || balanceNum <= 0) {
-  errorDiv.textContent = translations?.[lang]?.noBalance ||
-    (lang === "fr" ? "Solde insuffisant pour générer un lien." : "Insufficient balance to generate a link.");
   errorDiv.style.display = "block";
   return;
 }
@@ -708,9 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
 (function(){
   const walletInput = document.getElementById('wallet');
   walletInput.value = '';
-  const balInfoEl   = document.getElementById('tokenBalanceInfo');
   const currencySel = document.getElementById('currency');
-  if (!walletInput || !currencySel || !balInfoEl) return;
 
   /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
   const CG_ID = {
@@ -916,11 +919,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
   }
   // Lancement immédiat + surveillance des changements d’adresse
-  refresh();
   let last = walletInput.value;
   setInterval(()=>{
     const cur = walletInput.value;
-    if (cur !== last){ last = cur; refresh(); }
   }, 1000);
 
   // Écoute EVM (si disponible)
@@ -928,8 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ? window.ethereum.providers.find(p => p && (p.isMetaMask || p.isCoinbaseWallet || p.isRabby))
     : window.ethereum;
   if (eth && eth.on){
-    eth.on('accountsChanged', refresh);
-    eth.on('chainChanged',  refresh);
   }
 })();
 </script>
