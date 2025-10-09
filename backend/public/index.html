@@ -305,6 +305,7 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
+        await refresh();
       } else {
         alert("Connexion annulée.");
       }
