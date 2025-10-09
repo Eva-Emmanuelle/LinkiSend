@@ -33,10 +33,6 @@
     .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
     .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(3,6,12,.6);backdrop-filter:blur(4px);z-index:50;padding:20px}.modal.open{display:grid}.modal-card{width:min(420px,95vw);background:linear-gradient(180deg,var(--card),var(--card-2));border:1px solid var(--stroke);border-radius:16px;box-shadow:var(--shadow);padding:16px}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.modal-head h3{margin:0;font-size:18px}.x{appearance:none;border:0;background:transparent;color:var(--text-dim);font-size:22px;cursor:pointer}
-    .providers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.pv{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--stroke);border-radius:12px;background:#0e141c;color:var(--text);cursor:pointer;font-weight:600}
-    .pv img{width:20px;height:20px}.tag{margin-left:auto;font-size:11px;padding:2px 6px;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e);color:#fff;border:0;font-weight:600}
     .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
     .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
@@ -48,8 +44,6 @@
     #splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);transition:opacity .35s ease}
     #splash img{width:300px;height:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));opacity:.96}#splash.hide{opacity:0;pointer-events:none}
     .modal{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px}.modal-card{width:min(440px,92vw);max-height:88vh;overflow:auto}
-    @media (max-width:380px){.modal-card{width:94vw}.providers{grid-template-columns:1fr!important}}
-    @media (max-height:640px){.modal-card{max-height:84vh}}
     /* Effet sur 📖 et 💾 */
 .emoji-btn {
   display: inline-block;            /* ← important pour que :hover/transform marchent */
@@ -386,12 +380,6 @@ if (langBtn && langMenu){
     });
   });
 }
-    const discovered=[];window.addEventListener('eip6963:announceProvider',(event)=>{try{discovered.push(event.detail)}catch{}});try{window.dispatchEvent(new Event('eip6963:requestProvider'))}catch{}
-    function isStandaloneApp(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true)}
-    const isMobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
-    function getProviderBy(match6963,matchLegacy){const d=discovered.find(x=>{try{return match6963(x)}catch{return false}});if(d&&d.provider)return d.provider;if(window.ethereum){if(Array.isArray(window.ethereum.providers)){const p=window.ethereum.providers.find(p=>{try{return matchLegacy(p)}catch{return false}});if(p)return p}if(matchLegacy(window.ethereum))return window.ethereum}return null}
-    function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Échec chargement "+src));document.head.appendChild(s)})}
-
     function getWcGlobal(){
       const mod=window['@walletconnect/ethereum-provider'];
       if(mod&&(mod.EthereumProvider?.init||mod.default?.EthereumProvider?.init)){return mod.EthereumProvider||mod.default.EthereumProvider}
@@ -453,11 +441,6 @@ if (langBtn && langMenu){
 }
 
 // Fermer le panneau quand on clique ailleurs (en dehors de la fonction)
-document.addEventListener("click", (e) => {
-  if (!dialPanel.contains(e.target) && !dialBtn.contains(e.target)) {
-    dialPanel.style.display = "none";
-  }
-});
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
 
     const contactsList=document.getElementById("contactsList");const showContacts=document.getElementById("showContacts");const saveContact=document.getElementById("saveContact");
