@@ -130,17 +130,7 @@
           <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
         </div>
       `);
-      let _d=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();_d=e});
-      window.addEventListener('click',async(ev)=>{
-        const b=document.getElementById('installNow');if(!b||ev.target!==b)return;
-        if(_d){_d.prompt();try{await _d.userChoice}catch{} _d=null}else{alert(document.getElementById('installHint').textContent)}
-      });
-    }
-  })();
   </script>
-
-  <div id="splash"><img src="/static/assets/branding/logo-arrow.svg" alt="LinkiSend" /></div>
-
   <div class="wrap">
     <div class="brand">
       <img src="/static/assets/branding/logo-arrow.svg" alt="Flèche" class="arrow" />
@@ -208,23 +198,13 @@
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
 <select id="currency"></select>
-<span id="tokenBalanceInfo" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:2px;"></span>
         </div>
         <div class="col">
           <label for="amount" id="lbl-amount">Montant</label>
           <input type="number" id="amount" inputmode="decimal" min="0" step="0.00001" placeholder="0.01" />
-          <span id="usdValue" style="display:block;font-style:italic;color:#9fb0c0;font-size:12px;margin-top:2px;">
-  ≈ 0.00 $
 </span>
         </div>
       </div>
-
-      <label for="network" id="lbl-network">Réseau</label>
-      <select id="network">
-        <option>Ethereum</option><option>BNB Chain</option>
-        <option>Polygon</option><option>Solana</option><option>Avalanche</option>
-      </select>
-
       <label id="lbl-phone">Numéro du destinataire</label>
       <div class="phone-row">
         <div class="dial">
@@ -242,7 +222,6 @@
 
       <div class="contact-actions">
         <span class="emoji-btn" id="showContacts" title="Afficher les contacts">📖</span>
-        <span class="emoji-btn" id="saveContact" title="Enregistrer ce numéro">💾</span>
       </div>
       <div class="contacts" id="contactsList"></div>
 
@@ -517,22 +496,6 @@ if (langBtn && langMenu){
 
 // Fermer le panneau quand on clique ailleurs (en dehors de la fonction)
     document.addEventListener("click",e=>{if(!dialPanel.contains(e.target)&&!dialBtn.contains(e.target)){dialPanel.style.display="none"}});
-
-    const contactsList=document.getElementById("contactsList");const showContacts=document.getElementById("showContacts");const saveContact=document.getElementById("saveContact");
-    let contacts=JSON.parse(localStorage.getItem("contacts")||"[]");if(showContacts)showContacts.textContent="📖";
-    function persistContacts(){localStorage.setItem("contacts",JSON.stringify(contacts))}
-    function renderContacts(){contactsList.innerHTML="";if(contacts.length===0){contactsList.style.display="none";return}
-      contacts.forEach((c,idx)=>{const row=document.createElement("div");row.className="contact-item";row.style.display="flex";row.style.alignItems="center";row.style.justifyContent="space-between";row.style.gap="8px";
-        const left=document.createElement("div");left.textContent=`${c.name} (${c.phone})`;left.style.flex="1 1 auto";left.style.whiteSpace="nowrap";left.style.overflow="hidden";left.style.textOverflow="ellipsis";
-        const del=document.createElement("button");del.type="button";del.title=(lang==='fr')?"Supprimer":"Delete";del.textContent="🗑️";del.style.border="1px solid var(--stroke)";
-        del.style.background="#0a1220";del.style.color="#ffffff";del.style.borderRadius="6px";del.style.padding="4px 6px";del.style.cursor="pointer";del.style.flex="0 0 auto";
-        left.onclick=()=>{document.getElementById("phone").value=c.phone.replace(c.code,"");currentDial={iso:c.iso,code:c.code};
-        dialBtn.innerHTML = `<span class="fi fi-${c.iso.toLowerCase()}" style="width:18px;height:12px;border-radius:2px;object-fit:cover;margin-right:6px;display:inline-block"></span><span id="dialCode">${c.code}</span>`;
-        contactsList.style.display="none"};
-        del.onclick=(ev)=>{ev.stopPropagation();contacts.splice(idx,1);persistContacts();renderContacts()};
-        row.appendChild(left);row.appendChild(del);contactsList.appendChild(row)})
-    }renderContacts();
-
     const actionsBar=document.querySelector('.contact-actions');const saveInline=document.createElement('div');saveInline.style.display='none';saveInline.style.marginTop='8px';
     saveInline.style.padding='10px';saveInline.style.border='1px solid var(--stroke)';saveInline.style.borderRadius='8px';saveInline.style.background='#0e1420';saveInline.style.boxShadow='var(--shadow)';
     saveInline.style.gap='8px';saveInline.style.alignItems='center';saveInline.style.justifyContent='space-between';
@@ -883,33 +846,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setSelect(items);
     const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
   }
-
-  /* --- Orchestration --- */
-  async function refresh(){
-    const addr = (walletInput.value || '').trim();
-    if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent = (window.translations && window.translations[lang] && window.translations[lang].balance ? window.translations[lang].balance : 'Solde') + ': 0'; return; }
-
-    // EVM si 0x + provider dispo, sinon Solana, sinon liste par défaut à 0
-    if (addr.startsWith('0x') && window.ethereum && typeof window.ethereum.request === 'function'){
-      await scanEvm(window.ethereum, addr);
-    } else if (!addr.startsWith('0x')) {
-      await scanSolana(addr);
-    } else {
-      // Pas de provider EVM accessible : afficher au moins une liste par défaut à 0
-      const items = [{symbol:'ETH',amountStr:'0',amountNum:0},{symbol:'USDT',amountStr:'0',amountNum:0},{symbol:'USDC',amountStr:'0',amountNum:0},{symbol:'DAI',amountStr:'0',amountNum:0},
-      {symbol:'WBTC',amountStr:'0',amountNum:0},{symbol:'LINK',amountStr:'0',amountNum:0}];
-      setSelect(items);
-      const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
-    }
-
-    const opt = currencySel.options[currencySel.selectedIndex];
-    if (opt){
-      const sym = opt.value;
-      const amountStr = (opt.textContent || '').split(/—|–|-/).pop().trim();
-      setBalanceLine(sym, amountStr);
-    }
-  }
-window.refresh = refresh;
   // Lancement immédiat + surveillance des changements d’adresse
   refresh();
   let last = walletInput.value;
