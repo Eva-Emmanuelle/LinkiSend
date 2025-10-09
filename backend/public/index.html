@@ -380,7 +380,7 @@ Promise.allSettled(
 
   applyLang(); // applique selon la variable 'lang' déjà gérée (localStorage / navigateur)
 }).catch(err => {
-  console.error('i18n load failed:', err);
+  console.error('i18n_load_failed:', err);
   translations = {};
   applyLang();
 });
