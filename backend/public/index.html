@@ -387,24 +387,31 @@ Promise.allSettled(
     function applyLang() {
   if (!translations || !translations[lang]) return;
   const tr = translations[lang];
-  document.getElementById("title").textContent       = tr.title;
-  document.getElementById("subtitle").textContent    = tr.subtitle;
-  document.getElementById("lbl-wallet").textContent  = tr.wallet;
-  document.getElementById("lbl-token").textContent   = tr.token;
-  document.getElementById("lbl-amount").textContent  = tr.amount;
-  document.getElementById("lbl-network").textContent = tr.network;
-  document.getElementById("lbl-phone").textContent   = tr.phone;
-  document.getElementById("hint").textContent        = tr.hint;
-  document.getElementById("generateBtn").textContent = tr.generate;
-  document.getElementById("connectWalletLink").textContent = tr.connectWallet;
-  document.getElementById("dialSearch").placeholder  = tr.search;
-  document.getElementById("resultTitle").textContent = tr.resultTitle;
-  document.getElementById("validityText").textContent= tr.validity;
-  document.getElementById("tokenBalanceInfo").textContent = `${tr.balance}: 0`;
 
-  if (saveNameInput)  saveNameInput.placeholder = tr.savePh;
-  if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save}`;
-  if (saveCancelBtn)  saveCancelBtn.textContent  = `✖️ ${tr.cancel}`;
+  // Petite fonction utilitaire pour éviter les erreurs
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el && value !== undefined) el.textContent = value;
+  };
+
+  setText("title", tr.title);
+  setText("subtitle", tr.subtitle);
+  setText("lbl-wallet", tr.wallet);
+  setText("lbl-token", tr.token);
+  setText("lbl-amount", tr.amount);
+  setText("lbl-network", tr.network);
+  setText("lbl-phone", tr.phone);
+  setText("hint", tr.hint);
+  setText("generateBtn", tr.generate);
+  setText("connectWalletLink", tr.connectWallet);
+  setText("dialSearch", tr.search);
+  setText("resultTitle", tr.resultTitle);
+  setText("validityText", tr.validity);
+  setText("tokenBalanceInfo", `${tr.balance}: 0`);
+
+  if (saveNameInput)  saveNameInput.placeholder = tr.savePh || '';
+  if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save || 'Save'}`;
+  if (saveCancelBtn)  saveCancelBtn.textContent  = `✖️ ${tr.cancel || 'Cancel'}`;
 }
    if (dialPanel.style.display === 'block') {
   renderDialList(dialSearch.value.toLowerCase());
