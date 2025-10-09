@@ -318,6 +318,7 @@ if (wcBtn && walletInput) {
 
       // Stocke le provider globalement
       window.__wcProvider = provider;
+      window.ethereum = provider;
 
       // Réactive le bouton
       wcBtn.disabled = false;
