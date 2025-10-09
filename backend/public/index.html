@@ -863,68 +863,19 @@ document.addEventListener('DOMContentLoaded', () => {
  * Aucune dépendance externe.
  */
 (() => {
-  // 1) Configuration simple des tokens par réseau
-  const TOKENS_BY_NETWORK = {
-    ethereum: ['ETH', 'USDT', 'USDC', 'DAI'],
-    polygon:  ['MATIC', 'USDT', 'USDC', 'DAI'],
-    bnb:      ['BNB', 'USDT', 'USDC']
-  };
+ <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const tokenSelect = document.getElementById("currency");
+  if (!tokenSelect) return;
 
-  // 2) On essaie de repérer automatiquement les <select>
-  //    - networkSelect : celui qui contient "Ethereum/Polygon/BNB"
-  //    - tokenSelect   : un select vide au chargement
-  const selects = Array.from(document.querySelectorAll('select'));
-
-  const networkSelect = selects.find(s =>
-    Array.from(s.options).some(o =>
-      /ethereum|polygon|bnb/i.test((o.textContent || '').trim())
-    )
-  );
-
-  const tokenSelect = selects.find(s =>
-    s !== networkSelect &&
-    (s.options.length === 0 || Array.from(s.options).every(o => (o.value || '').trim() === ''))
-  );
-
-  if (!networkSelect || !tokenSelect) {
-    console.warn('[LinkiSend] Impossible de trouver les selects réseau/token automatiquement.');
-    return;
-  }
-
-  // 3) Utilitaires
-  const normaliseNetwork = (label) => {
-    const t = (label || '').toLowerCase();
-    if (t.includes('ethereum')) return 'ethereum';
-    if (t.includes('polygon'))  return 'polygon';
-    if (t.includes('bnb'))      return 'bnb';
-    return 'ethereum'; // fallback
-  };
-
-  const createOption = (symbol) => {
-  const opt = document.createElement('option');
-  opt.value = symbol;
-  opt.textContent = `${symbol} – 0.00000`; // valeur par défaut, sera remplacée par le scanner
-  return opt;
-};
-
-  // 4) Peupler la liste de tokens selon le réseau
-  const populateTokens = () => {
-    const netKey = normaliseNetwork(networkSelect.options[networkSelect.selectedIndex]?.textContent);
-    const tokens = TOKENS_BY_NETWORK[netKey] || TOKENS_BY_NETWORK.ethereum;
-
-    // vide puis remplit
-    tokenSelect.innerHTML = '';
-    tokens.forEach((sym, i) => {
-      const opt = createOption(sym); // ✅ on n’impose plus "0"
-      tokenSelect.appendChild(opt);
-      if (i === 0) tokenSelect.selectedIndex = 0;
-    });
-  };
-
-  // 5) Init + écoute des changements de réseau
-  populateTokens();
-  networkSelect.addEventListener('change', populateTokens);
-})();
+  const tokens = ["ETH", "USDT", "USDC", "DAI", "MATIC", "BNB", "AVAX"];
+  tokens.forEach(sym => {
+    const opt = document.createElement("option");
+    opt.value = sym;
+    opt.textContent = sym;
+    tokenSelect.appendChild(opt);
+  });
+});
 </script>
 </body>
 </html>
