@@ -290,6 +290,12 @@ if (wcBtn && walletInput) {
       const provider = await EP.init({
         projectId: "9c945cd5bef5c1e1905266cf0219736d",
         showQrModal: true,
+        rpc: {
+    1: "https://rpc.ankr.com/eth",
+    56: "https://rpc.ankr.com/bsc",
+    137: "https://rpc.ankr.com/polygon",
+    43114: "https://rpc.ankr.com/avalanche"
+  },
         chains: [1],
         optionalChains: [137, 56, 43114],
         methods: ["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData"],
