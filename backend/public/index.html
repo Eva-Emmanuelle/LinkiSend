@@ -573,7 +573,7 @@ let balanceNum = 0;
 
 if (selOpt) {
   // Exemple d'option : "USDC — 117.91809"
-  const parts = sel.split("—");
+  const parts = selOpt.textContent.split("—");
   if (parts.length > 1) {
     balanceNum = parseFloat(parts[1].trim().replace(",", "."));
   }
