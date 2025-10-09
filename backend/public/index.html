@@ -129,7 +129,7 @@
           <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
           <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
         </div>
-      `);
+      `);}
   </script>
   <div class="wrap">
     <div class="brand">
@@ -290,7 +290,6 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
-        await refresh();
       } else {
         alert("Connexion annulée.");
       }
@@ -386,7 +385,6 @@ Promise.allSettled(
   setText("lbl-wallet", tr.wallet);
   setText("lbl-token", tr.token);
   setText("lbl-amount", tr.amount);
-  setText("lbl-network", tr.network);
   setText("lbl-phone", tr.phone);
   setText("hint", tr.hint);
   setText("generateBtn", tr.generate);
@@ -394,7 +392,6 @@ Promise.allSettled(
   setText("dialSearch", tr.search);
   setText("resultTitle", tr.resultTitle);
   setText("validityText", tr.validity);
-  setText("tokenBalanceInfo", `${tr.balance}: 0`);
 
   if (saveNameInput)  saveNameInput.placeholder = tr.savePh || '';
   if (saveConfirmBtn) saveConfirmBtn.textContent = `✅ ${tr.save || 'Save'}`;
@@ -513,20 +510,14 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
     saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
     function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
     document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
-    document.getElementById('saveContact').onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(translations?.[lang]?.needNumber || 'Enter a number first.');return}toggleSaveInline(true)};
-    saveConfirmBtn.onclick=()=>{const num=document.getElementById("phone").value.trim();if(!num){alert(translations?.[lang]?.needNumber || 'Enter a number first.');return}const pseudo=saveNameInput.value.trim();if(!pseudo){saveNameInput.focus();
-    return}const phone=currentDial.code+num;contacts.push({name:pseudo,phone,iso:currentDial.iso,code:currentDial.code});persistContacts();renderContacts();toggleSaveInline(false)};
-    saveCancelBtn.onclick=()=>toggleSaveInline(false);
-
     document.getElementById('generateBtn').addEventListener('click',async()=>{
       const amount=parseFloat(document.getElementById('amount').value);
       const currency=document.getElementById('currency').value;
       const sender_wallet=walletInput.value.trim();
       const localPhone=document.getElementById('phone').value.trim();
       const recipient_phone=`${currentDial.code}${localPhone}`;
-      const network=document.getElementById('network').value;
       resultDiv.style.display='none';errorDiv.style.display='none';
-      if(!amount||!currency||!sender_wallet||!localPhone||!network){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
+      if(!amount||!currency||!sender_wallet||!localPhone){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
       errorDiv.style.display='block';return}
       
       // Vérifie que le wallet contient bien des fonds
@@ -548,7 +539,7 @@ if (isNaN(balanceNum) || balanceNum <= 0) {
   return;
 }
       try{
-        const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone,network})});
+        const res=await fetch(`${BACKEND}/create-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,currency,sender_wallet,recipient_phone})});
         const data=await res.json();if(!res.ok)throw new Error(data.detail||"Erreur lors de la génération du lien");
         const lien=`https://linkisend.io/${data.short_id}`;linkEl.textContent=lien;resultDiv.style.display='block';
       }catch(err){errorDiv.textContent=err.message||(lang==='fr'?'Erreur réseau':'Network error');errorDiv.style.display='block'}
