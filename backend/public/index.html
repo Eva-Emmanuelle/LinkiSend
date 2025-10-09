@@ -270,6 +270,9 @@
     let currencySel;
     const BACKEND = `${location.protocol}//${location.hostname}`;
   document.addEventListener('DOMContentLoaded', ()=> {
+    const resultDiv=document.getElementById('result');
+    const errorDiv=document.getElementById('error');
+    const walletInput=document.getElementById('wallet');
     // === Connexion directe via WalletConnect ===
 const wcBtn = document.getElementById('walletConnectBtn');
 if (wcBtn && walletInput) {
@@ -328,9 +331,6 @@ if (wcBtn && walletInput) {
     }
   });
 }
-    const resultDiv=document.getElementById('result');
-    const errorDiv=document.getElementById('error');
-    const walletInput=document.getElementById('wallet');
     currencySel = document.getElementById('currency');
     const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');
