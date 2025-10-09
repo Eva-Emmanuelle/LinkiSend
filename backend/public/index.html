@@ -353,7 +353,7 @@ Promise.allSettled(
       .then(json => [code, json])
   )
 ).then(results => {
-  // Remplit l'objet translations uniquement avec les langues chargées avec succès
+  //  l'objet translations uniquement avec les langues chargées avec succès
   translations = results.reduce((acc, res) => {
     if (res.status === 'fulfilled') {
       const [code, json] = res.value;
@@ -857,13 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
 <script>
-/**
- * Remplit le select des tokens selon le réseau choisi
- * et affiche le solde à côté du symbole (par défaut "— 0").
- * Aucune dépendance externe.
- */
-(() => {
- <script>
 document.addEventListener("DOMContentLoaded", () => {
   const tokenSelect = document.getElementById("currency");
   if (!tokenSelect) return;
