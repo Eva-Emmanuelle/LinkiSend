@@ -200,8 +200,10 @@
 
       <label for="wallet" id="lbl-wallet">Ton wallet (expéditeur)</label>
       <input type="text" id="wallet" placeholder="0xABCDEF..." autocomplete="off" />
-      <a href="#" id="connectWalletLink" class="wallet-link" aria-haspopup="dialog">Connecter un wallet</a>
-
+      <button id="walletConnectBtn" class="wallet-link" style="gap:6px;cursor:pointer;">
+  <img src="/assets/wallets/walletconnect.svg" alt="WalletConnect" width="20" height="20" style="display:inline-block;vertical-align:middle;">
+  <span>WalletConnect</span>
+</button>
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
