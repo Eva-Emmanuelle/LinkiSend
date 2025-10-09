@@ -464,40 +464,42 @@ closeModal();
   } else {
     window.open("https://metamask.io/download/", "_blank");
   }
-} else if (provider === "phantom") {
-  try {
-    // Nettoie le champ au clic
-    walletInput.value = "";
+                } else if (provider === "phantom") {
+  const ph = window.solana;
+  if (ph && ph.isPhantom) {
+    try {
+      // 🔄 Attacher les écouteurs Phantom dès le départ
+      if (typeof ph.on === "function") {
+        // Quand l'utilisateur connecte et déverrouille Phantom
+        ph.on("connect", () => {
+          if (ph.publicKey) {
+            walletInput.value = ph.publicKey.toString();
+          }
+          closeModal();
+        });
 
-    // Si Phantom n'est pas présent → redirection
-    if (!window.solana || !window.solana.isPhantom) {
-      window.open("https://phantom.app/", "_blank");
-      return;
+        // Quand l'utilisateur change de compte
+        ph.on("accountChanged", (pubKey) => {
+          walletInput.value = pubKey ? pubKey.toString() : "";
+        });
+
+        // Quand l'utilisateur se déconnecte
+        ph.on("disconnect", () => {
+          walletInput.value = "";
+        });
+      }
+
+      // 👉 Lance la demande de connexion (ouvre Phantom, demande déverrouillage si nécessaire)
+      await ph.connect({ onlyIfTrusted: false });
+
+    } catch (err) {
+      console.error(err);
+      alert("Connexion Phantom refusée ou erreur.");
     }
-
-    const ph = window.solana;
-
-    // Force la reconnexion (ouvre Phantom si verrouillé)
-    const res = await ph.connect({ onlyIfTrusted: false });
-
-    // Vérifie la clé renvoyée
-    const pk = ph.publicKey?.toString() || "";
-    if (pk && pk !== "11111111111111111111111111111111") {
-      walletInput.value = pk;
-      closeModal();
-    } else {
-      walletInput.value = "";
-    }
-
-    // Si l’utilisateur déconnecte dans Phantom → on vide
-    ph.on("disconnect", () => {
-      walletInput.value = "";
-    });
-  } catch (err) {
-    console.error("Erreur Phantom:", err);
-    walletInput.value = "";
-    alert("Connexion Phantom refusée ou erreur.");
+  } else {
+    window.open("https://phantom.app/", "_blank");
   }
+
                 } else if (provider === "uniswap") {
           const uni = getProviderBy(
             d => /uniswap/i.test(d?.info?.rdns || '') || /uniswap/i.test(d?.info?.name || ''),
@@ -1016,10 +1018,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* --- Orchestration --- */
   async function refresh(){
-    // 🚫 Empêche toute lecture auto si Phantom n’est pas connecté manuellement
-  if (window.solana && window.solana.isPhantom && !window.solana.isConnected) {
-    return; // on quitte immédiatement, rien ne se passe
-  }
     const addr = (walletInput.value || '').trim();
     if (!addr){ currencySel.innerHTML=''; balInfoEl.textContent = (window.translations && window.translations[lang] && window.translations[lang].balance ? window.translations[lang].balance : 'Solde') + ': 0'; return; }
 
