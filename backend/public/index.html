@@ -270,6 +270,66 @@
     let currencySel;
     const BACKEND = `${location.protocol}//${location.hostname}`;
   document.addEventListener('DOMContentLoaded', ()=> {
+    // === Connexion directe via WalletConnect ===
+const wcBtn = document.getElementById('walletConnectBtn');
+const walletInput = document.getElementById('wallet');
+
+if (wcBtn && walletInput) {
+  wcBtn.addEventListener('click', async () => {
+    try {
+      wcBtn.disabled = true;
+      wcBtn.style.opacity = "0.6";
+      wcBtn.querySelector("span").textContent = "Connexion...";
+
+      // Charge le provider WalletConnect
+      const EP = await loadWalletConnectProvider();
+      if (!EP || !EP.init) throw new Error("Provider WalletConnect introuvable.");
+
+      // Initialise le provider
+      const provider = await EP.init({
+        projectId: "9c945cd5bef5c1e1905266cf0219736d",
+        showQrModal: true,
+        chains: [1],
+        optionalChains: [137, 56, 43114],
+        methods: ["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData"],
+        events: ["chainChanged","accountsChanged"]
+      });
+
+      // Démarre la connexion (ouvre QR ou deep-link)
+      await provider.connect();
+
+      // Récupère l'adresse
+      const accounts = await provider.request({ method: "eth_requestAccounts" });
+      const address = accounts && accounts[0] ? accounts[0] : "";
+
+      if (address) {
+        walletInput.value = address;
+      } else {
+        alert("Connexion annulée.");
+      }
+
+      // Stocke le provider globalement
+      window.__wcProvider = provider;
+
+      // Réactive le bouton
+      wcBtn.disabled = false;
+      wcBtn.style.opacity = "1";
+      wcBtn.querySelector("span").textContent = "WalletConnect";
+
+      // Met à jour si l’utilisateur change de compte
+      provider.on("accountsChanged", (acc) => {
+        if (acc && acc[0]) walletInput.value = acc[0];
+      });
+
+    } catch (err) {
+      console.error("Erreur WalletConnect:", err);
+      alert("Erreur WalletConnect : " + (err.message || err));
+      wcBtn.disabled = false;
+      wcBtn.style.opacity = "1";
+      wcBtn.querySelector("span").textContent = "WalletConnect";
+    }
+  });
+}
     const resultDiv=document.getElementById('result');
     const errorDiv=document.getElementById('error');
     const walletInput=document.getElementById('wallet');
