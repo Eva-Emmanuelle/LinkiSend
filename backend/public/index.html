@@ -319,6 +319,7 @@ const telField = Array.isArray(rawTel)
       <span id="dialCode">${found.code}</span>`;
     phoneInput.value = phone.nationalNumber;
   }
+    }
       else {
   const lang = navigator.language || "en";
   const isoGuess = lang.split("-")[1]?.toUpperCase() || "US";
