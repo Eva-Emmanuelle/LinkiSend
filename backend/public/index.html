@@ -126,10 +126,7 @@
   margin-top: -1px;
 } 
   </style>
-  </style>
-<script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.10.39/bundle/libphonenumber-js.min.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded",function(){
+
   <script>
   document.addEventListener("DOMContentLoaded",function(){
     const s=document.getElementById('splash');if(!s)return;
@@ -298,43 +295,17 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
   const phoneInput = document.getElementById('phone');
-  const rawTel = contacts[0].tel;
-const telField = Array.isArray(rawTel)
-  ? (rawTel[0]?.number || rawTel[0] || "")
-  : (rawTel?.number || rawTel || "");
+  const telField =
+    contacts[0].tel?.[0]?.number ||
+    contacts[0].tel?.[0] ||
+    contacts[0].tel ||
+    "";
   if (phoneInput && telField) phoneInput.value = telField;
-        const clean = telField.replace(/[\s()-]/g, "");
         if (telField) {
   // Détecte automatiquement l’indicatif du numéro et ajuste le drapeau
-  if (clean.startsWith("+") || clean.startsWith("00")) {
-    else if (!clean.startsWith("+") && !clean.startsWith("00")) {
-    const phone = libphonenumber.parsePhoneNumberFromString(clean, "ES");
-    if (phone && phone.country) {
-  const found = COUNTRIES.find(c => c.iso === phone.country);
-  if (found) {
-    const dialBtn = document.getElementById("dialBtn");
-    dialBtn.innerHTML = `
-      <span class="fi fi-${found.iso.toLowerCase()}"
-            style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
-      <span id="dialCode">${found.code}</span>`;
-    phoneInput.value = phone.nationalNumber;
-  }
-    }
-      else {
-  const lang = navigator.language || "en";
-  const isoGuess = lang.split("-")[1]?.toUpperCase() || "US";
-  const found = COUNTRIES.find(c => c.iso === isoGuess);
-  if (found) {
-    const dialBtn = document.getElementById("dialBtn");
-    dialBtn.innerHTML = `
-      <span class="fi fi-${found.iso.toLowerCase()}"
-            style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
-      <span id="dialCode">${found.code}</span>`;
-  }
-}
-  // on traitera ici la détection automatique avec libphonenumber
-}
-    const match = clean.match(/^(?:\+|00)(\d{1,4})/);
+  const clean = telField.replace(/[\s()-]/g, "");
+  if (clean.startsWith("+")) {
+    const match = clean.match(/^\+(\d{1,4})/);
     if (match) {
       const code = "+" + match[1];
       const found = COUNTRIES.find(c => c.code === code);
@@ -345,21 +316,9 @@ const telField = Array.isArray(rawTel)
                 style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
           <span id="dialCode">${found.code}</span>`;
       }
-      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}/, "");
+      phoneInput.value = clean.replace(/^\+\d{1,4}/, "");
     }
   }
-          else {
-  const lang = navigator.language || "en";
-  const isoGuess = lang.split("-")[1]?.toUpperCase() || "US";
-  const found = COUNTRIES.find(c => c.iso === isoGuess);
-  if (found) {
-    const dialBtn = document.getElementById("dialBtn");
-    dialBtn.innerHTML = `
-      <span class="fi fi-${found.iso.toLowerCase()}"
-            style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
-      <span id="dialCode">${found.code}</span>`;
-  }
-}
 }
 }
     } catch (err) {
