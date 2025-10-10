@@ -18,10 +18,13 @@
     *,*:before,*:after{box-sizing:border-box}html,body{height:100%}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#132034 0%,
     transparent 60%),radial-gradient(900px 500px at 110% 0%,#1a2334 0%,transparent 60%),var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}.brand img.arrow {
-  max-width:80px;
+    .wrap{max-width:420px;margin:40px auto 64px;padding:0 16px}
+    .brand img.arrow {
+  max-width:45px;
   height:auto;
-  filter:drop-shadow(0 0 8px rgba(255,255,255,0.1));}
+  margin-right:8px;
+  filter:drop-shadow(0 0 8px rgba(255,255,255,0.1));
+}
     .brand img.word{max-width:240px;height:auto;display:block}
     .brand {
   display:flex;
@@ -68,7 +71,7 @@
     .result-cta{margin:14px 2px 0;padding:16px;border-radius:14px;background:#ecfdf5;border:1px solid #bbf7d0;color:#064e3b;display:none}
     .row-cta{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
     .toast{position:fixed;right:16px;bottom:16px;background:#10b981;color:white;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:60}.toast.show{opacity:1;transform:translateY(0)}
-    .phone-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+    .-row{display:flex;gap:8px;align-items:center}.dial{position:relative;display:flex}.dial-btn{height:44px;padding:0 10px;border-radius:8px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
     .dial-btn:hover{background:#0d1729}.dial-panel{position:absolute;left:0;top:44px;z-index:30;width:260px;background:#0d1420;border:1px solid var(--stroke);border-radius:10px;box-shadow:var(--shadow);display:none}
     .dial-head{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.dial-search-input{flex:1;height:32px;border:1px solid var(--stroke);background:#0e141c;color:#e6edf3;border-radius:8px;padding:0 8px;outline:none}
     .dial-list{max-height:260px;overflow:auto}.dial-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}.dial-item:last-child{border-bottom:0}
@@ -166,12 +169,12 @@
   (function(){
     const isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(window.navigator.standalone===true);
     const ua=(navigator.userAgent||navigator.vendor||window.opera||"").toLowerCase();
-    const isMobileUA=/android|iphone|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
+    const isMobileUA=/android|i|ipad|ipod|iemobile|opera mini|mobile/i.test(ua);
     if(!isStandalone && isMobileUA){
       function browserHelp(){
         if(ua.includes('samsungbrowser'))return"Sur Samsung Internet : menu ⋮ > Ajouter page à > Écran d'accueil.";
         if(ua.includes('firefox'))return"Sur Firefox Android : menu ⋮ > Installer.";
-        if(ua.includes('crios')||ua.includes('iphone')||ua.includes('ipad'))return"Sur iPhone/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
+        if(ua.includes('crios')||ua.includes('i')||ua.includes('ipad'))return"Sur i/iPad (Safari) : bouton Partager ⎋ > Ajouter à l’écran d’accueil.";
         if(ua.includes('chrome'))return"Sur Chrome Android : menu ⋮ > Installer l’application (ou Ajouter à l’écran d’accueil).";
         return"Ouvre le menu du navigateur et choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».";
       }
@@ -180,7 +183,7 @@
         <div id="install-gate" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:#0b0f14;color:#e6edf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;">
           <img src="/static/assets/branding/logo-arrow.svg" alt="LinkiSend" style="width:96px;height:auto;margin-bottom:18px;opacity:.95;"/>
           <h2 style="margin:0 0 10px;font-size:22px;">Installe l’app LinkiSend 📲</h2>
-          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton téléphone.</p>
+          <p style="margin:0 0 16px;color:#9fb0c0;font-size:14px;max-width:340px;">Pour utiliser LinkiSend, installe l’application sur ton télé.</p>
           <button id="installNow" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid #1f2a37;background:#0e141c;color:#e6edf3;font-weight:700;cursor:pointer;">📲 Installer l’app</button>
           <div id="installHint" style="margin-top:10px;color:#9fb0c0;font-size:12px;">${browserHelp()}</div>
         </div>
@@ -293,6 +296,25 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
     contacts[0].tel ||
     "";
   if (phoneInput && telField) phoneInput.value = telField;
+        if (telField) {
+  // Détecte automatiquement l’indicatif du numéro et ajuste le drapeau
+  const clean = telField.replace(/[\s()-]/g, "");
+  if (clean.startsWith("+")) {
+    const match = clean.match(/^\+(\d{1,4})/);
+    if (match) {
+      const code = "+" + match[1];
+      const found = COUNTRIES.find(c => c.code === code);
+      if (found) {
+        const dialBtn = document.getElementById("dialBtn");
+        dialBtn.innerHTML = `
+          <span class="fi fi-${found.iso.toLowerCase()}"
+                style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
+          <span id="dialCode">${found.code}</span>`;
+      }
+      phoneInput.value = clean.replace(/^\+\d{1,4}/, "");
+    }
+  }
+}
 }
     } catch (err) {
       alert("Impossible d'accéder aux contacts : " + err.message);
