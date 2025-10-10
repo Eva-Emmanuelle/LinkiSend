@@ -295,17 +295,16 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
   const phoneInput = document.getElementById('phone');
-  const telField =
-    contacts[0].tel?.[0]?.number ||
-    contacts[0].tel?.[0] ||
-    contacts[0].tel ||
-    "";
+  const rawTel = contacts[0].tel;
+const telField = Array.isArray(rawTel)
+  ? (rawTel[0]?.number || rawTel[0] || "")
+  : (rawTel?.number || rawTel || "");
   if (phoneInput && telField) phoneInput.value = telField;
+        const clean = telField.replace(/[\s()-]/g, "");
         if (telField) {
   // Détecte automatiquement l’indicatif du numéro et ajuste le drapeau
-  const clean = telField.replace(/[\s()-]/g, "");
-  if (clean.startsWith("+")) {
-    const match = clean.match(/^\+(\d{1,4})/);
+  if (clean.startsWith("+") || clean.startsWith("00")) {
+    const match = clean.match(/^(?:\+|00)(\d{1,4})/);
     if (match) {
       const code = "+" + match[1];
       const found = COUNTRIES.find(c => c.code === code);
@@ -316,9 +315,21 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
                 style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
           <span id="dialCode">${found.code}</span>`;
       }
-      phoneInput.value = clean.replace(/^\+\d{1,4}/, "");
+      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}/, "");
     }
   }
+          else {
+  const lang = navigator.language || "en";
+  const isoGuess = lang.split("-")[1]?.toUpperCase() || "US";
+  const found = COUNTRIES.find(c => c.iso === isoGuess);
+  if (found) {
+    const dialBtn = document.getElementById("dialBtn");
+    dialBtn.innerHTML = `
+      <span class="fi fi-${found.iso.toLowerCase()}"
+            style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
+      <span id="dialCode">${found.code}</span>`;
+  }
+}
 }
 }
     } catch (err) {
