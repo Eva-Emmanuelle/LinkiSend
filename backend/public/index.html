@@ -652,7 +652,8 @@ if (!balanceNum || isNaN(balanceNum) || balanceNum <= 0) {
 
     const copyBtn=document.getElementById('copyLinkBtn');if(copyBtn){copyBtn.addEventListener('click',()=>{navigator.clipboard.writeText(linkEl.textContent).then(()=>{copyBtn.textContent="✅";setTimeout(()=>copyBtn.textContent="📋",1500)})})}
 
-    if("serviceWorker" in navigator){navigator.serviceWorker.register("/service-worker.js").then(()=>console.log("SW enregistré ✅")).catch(err=>console.error("SW erreur:",err))}
+    if("serviceWorker" in navigator){navigator.serviceWorker.register("/service-worker.js").then(reg => { reg.update(); })
+.then(()=>console.log("SW enregistré ✅")).catch(err=>console.error("SW erreur:",err))}
     let deferredPrompt=null;window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='inline-flex'});
     document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
     window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
