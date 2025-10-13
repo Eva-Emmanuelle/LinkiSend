@@ -311,9 +311,7 @@ if (clean.startsWith("+") || clean.startsWith("00")) {
     const code = "+" + match[1];
     const found = COUNTRIES.find(c => c.code === code);
       // met à jour le champ téléphone sans l’indicatif
-      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}/, "").trim();
-phoneInput.value = phoneInput.value.replace(/^\s+/, "");
-
+      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}\s?/, "");
   }
 }
 }
