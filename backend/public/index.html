@@ -301,22 +301,18 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
     contacts[0].tel ||
     "";
   if (phoneInput && telField) phoneInput.value = telField;
-        if (telField) {
-  // Détecte automatiquement l’indicatif du numéro et ajuste le drapeau
-  const clean = telField.replace(/[\s()-]/g, "");
-  if (clean.startsWith("+")) {
-    const match = clean.match(/^\+(\d{1,4})/);
-    if (match) {
-      const code = "+" + match[1];
-      const found = COUNTRIES.find(c => c.code === code);
-      if (found) {
-        const dialBtn = document.getElementById("dialBtn");
-        dialBtn.innerHTML = `
-          <span class="fi fi-${found.iso.toLowerCase()}"
-                style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
-          <span id="dialCode">${found.code}</span>`;
-      }
-      phoneInput.value = clean.replace(/^\+\d{1,4}/, "");
+        // Nettoie le numéro et supprime l’indicatif si détecté
+let clean = telField.replace(/[\s()-]/g, ""); // enlève espaces et symboles
+
+if (clean.startsWith("+") || clean.startsWith("00")) {
+  // extrait les 1 à 4 chiffres après + ou 00
+  const match = clean.match(/^(?:\+|00)(\d{1,4})/);
+  if (match) {
+    const code = "+" + match[1];
+    const found = COUNTRIES.find(c => c.code === code);
+    if (found) {
+      // met à jour le champ téléphone sans l’indicatif
+      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}/, "");
     }
   }
 }
