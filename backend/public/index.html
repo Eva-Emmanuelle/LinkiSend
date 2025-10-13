@@ -295,8 +295,6 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
         const phoneInput = document.getElementById('phone');
-        const dialCodeSpan = document.getElementById('dialCode');
-        const dialBtn = document.getElementById('dialBtn');
         const telField =
           contacts[0].tel?.[0]?.number ||
           contacts[0].tel?.[0] ||
@@ -304,30 +302,19 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
           "";
 
         if (phoneInput && telField) {
-          // Nettoyage et parsing du numéro
+          const raw = String(telField);
           try {
-            const parsed = libphonenumber.parsePhoneNumberFromString(telField);
-            if (parsed) {
-              // ✅ met le numéro sans indicatif
-              phoneInput.value = parsed.nationalNumber;
-
-              // ✅ met automatiquement le bon indicatif et le drapeau
-              if (dialCodeSpan && parsed.countryCallingCode) {
-                const code = "+" + parsed.countryCallingCode;
-                const country = parsed.country || "FR";
-                dialCodeSpan.textContent = code;
-                dialBtn.innerHTML =
-                  `<span class="fi fi-${country.toLowerCase()}"
-                        style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
-                   <span id="dialCode">${code}</span>`;
-              }
+            const p = libphonenumber.parsePhoneNumberFromString(raw);
+            if (p && p.countryCallingCode) {
+              // Cas : numéro avec indicatif → on enlève l’indicatif
+              phoneInput.value = p.nationalNumber;
             } else {
-              // Si non reconnu, simple nettoyage
-              phoneInput.value = telField.replace(/[\s()-]/g, "");
+              // Cas : numéro sans indicatif → on garde juste les chiffres
+              phoneInput.value = raw.replace(/[^\d]/g, "");
             }
-          } catch (err) {
-            console.error("Erreur parsing libphonenumber:", err);
-            phoneInput.value = telField.replace(/[\s()-]/g, "");
+          } catch {
+            // Sécurité : fallback simple
+            phoneInput.value = raw.replace(/[^\d]/g, "");
           }
         }
       }
