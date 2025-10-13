@@ -295,6 +295,8 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
         const phoneInput = document.getElementById('phone');
+        const dialBtn = document.getElementById('dialBtn');
+        const dialCodeSpan = document.getElementById('dialCode');
         const telField =
           contacts[0].tel?.[0]?.number ||
           contacts[0].tel?.[0] ||
@@ -302,27 +304,47 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
           "";
 
         if (phoneInput && telField) {
-          // --- Nettoyage déterministe basé sur COUNTRIES ---
           const raw = String(telField).trim();
           let clean = raw.replace(/[\s()-]/g, "");
 
-          // normalise "00" -> "+"
+          // normalise 00 → +
           if (clean.startsWith("00")) clean = "+" + clean.slice(2);
 
+          let detectedCode = "";
+          let detectedIso = "";
+          let national = clean;
+
           if (clean.startsWith("+") && Array.isArray(COUNTRIES)) {
-            const digits = clean.slice(1); // après le "+"
-            // extrait tous les indicatifs connus ("+34" -> "34")
+            const digits = clean.slice(1);
             const codes = COUNTRIES.map(c => (c.code || "").replace("+", "")).filter(Boolean);
-            // prend le préfixe le plus long qui matche
             let best = "";
             for (const code of codes) {
               if (digits.startsWith(code) && code.length > best.length) best = code;
             }
-            // si trouvé : retire exactement l'indicatif ; sinon : retire juste le "+"
-            clean = best ? digits.slice(best.length) : digits;
+            if (best) {
+              detectedCode = "+" + best;
+              const country = COUNTRIES.find(c => c.code === detectedCode);
+              detectedIso = country ? country.iso : "";
+              national = digits.slice(best.length);
+            } else {
+              national = digits;
+            }
+          } else {
+            // aucun indicatif détecté
+            national = clean.replace(/[^\d]/g, "");
           }
 
-          phoneInput.value = clean; // -> numéro national sans indicatif
+          // ✅ Mise à jour du champ numéro
+          phoneInput.value = national;
+
+          // ✅ Mise à jour du drapeau et de l’indicatif LinkiSend
+          if (detectedCode && detectedIso && dialBtn && dialCodeSpan) {
+            dialCodeSpan.textContent = detectedCode;
+            dialBtn.innerHTML =
+              `<span class="fi fi-${detectedIso.toLowerCase()}"
+                    style="width:18px;height:12px;border-radius:2px;object-fit:cover;display:inline-block;margin-right:6px;"></span>
+               <span id="dialCode">${detectedCode}</span>`;
+          }
         }
       }
     } catch (err) {
