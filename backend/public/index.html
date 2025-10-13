@@ -302,20 +302,27 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
           "";
 
         if (phoneInput && telField) {
-          const raw = String(telField);
-          try {
-            const p = libphonenumber.parsePhoneNumberFromString(raw);
-            if (p && p.countryCallingCode) {
-              // Cas : numéro avec indicatif → on enlève l’indicatif
-              phoneInput.value = p.nationalNumber;
-            } else {
-              // Cas : numéro sans indicatif → on garde juste les chiffres
-              phoneInput.value = raw.replace(/[^\d]/g, "");
+          // --- Nettoyage déterministe basé sur COUNTRIES ---
+          const raw = String(telField).trim();
+          let clean = raw.replace(/[\s()-]/g, "");
+
+          // normalise "00" -> "+"
+          if (clean.startsWith("00")) clean = "+" + clean.slice(2);
+
+          if (clean.startsWith("+") && Array.isArray(COUNTRIES)) {
+            const digits = clean.slice(1); // après le "+"
+            // extrait tous les indicatifs connus ("+34" -> "34")
+            const codes = COUNTRIES.map(c => (c.code || "").replace("+", "")).filter(Boolean);
+            // prend le préfixe le plus long qui matche
+            let best = "";
+            for (const code of codes) {
+              if (digits.startsWith(code) && code.length > best.length) best = code;
             }
-          } catch {
-            // Sécurité : fallback simple
-            phoneInput.value = raw.replace(/[^\d]/g, "");
+            // si trouvé : retire exactement l'indicatif ; sinon : retire juste le "+"
+            clean = best ? digits.slice(best.length) : digits;
           }
+
+          phoneInput.value = clean; // -> numéro national sans indicatif
         }
       }
     } catch (err) {
