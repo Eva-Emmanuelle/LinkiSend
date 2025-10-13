@@ -294,27 +294,30 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
     try {
       const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
       if (contacts.length > 0) {
-  const phoneInput = document.getElementById('phone');
-  const telField =
-    contacts[0].tel?.[0]?.number ||
-    contacts[0].tel?.[0] ||
-    contacts[0].tel ||
-    "";
-  if (phoneInput && telField) phoneInput.value = telField;
-        // Nettoie le numéro et supprime l’indicatif si détecté
-let clean = telField.replace(/[\s()-]/g, ""); // enlève espaces et symboles
+        const phoneInput = document.getElementById('phone');
+        const telField =
+          contacts[0].tel?.[0]?.number ||
+          contacts[0].tel?.[0] ||
+          contacts[0].tel ||
+          "";
 
-if (clean.startsWith("+") || clean.startsWith("00")) {
-  // extrait les 1 à 4 chiffres après + ou 00
-  const match = clean.match(/^(?:\+|00)(\d{1,4})/);
-  if (match) {
-    const code = "+" + match[1];
-    const found = COUNTRIES.find(c => c.code === code);
-      // met à jour le champ téléphone sans l’indicatif
-      phoneInput.value = clean.replace(/^(?:\+|00)\d{1,4}\s?/, "");
-  }
-}
-}
+        if (phoneInput && telField) {
+          // Nettoyage du numéro avec libphonenumber-js
+          try {
+            const parsed = libphonenumber.parsePhoneNumberFromString(telField);
+            if (parsed) {
+              // Affecte uniquement le numéro national (sans indicatif)
+              phoneInput.value = parsed.nationalNumber;
+            } else {
+              // Si non reconnu, on nettoie simplement les espaces et symboles
+              phoneInput.value = telField.replace(/[\s()-]/g, "");
+            }
+          } catch {
+            // Si erreur, on garde un nettoyage basique
+            phoneInput.value = telField.replace(/[\s()-]/g, "");
+          }
+        }
+      }
     } catch (err) {
       alert("Impossible d'accéder aux contacts : " + err.message);
     }
