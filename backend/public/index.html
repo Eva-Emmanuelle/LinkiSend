@@ -438,9 +438,14 @@ if (wcBtn && walletInput) {
     } catch (err) {
       console.error("Erreur WalletConnect:", err);
       alert("Erreur WalletConnect : " + (err.message || err));
-      wcBtn.disabled = false;
+           wcBtn.disabled = false;
       wcBtn.style.opacity = "1";
       wcBtn.querySelector("span").textContent = "WalletConnect";
+
+      // 🔹 Ajout forcé du scan EVM une fois connecté
+      if (window.scanEvm && walletInput.value) {
+        await window.scanEvm(window.ethereum, walletInput.value);
+      }
     }
   });
 }
