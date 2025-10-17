@@ -438,23 +438,9 @@ if (wcBtn && walletInput) {
     } catch (err) {
       console.error("Erreur WalletConnect:", err);
       alert("Erreur WalletConnect : " + (err.message || err));
-           wcBtn.disabled = false;
+      wcBtn.disabled = false;
       wcBtn.style.opacity = "1";
       wcBtn.querySelector("span").textContent = "WalletConnect";
-
-      // 🔹 Ajout forcé du scan EVM une fois connecté
-      setTimeout(async () => {
-  if (window.scanEvm && walletInput.value) {
-    console.log("🔍 Scan forcé du wallet :", walletInput.value);
-    try {
-      await window.scanEvm(window.ethereum, walletInput.value);
-    } catch (err) {
-      console.error("Erreur lors du scan forcé :", err);
-    }
-  } else {
-    console.warn("scanEvm ou wallet non prêt");
-  }
-}, 1000);
     }
   });
 }
@@ -1005,6 +991,20 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const tokenSelect = document.getElementById("currency");
+  if (!tokenSelect) return;
+
+  const tokens = ["ETH", "USDT", "USDC", "DAI", "MATIC", "BNB", "AVAX"];
+  tokens.forEach(sym => {
+    const opt = document.createElement("option");
+    opt.value = sym;
+    opt.textContent = sym;
+    tokenSelect.appendChild(opt);
+  });
+});
+</script>
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.10.25/bundle/libphonenumber-js.min.js"></script>
 </body>
 </html>
