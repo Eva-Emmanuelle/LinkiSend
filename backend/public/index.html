@@ -412,6 +412,14 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
+
+try {
+  const chainId = await window.ethereum.request({ method: "eth_chainId" });
+  console.log("🟣 Réseau détecté :", chainId);
+  window.currentChain = chainId;
+} catch (err) {
+  console.error("Impossible de détecter le réseau :", err);
+}
         if (typeof window.scanEvm === "function") {
   await window.scanEvm(provider, address);
 } else {
