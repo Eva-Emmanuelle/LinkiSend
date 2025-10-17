@@ -420,7 +420,9 @@ if (wcBtn && walletInput) {
 
       // Démarre la connexion (ouvre QR ou deep-link)
       await provider.connect();
-
+      provider.on("connect", (info) => {
+  console.log("✅ Wallet connecté :", info);
+});
       // Récupère l'adresse
       const accounts = await provider.request({ method: "eth_requestAccounts" });
       const address = accounts && accounts[0] ? accounts[0] : "";
