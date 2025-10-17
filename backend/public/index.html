@@ -631,7 +631,6 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
     saveCancelBtn.style.background='#0a1220';saveCancelBtn.style.color='#ffffff';saveCancelBtn.style.borderRadius='8px';saveCancelBtn.style.padding='6px 10px';saveCancelBtn.style.cursor='pointer';
     saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
     function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
-    document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
     document.getElementById('generateBtn').addEventListener('click',async()=>{
       const amount=parseFloat(document.getElementById('amount').value);
       const currency=document.getElementById('currency').value;
