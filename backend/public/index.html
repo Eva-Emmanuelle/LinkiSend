@@ -659,25 +659,39 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       if(!amount||!currency||!sender_wallet||!localPhone){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
       errorDiv.style.display='block';return}
       
-      // Vérifie que le wallet contient bien des fonds
-const selOpt = currencySel.options[currencySel.selectedIndex];
-let balanceNum = 0;
-if (selOpt) {
-  // Exemple d'option : "USDC — 117.91809"
-  const txt = selOpt.textContent || "";
-  const parts = txt.split("—");
-  if (parts.length > 1) {
-    const raw = parts[1].trim().replace(",", ".");
-    balanceNum = parseFloat(raw);
-  }
-}
+      // Vérifie que le wallet contient bien des fonds réels
+try {
+  const address = walletInput.value.trim();
+  const amount = parseFloat(document.getElementById("amount").value);
 
-if (!balanceNum || isNaN(balanceNum) || balanceNum <= 0) {
-  errorDiv.textContent =
-    translations?.[lang]?.noBalance ||
-    (lang === "fr"
-      ? "Solde insuffisant pour générer un lien."
-      : "Insufficient balance to generate a link.");
+  if (!address || isNaN(amount) || amount <= 0) {
+    errorDiv.textContent = "Montant ou adresse invalide.";
+    errorDiv.style.display = "block";
+    return;
+  }
+
+  // Récupère le solde du wallet (en wei)
+  const balanceHex = await provider.request({
+    method: "eth_getBalance",
+    params: [address, "latest"],
+  });
+
+  // Convertit en ETH
+  const balance = parseFloat(parseInt(balanceHex, 16) / 1e18);
+
+  // Vérifie que le solde est suffisant
+  if (isNaN(balance) || balance <= 0 || balance < amount) {
+    errorDiv.textContent =
+      translations?.[lang]?.noBalance ||
+      (lang === "fr"
+        ? "Solde insuffisant pour générer un lien."
+        : "Insufficient balance to generate a link.");
+    errorDiv.style.display = "block";
+    return;
+  }
+} catch (err) {
+  console.error("Erreur lors de la vérification du solde :", err);
+  errorDiv.textContent = "Impossible de vérifier le solde du wallet.";
   errorDiv.style.display = "block";
   return;
 }
