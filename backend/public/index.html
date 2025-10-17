@@ -376,77 +376,94 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
 const wcBtn = document.getElementById('walletConnectBtn');
 if (wcBtn && walletInput) {
   wcBtn.addEventListener('click', async () => {
+    // 1) UI immédiate
     pendingWalletConnect = true;
-    try {
-      wcBtn.disabled = true;
-      wcBtn.style.opacity = "0.6";
-      wcBtn.querySelector("span").textContent = "Connexion...";
+    wcBtn.disabled = true;
+    wcBtn.style.opacity = "0.6";
+    wcBtn.querySelector("span").textContent = "Connexion...";
 
-      // Charge le provider WalletConnect
-      const EP = await loadWalletConnectProvider();
-      if (!EP || !EP.init) throw new Error("Provider WalletConnect introuvable.");
+    // 2) Laisse l’UI s’afficher puis initialise WalletConnect en arrière-plan
+    setTimeout(async () => {
+      try {
+        // Charge le provider WalletConnect
+        const EP = await loadWalletConnectProvider();
+        if (!EP || !EP.init) throw new Error("Provider WalletConnect introuvable.");
 
-      // Initialise le provider
-      const provider = await EP.init({
-        projectId: "9c945cd5bef5c1e1905266cf0219736d",
-        showQrModal: true,
-        rpc: {
-    1: "https://rpc.ankr.com/eth",
-    56: "https://rpc.ankr.com/bsc",
-    137: "https://rpc.ankr.com/polygon",
-    43114: "https://rpc.ankr.com/avalanche"
-  },
-        chains: [1],
-        optionalChains: [137, 56, 43114],
-        methods: ["eth_requestAccounts","eth_sendTransaction","personal_sign","eth_signTypedData"],
-        events: ["chainChanged","accountsChanged"]
-      });
+        // Initialise le provider (wallet mobile)
+        const provider = await EP.init({
+          projectId: "9c945cd5bef5c1e1905266cf0219736d",
+          showQrModal: true,
+          rpc: {
+            1: "https://rpc.ankr.com/eth",
+            56: "https://rpc.ankr.com/bsc",
+            137: "https://rpc.ankr.com/polygon",
+            43114: "https://rpc.ankr.com/avalanche"
+          },
+          chains: [1],
+          optionalChains: [137, 56, 43114],
+          methods: ["eth_requestAccounts", "eth_sendTransaction", "personal_sign", "eth_signTypedData"],
+          events: ["chainChanged", "accountsChanged"]
+        });
 
-      // Démarre la connexion (ouvre QR ou deep-link)
-      await provider.connect();
-      provider.on("connect", (info) => {
-  console.log("✅ Wallet connecté :", info);
-});
-      // Récupère l'adresse
-      const accounts = await provider.request({ method: "eth_requestAccounts" });
-      const address = accounts && accounts[0] ? accounts[0] : "";
+        // Ouvre le wallet (deep-link mobile)
+        await provider.connect();
 
-      if (address) {
-        walletInput.value = address;
-        // Cache l'overlay dès que le wallet est connecté
-const overlay = document.getElementById("wallet-overlay");
-if (overlay) overlay.style.display = "none";
-pendingWalletConnect = false;
-        if (typeof window.scanEvm === "function") {
-  await window.scanEvm(provider, address);
-} else {
-  console.warn("scanEvm non encore chargé.");
-}
-      } else {
-        alert("Connexion annulée.");
+        // Récupère l’adresse
+        const accounts = await provider.request({ method: "eth_requestAccounts" });
+        const address = (accounts && accounts[0]) ? accounts[0] : "";
+
+        if (address) {
+          walletInput.value = address;
+
+          // Cache l’overlay et réinitialise le flag
+          const overlay = document.getElementById("wallet-overlay");
+          if (overlay) overlay.style.display = "none";
+          pendingWalletConnect = false;
+
+          // Sauvegarde de session pour la reprise
+          try {
+            const session = provider.session || null;
+            if (session) {
+              localStorage.setItem("wc_session", JSON.stringify(session));
+              localStorage.setItem("wc_address", address);
+            }
+          } catch {}
+
+          // Scan des tokens (si dispo)
+          if (typeof window.scanEvm === "function") {
+            try { await window.scanEvm(provider, address); } catch {}
+          }
+
+        } else {
+          alert("Connexion annulée.");
+          pendingWalletConnect = false;
+          const overlay = document.getElementById("wallet-overlay");
+          if (overlay) overlay.style.display = "none";
+        }
+
+        // Mise à dispo globale du provider
+        window.__wcProvider = provider;
+
+        // Réactive le bouton
+        wcBtn.disabled = false;
+        wcBtn.style.opacity = "1";
+        wcBtn.querySelector("span").textContent = "WalletConnect";
+
+        // Suivi changement de compte
+        provider.on("accountsChanged", (acc) => {
+          if (acc && acc[0]) walletInput.value = acc[0];
+        });
+
+      } catch (err) {
+        alert("Erreur WalletConnect : " + (err && err.message ? err.message : "inconnue"));
+        pendingWalletConnect = false;
+        const overlay = document.getElementById("wallet-overlay");
+        if (overlay) overlay.style.display = "none";
+        wcBtn.disabled = false;
+        wcBtn.style.opacity = "1";
+        wcBtn.querySelector("span").textContent = "WalletConnect";
       }
-
-      // Stocke le provider globalement
-      window.__wcProvider = provider;
-      window.ethereum = provider;
-
-      // Réactive le bouton
-      wcBtn.disabled = false;
-      wcBtn.style.opacity = "1";
-      wcBtn.querySelector("span").textContent = "WalletConnect";
-
-      // Met à jour si l’utilisateur change de compte
-      provider.on("accountsChanged", (acc) => {
-        if (acc && acc[0]) walletInput.value = acc[0];
-      });
-
-    } catch (err) {
-      console.error("Erreur WalletConnect:", err);
-      alert("Erreur WalletConnect : " + (err.message || err));
-      wcBtn.disabled = false;
-      wcBtn.style.opacity = "1";
-      wcBtn.querySelector("span").textContent = "WalletConnect";
-    }
+    }, 300);
   });
 }
     currencySel = document.getElementById('currency');
