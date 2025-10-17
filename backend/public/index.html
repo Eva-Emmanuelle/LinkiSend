@@ -643,6 +643,11 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
   errorDiv.style.display = "block";
   return;
 }
+      if (!localPhone && amount && currency && sender_wallet) {
+  errorDiv.textContent = "Aucun numéro sélectionné";
+  errorDiv.style.display = "block";
+  return;
+}
       if(!amount||!currency||!sender_wallet||!localPhone){errorDiv.textContent=(lang==='fr')?"Merci de remplir tous les champs obligatoires.":"Please fill in all required fields.";
       errorDiv.style.display='block';return}
       if (isNaN(amount) || amount <= 0) { errorDiv.textContent = "Montant incorrect"; errorDiv.style.display = "block"; return; }
