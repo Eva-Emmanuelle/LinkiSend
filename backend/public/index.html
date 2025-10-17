@@ -412,6 +412,7 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
+        await scanEvm(provider, address);
       } else {
         alert("Connexion annulée.");
       }
