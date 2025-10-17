@@ -638,7 +638,7 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       const localPhone=document.getElementById('phone').value.trim();
       const recipient_phone=`${currentDial.code}${localPhone}`;
       resultDiv.style.display='none';errorDiv.style.display='none';
-      if (!sender_wallet) {
+      if (!sender_wallet && amount && currency && localPhone) {
   errorDiv.textContent = "Wallet non connecté";
   errorDiv.style.display = "block";
   return;
