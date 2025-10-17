@@ -649,7 +649,6 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
     saveInline.appendChild(saveNameInput);btnsWrap.appendChild(saveConfirmBtn);btnsWrap.appendChild(saveCancelBtn);saveInline.appendChild(btnsWrap);actionsBar.insertAdjacentElement('afterend',saveInline);
     function toggleSaveInline(open){saveInline.style.display=open?'block':'none';if(open){saveNameInput.value='';saveNameInput.focus()}}
     document.getElementById('showContacts').onclick=()=>{contactsList.style.display=(contactsList.style.display==="block"?"none":"block");renderContacts()};
-    document.getElementById('generateBtn').addEventListener('click',async()=>{
       const amount=parseFloat(document.getElementById('amount').value);
       const currency=document.getElementById('currency').value;
       const sender_wallet=walletInput.value.trim();
@@ -1020,6 +1019,12 @@ document.addEventListener("DOMContentLoaded", () => {
     tokenSelect.appendChild(opt);
   });
 });
+  // === Fonction principale : génération du lien ===
+async function generateLink() {
+  alert("Test : generateLink appelée !");
+}
+  // === Liaison du bouton avec la fonction ===
+document.getElementById('generateBtn').addEventListener('click', generateLink);
 </script>
   <script src="/vendor/libphonenumber-js.min.js"></script>
 </body>
