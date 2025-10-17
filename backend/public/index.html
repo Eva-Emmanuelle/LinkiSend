@@ -660,8 +660,8 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       errorDiv.style.display='block';return}
       
       // Vérifie que le wallet contient bien des fonds réels
-try {
-  alert("Début de la vérification du solde");
+alert("Test : entrée dans generateLink()");
+      try {
   const address = walletInput.value.trim();
   const amount = parseFloat(document.getElementById("amount").value);
 
