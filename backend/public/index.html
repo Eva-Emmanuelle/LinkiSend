@@ -443,9 +443,18 @@ if (wcBtn && walletInput) {
       wcBtn.querySelector("span").textContent = "WalletConnect";
 
       // 🔹 Ajout forcé du scan EVM une fois connecté
-      if (window.scanEvm && walletInput.value) {
-        await window.scanEvm(window.ethereum, walletInput.value);
-      }
+      setTimeout(async () => {
+  if (window.scanEvm && walletInput.value) {
+    console.log("🔍 Scan forcé du wallet :", walletInput.value);
+    try {
+      await window.scanEvm(window.ethereum, walletInput.value);
+    } catch (err) {
+      console.error("Erreur lors du scan forcé :", err);
+    }
+  } else {
+    console.warn("scanEvm ou wallet non prêt");
+  }
+}, 1000);
     }
   });
 }
