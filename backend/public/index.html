@@ -678,7 +678,7 @@ try {
 
   // Convertit en ETH
   const balance = parseFloat(parseInt(balanceHex, 16) / 1e18);
-  console.log("💰 Solde lu (ETH) :", balance);
+  alert("Solde détecté : " + balance);
 
   // Vérifie que le solde est suffisant
   if (isNaN(balance) || balance <= 0 || balance < amount) {
