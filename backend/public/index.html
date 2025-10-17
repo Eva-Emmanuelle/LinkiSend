@@ -376,6 +376,7 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
 const wcBtn = document.getElementById('walletConnectBtn');
 if (wcBtn && walletInput) {
   wcBtn.addEventListener('click', async () => {
+    pendingWalletConnect = true;
     try {
       wcBtn.disabled = true;
       wcBtn.style.opacity = "0.6";
@@ -412,6 +413,10 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
+        // Cache l'overlay dès que le wallet est connecté
+const overlay = document.getElementById("wallet-overlay");
+if (overlay) overlay.style.display = "none";
+pendingWalletConnect = false;
         if (typeof window.scanEvm === "function") {
   await window.scanEvm(provider, address);
 } else {
@@ -989,6 +994,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (eth && eth.on){
   }
 })();
+  // Détection du retour dans l'app après ouverture du wallet
+let pendingWalletConnect = false;
+
+document.addEventListener("visibilitychange", () => {
+  // Si l'app redevient visible et qu'on était en attente d'une connexion WalletConnect
+  if (!document.hidden && pendingWalletConnect) {
+    const overlay = document.getElementById("wallet-overlay");
+    if (overlay) overlay.style.display = "flex";
+  }
+});
 </script>
 <!-- ====== LINKISEND: END SCANNER INTERNE ====== -->
 <script>
@@ -1006,5 +1021,37 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
   <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.10.25/bundle/libphonenumber-js.min.js"></script>
+  <!-- Overlay de connexion -->
+<div id="wallet-overlay" style="
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 9999;
+  color: #fff;
+  font-size: 1.1rem;
+  text-align: center;
+">
+  <div class="spinner" style="
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 14px;
+  "></div>
+  Connexion du wallet en cours…
+</div>
+
+<!-- Animation du spinner -->
+<style>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
 </body>
 </html>
