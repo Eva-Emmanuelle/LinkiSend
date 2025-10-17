@@ -878,8 +878,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const DEFAULT_EVM_TOKENS = ['USDT','USDC','DAI','WBTC','LINK'];
 
   async function scanEvm(eth, account){
-    let chainId;
-    try{ chainId = await eth.request({method:'eth_chainId'}); }catch{ chainId = undefined; }
+  window.scanEvm = scanEvm;
+  let chainId;
+  try{ chainId = await eth.request({method:'eth_chainId'}); }catch{ chainId = undefined; }
 
     const reg = chainId ? EVM[chainId] : undefined;
     const items = [];
