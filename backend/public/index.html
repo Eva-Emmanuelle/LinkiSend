@@ -412,17 +412,6 @@ if (wcBtn && walletInput) {
 
       if (address) {
         walletInput.value = address;
-        // Sauvegarde de la session WalletConnect
-try {
-  const session = provider.session || null;
-  if (session) {
-    localStorage.setItem("wc_session", JSON.stringify(session));
-    localStorage.setItem("wc_address", address);
-    console.log("💾 Session WalletConnect sauvegardée");
-  }
-} catch (err) {
-  console.warn("Impossible de sauvegarder la session :", err);
-}
         if (typeof window.scanEvm === "function") {
   await window.scanEvm(provider, address);
 } else {
