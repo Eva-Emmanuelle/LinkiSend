@@ -661,6 +661,7 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
       
       // Vérifie que le wallet contient bien des fonds réels
 try {
+  alert("Début de la vérification du solde");
   const address = walletInput.value.trim();
   const amount = parseFloat(document.getElementById("amount").value);
 
@@ -678,7 +679,6 @@ try {
 
   // Convertit en ETH
   const balance = parseFloat(parseInt(balanceHex, 16) / 1e18);
-  alert("Solde détecté : " + balance);
 
   // Vérifie que le solde est suffisant
   if (isNaN(balance) || balance <= 0 || balance < amount) {
