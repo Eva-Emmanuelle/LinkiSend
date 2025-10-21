@@ -146,9 +146,10 @@
   <!-- CONFIG + pays -->
   <script src="/static/config.js"></script>
   <script src="/static/countries.js"></script>
-
-  <!-- WALLETCONNECT navigateur -->
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.11.2/dist/index.umd.min.js"></script>
+  <!-- WalletConnect SignClient v3 + Ethers.js -->
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.2/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.12.0/dist/ethers.umd.min.js"></script>
+</head>
 
 <body>
   <script>
@@ -347,48 +348,74 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
     const resultDiv=document.getElementById('result');
     const errorDiv=document.getElementById('error');
     const walletInput=document.getElementById('wallet');
-    // === Connexion directe via WalletConnect ===
-const wcBtn = document.getElementById('walletConnectBtn');
+    // === Connexion mobile via WalletConnect SignClient + Ethers ===
+const wcBtn = document.getElementById("walletConnectBtn");
+const walletInput = document.getElementById("wallet");
+
 if (wcBtn && walletInput) {
-  wcBtn.addEventListener('click', async () => {
-    // 1) UI immédiate
-    pendingWalletConnect = true;
+  wcBtn.addEventListener("click", async () => {
     wcBtn.disabled = true;
     wcBtn.style.opacity = "0.6";
     wcBtn.querySelector("span").textContent = "Connexion...";
 
-    // 2) Laisse l’UI s’afficher puis initialise WalletConnect en arrière-plan
-    setTimeout(async () => {
-      try {
-        // === Initialisation WalletConnect v3 ===
-let maxWait = 30;
-while (!window.EthereumProvider && maxWait > 0) {
-  await new Promise(r => setTimeout(r, 100));
-  maxWait--;
-}
-if (!window.EthereumProvider) {
-  throw new Error("WalletConnect v3 non chargé (timeout).");
+    try {
+      // 1️⃣ Initialisation SignClient
+      const signClient = await window.WalletConnectSignClient.init({
+        projectId: "9c945cd5bef5c1e1905266cf0219736d",
+        metadata: {
+          name: "LinkiSend",
+          description: "Envoyer des cryptos via lien sécurisé",
+          url: "https://linkisend.io",
+          icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"],
+        },
+      });
+
+      // 2️⃣ Demande de connexion (ouvre directement le wallet mobile)
+      const { uri, approval } = await signClient.connect({
+        requiredNamespaces: {
+          eip155: {
+            methods: ["eth_sendTransaction", "personal_sign", "eth_signTypedData"],
+            chains: ["eip155:1", "eip155:56", "eip155:137", "eip155:43114"],
+            events: ["accountsChanged", "chainChanged"],
+          },
+        },
+      });
+
+      if (uri) {
+        // Deep-link WalletConnect → ouverture du wallet mobile
+        window.open(`wc:${uri}`, "_blank");
+      }
+
+      // 3️⃣ Attente approbation utilisateur
+      const session = await approval();
+      if (!session || !session.namespaces.eip155) throw new Error("Session invalide");
+
+      // 4️⃣ Récupère l’adresse principale
+      const accounts = session.namespaces.eip155.accounts;
+      const address = accounts[0].split(":")[2];
+      walletInput.value = address;
+
+      // 5️⃣ Initialisation du provider Ethers lié à WalletConnect
+      const ethersProvider = new ethers.BrowserProvider({
+        request: async (payload) => await signClient.request(payload),
+      });
+
+      window.LinkiSend = { signClient, ethersProvider, session };
+
+      wcBtn.disabled = false;
+      wcBtn.style.opacity = "1";
+      wcBtn.querySelector("span").textContent = "WalletConnect";
+      alert("✅ Connecté : " + address);
+    } catch (err) {
+      console.error("Erreur connexion WC:", err);
+      alert("Erreur WalletConnect : " + (err.message || "inconnue"));
+      wcBtn.disabled = false;
+      wcBtn.style.opacity = "1";
+      wcBtn.querySelector("span").textContent = "WalletConnect";
+    }
+  });
 }
 
-// Création du provider (v3)
-const provider = await window.EthereumProvider.init({
-  projectId: "9c945cd5bef5c1e1905266cf0219736d",
-  chains: [1],
-  optionalChains: [56, 137, 43114],
-  rpc: {
-    1: "https://rpc.ankr.com/eth",
-    56: "https://rpc.ankr.com/bsc",
-    137: "https://rpc.ankr.com/polygon",
-    43114: "https://rpc.ankr.com/avalanche"
-  },
-  showQrModal: true,
-  metadata: {
-    name: "LinkiSend",
-    description: "Envoyer des cryptos via lien sécurisé",
-    url: "https://linkisend.io",
-    icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"]
-  }
-});
         // Ouvre le wallet (deep-link mobile)
         await provider.connect();
 
