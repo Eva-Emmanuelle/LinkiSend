@@ -147,32 +147,22 @@
   <script src="/static/config.js"></script>
   <script src="/static/countries.js"></script>
 
-  <!-- CHARGEUR ROBUSTE WalletConnect: local si OK, sinon  CDN -->
-  <script>
-    (function(){
-      function inject(src){
-        return new Promise((resolve,reject)=>{
-          const s=document.createElement('script');
-          s.src=src; s.async=true;
-          s.onload=resolve; s.onerror=()=>reject(new Error('load fail '+src));
-          document.head.appendChild(s);
-        });
-      }
-      async function loadLocalOrCdn(){
-        const local="/assets/vendor/wc/ethereum-provider.bundle.min.js";
-        try{
-          const r=await fetch(local,{cache:'no-store'});
-          const ct=(r.headers.get('content-type')||'').toLowerCase();
-          const txt=await r.text();
-          if(!r.ok || ct.includes('text/html') || /^\s*<!doctype html/i.test(txt)) throw new Error('local is html/404');
-          await inject(local+'?v='+Date.now());
-        }catch(_){
-          await inject("https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2/dist/index.umd.js");
-        }
-      }
-      window.__wcProviderBootstrap = loadLocalOrCdn();
-    })();
-  </script>
+  <!-- WALLETCONNECT v3 (rapide + mobile-first) -->
+<script>
+  (function(){
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/@walletconnect/ethereum-provider@3/dist/ethereum-provider.umd.min.js";
+    script.async = true;
+    script.onload = () => {
+      console.log("WalletConnect v3 chargé ✅");
+      // Initialisation globale du provider (sera réutilisée dans le bouton)
+      window.__wcProviderReady = true;
+    };
+    script.onerror = () => console.error("Échec chargement WalletConnect v3");
+    document.head.appendChild(script);
+  })();
+</script>
+  
 </head>
 
 <body>
