@@ -147,23 +147,8 @@
   <script src="/static/config.js"></script>
   <script src="/static/countries.js"></script>
 
-  <!-- WALLETCONNECT v3 (rapide + mobile-first) -->
-<script>
-  (function(){
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/@walletconnect/ethereum-provider@3.1.2/dist/umd/index.min.js";
-    script.async = true;
-    script.onload = () => {
-      console.log("WalletConnect v3 chargé ✅");
-      // Initialisation globale du provider (sera réutilisée dans le bouton)
-      window.__wcProviderReady = true;
-    };
-    script.onerror = () => console.error("Échec chargement WalletConnect v3");
-    document.head.appendChild(script);
-  })();
-</script>
-  
-</head>
+  <!-- WALLETCONNECT navigateur -->
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.11.2/dist/index.umd.min.js"></script>
 
 <body>
   <script>
