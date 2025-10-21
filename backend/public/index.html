@@ -375,26 +375,30 @@ if (wcBtn && walletInput) {
     // 2) Laisse l’UI s’afficher puis initialise WalletConnect en arrière-plan
     setTimeout(async () => {
       try {
-        // Charge le provider WalletConnect
-        const EP = await loadWalletConnectProvider();
-        if (!EP || !EP.init) throw new Error("Provider WalletConnect introuvable.");
+        // === Initialisation WalletConnect v3 ===
+if (!window.WalletConnectProvider) {
+  throw new Error("WalletConnect v3 non chargé.");
+}
 
-        // Initialise le provider (wallet mobile)
-        const provider = await EP.init({
-          projectId: "9c945cd5bef5c1e1905266cf0219736d",
-          showQrModal: true,
-          rpc: {
-            1: "https://rpc.ankr.com/eth",
-            56: "https://rpc.ankr.com/bsc",
-            137: "https://rpc.ankr.com/polygon",
-            43114: "https://rpc.ankr.com/avalanche"
-          },
-          chains: [1],
-          optionalChains: [137, 56, 43114],
-          methods: ["eth_requestAccounts", "eth_sendTransaction", "personal_sign", "eth_signTypedData"],
-          events: ["chainChanged", "accountsChanged"]
-        });
-
+// Création du provider (v3)
+const provider = await window.WalletConnectProvider.init({
+  projectId: "9c945cd5bef5c1e1905266cf0219736d",
+  chains: [1], // Ethereum mainnet par défaut
+  optionalChains: [56, 137, 43114], // BSC, Polygon, Avalanche
+  rpc: {
+    1: "https://rpc.ankr.com/eth",
+    56: "https://rpc.ankr.com/bsc",
+    137: "https://rpc.ankr.com/polygon",
+    43114: "https://rpc.ankr.com/avalanche"
+  },
+  showQrModal: true,
+  metadata: {
+    name: "LinkiSend",
+    description: "Envoyer des cryptos via lien sécurisé",
+    url: "https://linkisend.io",
+    icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"]
+  }
+});
         // Ouvre le wallet (deep-link mobile)
         await provider.connect();
 
