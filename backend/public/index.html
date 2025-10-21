@@ -376,8 +376,13 @@ if (wcBtn && walletInput) {
     setTimeout(async () => {
       try {
         // === Initialisation WalletConnect v3 ===
+let maxWait = 30;
+while (!window.WalletConnectProvider && maxWait > 0) {
+  await new Promise(r => setTimeout(r, 100));
+  maxWait--;
+}
 if (!window.WalletConnectProvider) {
-  throw new Error("WalletConnect v3 non chargé.");
+  throw new Error("WalletConnect v3 non chargé (timeout).");
 }
 
 // Création du provider (v3)
