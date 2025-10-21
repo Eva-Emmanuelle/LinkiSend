@@ -377,19 +377,19 @@ if (wcBtn && walletInput) {
       try {
         // === Initialisation WalletConnect v3 ===
 let maxWait = 30;
-while (!window.WalletConnectProvider && maxWait > 0) {
+while (!window.EthereumProvider && maxWait > 0) {
   await new Promise(r => setTimeout(r, 100));
   maxWait--;
 }
-if (!window.WalletConnectProvider) {
+if (!window.EthereumProvider) {
   throw new Error("WalletConnect v3 non chargé (timeout).");
 }
 
 // Création du provider (v3)
-const provider = await window.WalletConnectProvider.init({
+const provider = await window.EthereumProvider.init({
   projectId: "9c945cd5bef5c1e1905266cf0219736d",
-  chains: [1], // Ethereum mainnet par défaut
-  optionalChains: [56, 137, 43114], // BSC, Polygon, Avalanche
+  chains: [1],
+  optionalChains: [56, 137, 43114],
   rpc: {
     1: "https://rpc.ankr.com/eth",
     56: "https://rpc.ankr.com/bsc",
