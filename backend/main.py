@@ -242,31 +242,140 @@ if not FRONTEND_BASE:
         return FileResponse(sw)
 
 # ----------------------------
-# Routage par domaine (landing / app / admin)
+# Routage par domaine (landing / app / admin) + Auth admin (email + mot de passe)
 # ----------------------------
-from fastapi import Request
+from fastapi import Request, Response, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
+from http import cookies
+
+# Config auth admin via variables d'environnement (à changer en prod)
+ADMIN_ALLOWED_EMAIL = os.getenv("ADMIN_ALLOWED_EMAIL", "admin@linkisend.io")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-me-please")  # ⚠️ remplace en prod
+SESSION_TTL = 24 * 3600  # 24h
+
+# Sessions en mémoire {token: {"exp": ts}}
+ADMIN_SESSIONS: Dict[str, Dict[str, Any]] = {}
+
+def _new_session_token() -> str:
+    return secrets.token_urlsafe(32)
+
+def _set_cookie(resp: Response, name: str, value: str, max_age: int):
+    morsel = cookies.Morsel()
+    morsel.set(name, value, value)
+    morsel["path"] = "/"
+    morsel["httponly"] = True
+    morsel["samesite"] = "Strict"
+    # mets "Secure" si tu es en HTTPS (recommandé en prod)
+    if os.getenv("FORCE_SECURE_COOKIE", "1") == "1":
+        morsel["secure"] = True
+    morsel["max-age"] = str(max_age)
+    resp.headers.append("set-cookie", morsel.OutputString())
+
+def _read_cookie(request: Request, name: str) -> str | None:
+    raw = request.headers.get("cookie", "")
+    if not raw:
+        return None
+    jar = cookies.SimpleCookie()
+    try:
+        jar.load(raw)
+        if name in jar:
+            return jar[name].value
+    except cookies.CookieError:
+        return None
+    return None
+
+def _is_session_valid(token: str | None) -> bool:
+    if not token:
+        return False
+    data = ADMIN_SESSIONS.get(token)
+    return bool(data and data["exp"] > time.time())
+
+def _login_html(error: str = "") -> str:
+    return f"""<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connexion Admin — LinkiSend</title>
+<style>
+  body{{background:#0f141a;color:#e6edf3;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center}}
+  .card{{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.25)}}
+  h1{{font-size:18px;margin:0 0 12px}}
+  label{{font-size:12px;opacity:.8}}
+  input{{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;margin:6px 0 12px}}
+  button{{width:100%;padding:10px 12px;border-radius:8px;border:none;background:#238636;color:#fff;font-weight:600;cursor:pointer}}
+  .err{{color:#ffa198;font-size:12px;margin-bottom:8px;min-height:14px}}
+  .hint{{font-size:12px;opacity:.6;margin-top:8px}}
+</style></head><body>
+  <form class="card" method="post" action="/admin/login">
+    <h1>Connexion Admin</h1>
+    <div class="err">{error}</div>
+    <label>E-mail autorisé</label>
+    <input name="email" type="email" placeholder="admin@linkisend.io" required>
+    <label>Mot de passe</label>
+    <input name="password" type="password" placeholder="••••••••" required>
+    <button type="submit">Se connecter</button>
+    <div class="hint">Accès réservé — LinkiSend</div>
+  </form>
+</body></html>"""
+
+@app.post("/admin/login", response_class=HTMLResponse, include_in_schema=False)
+async def admin_login(email: str = Form(...), password: str = Form(...)):
+    # Vérification simple côté serveur
+    if email.strip().lower() != ADMIN_ALLOWED_EMAIL.lower() or password != ADMIN_PASSWORD:
+        # Mauvais identifiants -> réafficher le formulaire avec erreur
+        return HTMLResponse(content=_login_html("Identifiants invalides."), status_code=401)
+
+    # OK -> créer une session et rediriger vers /
+    token = _new_session_token()
+    ADMIN_SESSIONS[token] = {"exp": time.time() + SESSION_TTL}
+    resp = RedirectResponse(url="/", status_code=303)
+    _set_cookie(resp, "ls_admin_session", token, SESSION_TTL)
+    return resp
+
+@app.get("/admin/logout", include_in_schema=False)
+async def admin_logout():
+    resp = RedirectResponse(url="/login", status_code=303)
+    _set_cookie(resp, "ls_admin_session", "", 0)
+    return resp
+
+@app.get("/login", response_class=HTMLResponse, include_in_schema=False)
+async def admin_login_page():
+    return HTMLResponse(content=_login_html(""))
 
 @app.middleware("http")
-async def unified_router(request: Request, call_next):
+async def domain_router_with_admin_auth(request: Request, call_next):
     host = request.headers.get("host", "")
     path = request.url.path
 
-    # Domaine principal -> page d’attente
+    # Domaine principal -> landing
     if host.startswith("linkisend.io"):
         if path in ["/", ""]:
             landing_file = PUBLIC_DIR / "landing.html"
             if landing_file.exists():
                 return FileResponse(landing_file)
 
-    # Sous-domaine admin -> panneau d’administration
-    elif host.startswith("admin.linkisend.io"):
+    # Sous-domaine admin -> exige session valide
+    if host.startswith("admin.linkisend.io"):
+        # Laisser passer les routes de login/logout sans session
+        if path.startswith("/admin/login") or path == "/login" or path.startswith("/admin/logout"):
+            return await call_next(request)
+
+        # Vérifier la session
+        token = _read_cookie(request, "ls_admin_session")
+        if not _is_session_valid(token):
+            # Pas connecté -> page de login
+            return HTMLResponse(content=_login_html(""), status_code=401)
+
+        # Connecté -> servir l'admin (fichier statique)
         admin_file = PUBLIC_DIR / "admin" / "index.html"
         if admin_file.exists():
             return FileResponse(admin_file)
 
+        # Si le fichier manque, continuer le pipeline (erreur standard)
+        return await call_next(request)
+
     # Sinon, comportement normal (PWA ou API)
-    response = await call_next(request)
-    return response
+    return await call_next(request)
+
 # ----------------------------
 # Route dédiée à l’administration
 # ----------------------------
