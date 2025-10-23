@@ -240,6 +240,33 @@ if not FRONTEND_BASE:
         if not sw.exists():
             raise HTTPException(status_code=500, detail="service-worker.js manquant.")
         return FileResponse(sw)
+
+# ----------------------------
+# Routage par domaine (landing / app / admin)
+# ----------------------------
+from fastapi import Request
+
+@app.middleware("http")
+async def unified_router(request: Request, call_next):
+    host = request.headers.get("host", "")
+    path = request.url.path
+
+    # Domaine principal -> page d’attente
+    if host.startswith("linkisend.io"):
+        if path in ["/", ""]:
+            landing_file = PUBLIC_DIR / "landing.html"
+            if landing_file.exists():
+                return FileResponse(landing_file)
+
+    # Sous-domaine admin -> panneau d’administration
+    elif host.startswith("admin.linkisend.io"):
+        admin_file = PUBLIC_DIR / "admin" / "index.html"
+        if admin_file.exists():
+            return FileResponse(admin_file)
+
+    # Sinon, comportement normal (PWA ou API)
+    response = await call_next(request)
+    return response
 # ----------------------------
 # Authentification admin
 # ----------------------------
