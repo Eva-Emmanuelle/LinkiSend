@@ -377,20 +377,6 @@ async def domain_router_with_admin_auth(request: Request, call_next):
     return await call_next(request)
 
 # ----------------------------
-# Route dédiée à l’administration
-# ----------------------------
-from fastapi import Request
-
-@app.middleware("http")
-async def admin_router(request: Request, call_next):
-    host = request.headers.get("host", "")
-    # Si le domaine est admin.linkisend.io -> servir le panneau admin
-    if host.startswith("admin.linkisend.io"):
-        admin_file = PUBLIC_DIR / "admin" / "index.html"
-        if admin_file.exists():
-            return FileResponse(admin_file)
-    return await call_next(request)
-# ----------------------------
 # Redirections courtes
 # ----------------------------
 @app.get("/s/{short_id}")
