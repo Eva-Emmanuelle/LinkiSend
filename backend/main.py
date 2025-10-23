@@ -8,6 +8,19 @@ from typing import Dict, Any
 from pathlib import Path
 import os, secrets, time, re
 
+# ------------------------------
+# Connexion à la base PostgreSQL
+# ------------------------------
+import psycopg2
+
+def get_db_connection():
+    return psycopg2.connect(
+        host="localhost",
+        database="linkisend",
+        user="linkisend",
+        password="LinkiSendDB#42@"
+    )
+
 app = FastAPI(title="LinkiSend API")
 
 # CORS permissif pour le front (à restreindre plus tard au domaine)
