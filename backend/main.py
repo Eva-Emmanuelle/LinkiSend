@@ -263,6 +263,9 @@ from fastapi import Request
 async def unified_router(request: Request, call_next):
     host = request.headers.get("host", "")
     path = request.url.path
+        # Laisse passer directement les routes API
+    if path.startswith("/api/"):
+        return await call_next(request)
 
     # Domaine principal -> page d’attente
     if host.startswith("linkisend.io"):
