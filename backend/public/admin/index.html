@@ -45,16 +45,37 @@
   <div class="msg" id="msg"></div>
 
   <script>
-    const btn = document.getElementById("loginBtn");
-    const msg = document.getElementById("msg");
-    btn.addEventListener("click", () => {
-      const email = document.getElementById("email").value.trim().toLowerCase();
-      if (email === "admin@linkisend.io") {
-        msg.textContent = "✅ Accès autorisé";
-      } else {
-        msg.textContent = "⛔ Accès refusé";
-      }
+const btn = document.getElementById("loginBtn");
+const msg = document.getElementById("msg");
+
+btn.addEventListener("click", async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = prompt("Mot de passe :"); // mot de passe demandé ici
+  if (!email || !pass) return;
+
+  const formData = new FormData();
+  formData.append("email", email);
+  formData.append("password", pass);
+
+  try {
+    const res = await fetch("/api/admin-login", {
+      method: "POST",
+      body: formData
     });
-  </script>
+    const data = await res.json();
+    if (data.ok) {
+      msg.style.color = "#22c55e";
+      msg.textContent = "✅ Connexion réussie";
+      localStorage.setItem("admin_session", data.token);
+    } else {
+      msg.style.color = "#ef4444";
+      msg.textContent = data.error || "Erreur d’identification.";
+    }
+  } catch (err) {
+    msg.style.color = "#ef4444";
+    msg.textContent = "Erreur réseau.";
+  }
+});
+</script>
 </body>
 </html>
