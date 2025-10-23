@@ -242,6 +242,24 @@ if not FRONTEND_BASE:
         return FileResponse(sw)
 
 # ----------------------------
+# Routage par domaine (landing vs PWA)
+# ----------------------------
+from fastapi import Request
+
+@app.middleware("http")
+async def domain_router(request: Request, call_next):
+    host = request.headers.get("host", "")
+    # Si le domaine est linkisend.io -> afficher landing.html
+    if host.startswith("linkisend.io"):
+        if request.url.path == "/" or request.url.path == "":
+            landing_file = PUBLIC_DIR / "landing.html"
+            if landing_file.exists():
+                return FileResponse(landing_file)
+    # Sinon, comportement normal
+    response = await call_next(request)
+    return response
+
+# ----------------------------
 # Redirections courtes
 # ----------------------------
 @app.get("/s/{short_id}")
