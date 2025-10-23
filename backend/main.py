@@ -268,21 +268,19 @@ async def unified_router(request: Request, call_next):
     response = await call_next(request)
     return response
 # ----------------------------
-# Authentification admin
+# Route dédiée à l’administration
 # ----------------------------
-from fastapi import Form
-from fastapi.responses import JSONResponse
-import secrets
+from fastapi import Request
 
-# Identifiants autorisés
-ADMIN_EMAIL = "admin@linkisend.io"
-ADMIN_PASS = "X8$kR9!dB7wQ2"  # 🔐 mot de passe fort temporaire
-
-@app.post("/api/admin-login")
-async def admin_login(email: str = Form(...), password: str = Form(...)):
-    if email.lower() == ADMIN_EMAIL and secrets.compare_digest(password, ADMIN_PASS):
-        return JSONResponse({"ok": True, "token": "admin-session-ok"})
-    return JSONResponse({"ok": False, "error": "Identifiants invalides."}, status_code=401)
+@app.middleware("http")
+async def admin_router(request: Request, call_next):
+    host = request.headers.get("host", "")
+    # Si le domaine est admin.linkisend.io -> servir le panneau admin
+    if host.startswith("admin.linkisend.io"):
+        admin_file = PUBLIC_DIR / "admin" / "index.html"
+        if admin_file.exists():
+            return FileResponse(admin_file)
+    return await call_next(request)
 # ----------------------------
 # Redirections courtes
 # ----------------------------
