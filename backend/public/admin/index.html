@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — LinkiSend</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #0b0f14;
+      color: #fff;
+      font-family: "Inter", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    h1 { margin-bottom: 16px; }
+    input {
+      padding: 10px 14px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0e141c;
+      color: #fff;
+      width: 220px;
+    }
+    button {
+      margin-top: 14px;
+      background: #22c55e;
+      color: #fff;
+      border: 0;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .msg { margin-top: 20px; color: #9fb0c0; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Admin LinkiSend</h1>
+  <input id="email" type="email" placeholder="Adresse e-mail" />
+  <button id="loginBtn">Connexion</button>
+  <div class="msg" id="msg"></div>
+
+  <script>
+    const btn = document.getElementById("loginBtn");
+    const msg = document.getElementById("msg");
+    btn.addEventListener("click", () => {
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      if (email === "admin@linkisend.io") {
+        msg.textContent = "✅ Accès autorisé";
+      } else {
+        msg.textContent = "⛔ Accès refusé";
+      }
+    });
+  </script>
+</body>
+</html>
