@@ -260,15 +260,16 @@ async def unified_router(request: Request, call_next):
 
     # Sous-domaine admin -> panneau d’administration
     elif host.startswith("admin.linkisend.io"):
-    # Authentification simple par e-mail + mot de passe
-    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@linkisend.io")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-me-please")
+    # Vérification ultra simple : email + mot de passe dans URL
+    ADMIN_EMAIL = "admin@linkisend.io"
+    ADMIN_PASSWORD = "12345678"  # choisis ton mot de passe ici
 
-    email = request.headers.get("x-admin-email")
-    password = request.headers.get("x-admin-password")
+    params = dict(request.query_params)
+    email = params.get("email")
+    password = params.get("password")
 
     if email != ADMIN_EMAIL or password != ADMIN_PASSWORD:
-        return FileResponse(PUBLIC_DIR / "admin" / "unauthorized.html")  # page refus
+        return FileResponse(PUBLIC_DIR / "admin" / "unauthorized.html")
 
     admin_file = PUBLIC_DIR / "admin" / "index.html"
     if admin_file.exists():
