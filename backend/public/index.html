@@ -416,55 +416,6 @@ if (wcBtn && walletInput) {
   });
 }
 
-        // Ouvre le wallet (deep-link mobile)
-        await provider.connect();
-
-        // Récupère l’adresse
-        const accounts = await provider.request({ method: "eth_requestAccounts" });
-        const address = (accounts && accounts[0]) ? accounts[0] : "";
-
-        if (address) {
-          walletInput.value = address;
-
-          // Cache l’overlay et réinitialise le flag
-          const overlay = document.getElementById("wallet-overlay");
-          if (overlay) overlay.style.display = "none";
-          pendingWalletConnect = false;
-
-          // Sauvegarde de session pour la reprise
-          try {
-            const session = provider.session || null;
-            if (session) {
-              localStorage.setItem("wc_session", JSON.stringify(session));
-              localStorage.setItem("wc_address", address);
-            }
-          } catch {}
-
-          // Scan des tokens (si dispo)
-          if (typeof window.scanEvm === "function") {
-            try { await window.scanEvm(provider, address); } catch {}
-          }
-
-        } else {
-          alert("Connexion annulée.");
-          pendingWalletConnect = false;
-          const overlay = document.getElementById("wallet-overlay");
-          if (overlay) overlay.style.display = "none";
-        }
-
-        // Mise à dispo globale du provider
-        window.__wcProvider = provider;
-
-        // Réactive le bouton
-        wcBtn.disabled = false;
-        wcBtn.style.opacity = "1";
-        wcBtn.querySelector("span").textContent = "WalletConnect";
-
-        // Suivi changement de compte
-        provider.on("accountsChanged", (acc) => {
-          if (acc && acc[0]) walletInput.value = acc[0];
-        });
-
       } catch (err) {
         alert("Erreur WalletConnect : " + (err && err.message ? err.message : "inconnue"));
         pendingWalletConnect = false;
