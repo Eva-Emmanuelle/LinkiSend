@@ -415,19 +415,6 @@ if (wcBtn && walletInput) {
     }
   });
 }
-
-      } catch (err) {
-        alert("Erreur WalletConnect : " + (err && err.message ? err.message : "inconnue"));
-        pendingWalletConnect = false;
-        const overlay = document.getElementById("wallet-overlay");
-        if (overlay) overlay.style.display = "none";
-        wcBtn.disabled = false;
-        wcBtn.style.opacity = "1";
-        wcBtn.querySelector("span").textContent = "WalletConnect";
-      }
-    }, 300);
-  });
-}
     currencySel = document.getElementById('currency');
     const linkEl=document.getElementById('the-link');
     const dialBtn=document.getElementById('dialBtn');
