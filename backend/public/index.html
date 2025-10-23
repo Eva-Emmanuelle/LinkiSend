@@ -148,16 +148,17 @@
   <script src="/static/countries.js"></script>
   <!-- WalletConnect SignClient v3 + Ethers.js -->
 <script src="https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.2/dist/index.min.js"></script>
-  <!-- Patch pour exposer SignClient dans la PWA -->
+
+<!-- Patch pour exposer SignClient dans la PWA -->
 <script>
   if (typeof window.WalletConnectSignClient === "undefined" &&
       window.WalletConnect && window.WalletConnect.SignClient) {
     window.WalletConnectSignClient = window.WalletConnect.SignClient;
   }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.12.0/dist/ethers.umd.min.js"></script>
 </head>
-
 <body>
   <script>
 (function(){
