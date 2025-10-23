@@ -258,7 +258,20 @@ async def domain_router(request: Request, call_next):
     # Sinon, comportement normal
     response = await call_next(request)
     return response
+# ----------------------------
+# Route dédiée à l’administration
+# ----------------------------
+from fastapi import Request
 
+@app.middleware("http")
+async def admin_router(request: Request, call_next):
+    host = request.headers.get("host", "")
+    # Si le domaine est admin.linkisend.io -> servir le panneau admin
+    if host.startswith("admin.linkisend.io"):
+        admin_file = PUBLIC_DIR / "admin" / "index.html"
+        if admin_file.exists():
+            return FileResponse(admin_file)
+    return await call_next(request)
 # ----------------------------
 # Redirections courtes
 # ----------------------------
