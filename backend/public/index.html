@@ -161,6 +161,21 @@
 </head>
 <body>
   <script>
+  // 🔒 Blocage desktop — autorise uniquement mobiles
+  const ua = navigator.userAgent.toLowerCase();
+  const isMobile = /android|iphone|ipad|ipod|opera mini|mobile/i.test(ua);
+  if (!isMobile) {
+    document.documentElement.innerHTML = `
+      <body style="background:#0b0f14;color:#fff;font-family:Inter,Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;">
+        <div>
+          <h2>📱 LinkiSend est disponible uniquement sur mobile</h2>
+          <p>Installe l’application sur ton téléphone pour l’utiliser.</p>
+        </div>
+      </body>`;
+    throw new Error("Desktop access blocked");
+  }
+</script>
+  <script>
 (function(){
   const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone===true);
   const ua = (navigator.userAgent||navigator.vendor||window.opera||"").toLowerCase();
