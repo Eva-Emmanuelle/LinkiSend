@@ -260,20 +260,9 @@ async def unified_router(request: Request, call_next):
 
     # Sous-domaine admin -> panneau d’administration
     elif host.startswith("admin.linkisend.io"):
-    # Vérification ultra simple : email + mot de passe dans URL
-    ADMIN_EMAIL = "admin@linkisend.io"
-    ADMIN_PASSWORD = "12345678"  # choisis ton mot de passe ici
-
-    params = dict(request.query_params)
-    email = params.get("email")
-    password = params.get("password")
-
-    if email != ADMIN_EMAIL or password != ADMIN_PASSWORD:
-        return FileResponse(PUBLIC_DIR / "admin" / "unauthorized.html")
-
-    admin_file = PUBLIC_DIR / "admin" / "index.html"
-    if admin_file.exists():
-        return FileResponse(admin_file)
+        admin_file = PUBLIC_DIR / "admin" / "index.html"
+        if admin_file.exists():
+            return FileResponse(admin_file)
 
     # Sinon, comportement normal (PWA ou API)
     response = await call_next(request)
