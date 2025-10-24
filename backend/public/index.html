@@ -1096,5 +1096,38 @@ document.addEventListener("DOMContentLoaded", () => {
   to { transform: rotate(360deg); }
 }
 </style>
+  <script>
+// === Bouton d'installation forcé pour PWA mobile ===
+window.addEventListener("load", () => {
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  if (!isStandalone) {
+    let btn = document.getElementById("installBtnForced");
+    if (!btn) {
+      btn = document.createElement("button");
+      btn.id = "installBtnForced";
+      btn.textContent = "📲 Installer l’application LinkiSend";
+      btn.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;background:#3B82F6;color:#fff;font-size:1rem;border:none;z-index:9999;";
+      document.body.appendChild(btn);
+    }
+
+    // Gestion de l'événement d'installation s'il est dispo
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btn.onclick = async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log("Résultat install:", outcome);
+          deferredPrompt = null;
+        } else {
+          alert("Installation déjà disponible via le menu du navigateur.");
+        }
+      };
+    });
+  }
+});
+</script>
 </body>
 </html>
