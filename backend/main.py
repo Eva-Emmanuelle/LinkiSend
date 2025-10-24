@@ -8,19 +8,6 @@ from typing import Dict, Any
 from pathlib import Path
 import os, secrets, time, re
 
-# ------------------------------
-# Connexion à la base PostgreSQL
-# ------------------------------
-import psycopg2
-
-def get_db_connection():
-    return psycopg2.connect(
-        host="localhost",
-        database="linkisend",
-        user="linkisend",
-        password="LinkiSendDB#42@"
-    )
-
 app = FastAPI(title="LinkiSend API")
 
 # CORS permissif pour le front (à restreindre plus tard au domaine)
@@ -342,19 +329,3 @@ def redirect_root(short_id: str):
         target = f"{FRONTEND_BASE.rstrip('/')}/claim.html?sid={short_id}"
         return RedirectResponse(url=target, status_code=307)
     return RedirectResponse(url=f"/claim?sid={short_id}", status_code=307)
-    # ------------------------------
-# Test de connexion à la base PostgreSQL
-# ------------------------------
-@app.get("/api/test-db")
-def test_db():
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM users;")
-        count = cur.fetchone()[0]
-        cur.close()
-        conn.close()
-        return {"status": "ok", "message": f"Connexion réussie à PostgreSQL. {count} utilisateurs enregistrés."}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
