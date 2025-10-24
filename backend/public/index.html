@@ -390,6 +390,25 @@ let signClient;
     window.LinkiSend.signClient = signClient;
     wcReady = true;
     console.log("✅ WalletConnect prêt dès le chargement");
+    // === Reconnexion automatique si session sauvegardée ===
+try {
+  const sessions = signClient.session.getAll();
+  if (sessions.length > 0) {
+    const lastSession = sessions[sessions.length - 1];
+    console.log("🔄 Reprise de session WalletConnect", lastSession);
+    window.LinkiSend.session = lastSession;
+
+    // Si tu veux afficher l'adresse connectée automatiquement :
+    const accounts = lastSession.namespaces.eip155.accounts;
+    const addr = accounts[0].split(":")[2];
+    const wcBtn = document.getElementById("walletConnectBtn");
+    wcBtn.querySelector("span").textContent = addr.slice(0, 6) + "..." + addr.slice(-4);
+    wcBtn.disabled = true;
+    wcBtn.style.opacity = "1";
+  }
+} catch (e) {
+  console.warn("Aucune session à reprendre ou erreur WalletConnect:", e);
+}
   } catch (err) {
     console.error("Erreur init WalletConnect:", err);
   }
