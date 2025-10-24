@@ -160,20 +160,55 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.12.0/dist/ethers.umd.min.js"></script>
 </head>
 <body>
+  
   <script>
-  // 🔒 Blocage desktop — autorise uniquement mobiles
-  const ua = navigator.userAgent.toLowerCase();
-  const isMobile = /android|iphone|ipad|ipod|opera mini|mobile/i.test(ua);
-  if (!isMobile) {
-    document.documentElement.innerHTML = `
-      <body style="background:#0b0f14;color:#fff;font-family:Inter,Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;">
-        <div>
-          <h2>📱 LinkiSend est disponible uniquement sur mobile</h2>
-          <p>Installe l’application sur ton téléphone pour l’utiliser.</p>
-        </div>
-      </body>`;
-    throw new Error("Desktop access blocked");
-  }
+const isStandalone =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+const isMobile = /android|iphone|ipad|ipod|opera mini|mobile/i.test(
+  navigator.userAgent.toLowerCase()
+);
+
+if (!isMobile) {
+  document.body.innerHTML = `
+    <div style="background:#0b0f14;color:#fff;font-family:Inter,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;flex-direction:column;">
+      <h2>📱 LinkiSend est disponible uniquement sur mobile</h2>
+      <p>Ouvre ce lien depuis ton téléphone.</p>
+    </div>`;
+  throw new Error("Desktop access blocked");
+}
+
+if (!isStandalone) {
+  document.body.innerHTML = `
+    <div style="background:#0b0f14;color:#fff;font-family:Inter,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;flex-direction:column;">
+      <img src="/static/assets/icons/icon-maskable-512.png" alt="LinkiSend" style="width:90px;height:auto;margin-bottom:20px;">
+      <h2>Installe l’application LinkiSend</h2>
+      <p style="color:#9fb0c0;">Pour utiliser LinkiSend, ajoute-la à ton écran d’accueil.</p>
+      <button id="installNow" style="margin-top:18px;padding:10px 20px;border-radius:10px;
+      border:none;background:#3B82F6;color:#fff;font-weight:700;cursor:pointer;">📲 Installer</button>
+    </div>
+  `;
+
+  let deferredPrompt;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  document.getElementById("installNow").onclick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") location.reload();
+    } else {
+      alert("Utilise le menu de ton navigateur pour 'Ajouter à l’écran d’accueil'");
+    }
+  };
+
+  throw new Error("PWA install prompt screen displayed");
+}
 </script>
   <script>
 (function(){
