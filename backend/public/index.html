@@ -530,6 +530,14 @@ Promise.allSettled(
     }
     return acc;
   }, {});
+// === Forcer l'affichage du bouton "Installer" si la PWA n'est pas installée ===
+window.addEventListener("load", () => {
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const btn = document.getElementById("installBtn");
+  if (!isStandalone && btn) {
+    btn.style.display = "inline-flex";
+  }
+});
 
   applyLang(); // applique selon la variable 'lang' déjà gérée (localStorage / navigateur)
 }).catch(err => {
