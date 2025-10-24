@@ -419,16 +419,6 @@ if (!signClient) {
   return;
 }
     try {
-      // 1️⃣ Initialisation SignClient
-      const signClient = await window.WalletConnectSignClient.init({
-        projectId: "9c945cd5bef5c1e1905266cf0219736d",
-        metadata: {
-          name: "LinkiSend",
-          description: "Envoyer des cryptos via lien sécurisé",
-          url: "https://linkisend.io",
-          icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"],
-        },
-      });
 
       // 2️⃣ Demande de connexion (ouvre directement le wallet mobile)
       const { uri, approval } = await signClient.connect({
