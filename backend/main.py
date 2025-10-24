@@ -50,7 +50,7 @@ RESERVED = {
 # ----------------------------
 # Stockage POC en mémoire
 # ----------------------------
-LINKS: Dict[str, Dict[str, Any]] = {}
+LINKS: Dict[str, Dict[str, Any]] = read_json("links")
 
 # ----------------------------
 # Modèles
@@ -138,6 +138,7 @@ def create_link(data: CreateLinkIn):
         "claim": None,
     }
     LINKS[short_id] = item
+    write_json("links", LINKS)
     return CreateLinkOut(short_id=short_id, expires_in=LINK_TTL_SECONDS)
 
 @app.post("/claim", response_model=ClaimOut)
@@ -162,6 +163,7 @@ def claim_link(data: ClaimIn):
     item["claimed"] = True
     item["claimed_at"] = now()
     item["claim"] = {"phone": phone, "wallet": wallet}
+    write_json("links", LINKS)
 
     return ClaimOut(
         status="ok",
