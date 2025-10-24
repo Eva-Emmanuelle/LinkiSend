@@ -97,6 +97,25 @@ def normalize_phone(p: str) -> str:
     return p
 
 # ----------------------------
+# Persistance locale (lecture/écriture JSON)
+# ----------------------------
+import json
+
+DATA_DIR = BASE_DIR / "data"
+
+def read_json(name):
+    path = DATA_DIR / f"{name}.json"
+    if not path.exists():
+        return {} if name == "links" else []
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def write_json(name, data):
+    path = DATA_DIR / f"{name}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+# ----------------------------
 # API
 # ----------------------------
 @app.get("/health")
