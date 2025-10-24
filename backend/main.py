@@ -225,6 +225,40 @@ def get_price(symbol: str):
     PRICE_CACHE[sym] = {"ts": now, "usd": price}
 
     return {"symbol": sym, "usd": price, "cached": False}
+
+# ----------------------------
+# API internes (users, referrals, airdrops)
+# ----------------------------
+from fastapi import Header
+
+API_KEY = os.getenv("INTERNAL_API_KEY", "dev-key-linkisend")
+
+def check_key(x_api_key: str = Header(None)):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+@app.get("/api/users")
+def get_users(x_api_key: str = Header(None)):
+    check_key(x_api_key)
+    return read_json("users")
+
+@app.post("/api/users")
+def add_user(user: Dict[str, Any], x_api_key: str = Header(None)):
+    check_key(x_api_key)
+    data = read_json("users")
+    data.append(user)
+    write_json("users", data)
+    return {"status": "ok", "count": len(data)}
+
+@app.get("/api/referrals")
+def get_referrals(x_api_key: str = Header(None)):
+    check_key(x_api_key)
+    return read_json("referrals")
+
+@app.get("/api/airdrops")
+def get_airdrops(x_api_key: str = Header(None)):
+    check_key(x_api_key)
+    return read_json("airdrops")
 # ----------------------------
 # Frontend statique
 # ----------------------------
