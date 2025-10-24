@@ -371,16 +371,53 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
     const resultDiv=document.getElementById('result');
     const errorDiv=document.getElementById('error');
     const walletInput=document.getElementById('wallet');
-    // === Connexion mobile via WalletConnect SignClient + Ethers ===
+    // === Initialisation anticipée de WalletConnect SignClient ===
+let wcReady = false;
+let signClient;
+
+(async () => {
+  try {
+    signClient = await window.WalletConnectSignClient.init({
+      projectId: "9c945cd5bef5c1e1905266cf0219736d",
+      metadata: {
+        name: "LinkiSend",
+        description: "Envoyer des cryptos via lien sécurisé",
+        url: "https://linkisend.io",
+        icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"],
+      },
+    });
+    window.LinkiSend = window.LinkiSend || {};
+    window.LinkiSend.signClient = signClient;
+    wcReady = true;
+    console.log("✅ WalletConnect prêt dès le chargement");
+  } catch (err) {
+    console.error("Erreur init WalletConnect:", err);
+  }
+})();
+
 const wcBtn = document.getElementById("walletConnectBtn");
 const walletInput = document.getElementById("wallet");
 
 if (wcBtn && walletInput) {
   wcBtn.addEventListener("click", async () => {
     wcBtn.disabled = true;
-    wcBtn.style.opacity = "0.6";
-    wcBtn.querySelector("span").textContent = "Connexion...";
+wcBtn.style.opacity = "0.6";
+wcBtn.querySelector("span").textContent = "Connexion...";
 
+// attend que SignClient soit prêt (max 3 s)
+let waited = 0;
+while (!wcReady && waited < 3000) {
+  await new Promise(r => setTimeout(r, 200));
+  waited += 200;
+}
+
+if (!signClient) {
+  alert("WalletConnect non prêt. Réessaie dans quelques secondes.");
+  wcBtn.disabled = false;
+  wcBtn.style.opacity = "1";
+  wcBtn.querySelector("span").textContent = "WalletConnect";
+  return;
+}
     try {
       // 1️⃣ Initialisation SignClient
       const signClient = await window.WalletConnectSignClient.init({
