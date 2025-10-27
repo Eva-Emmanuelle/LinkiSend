@@ -385,10 +385,12 @@ document.getElementById('openContactsArea').addEventListener('click', async () =
   <script>
     let currencySel;
     const BACKEND = `${location.protocol}//${location.hostname}`;
-  document.addEventListener('DOMContentLoaded', ()=> {
-    const resultDiv=document.getElementById('result');
-    const errorDiv=document.getElementById('error');
-    const walletInput=document.getElementById('wallet');
+  let walletInput;
+document.addEventListener("DOMContentLoaded", () => {
+  const resultDiv = document.getElementById('result');
+  const errorDiv = document.getElementById('error');
+  walletInput = document.getElementById('wallet');
+});
     // === Initialisation anticipée de WalletConnect SignClient ===
 let wcReady = false;
 let signClient;
