@@ -835,8 +835,9 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
 <script>
 (function(){
-  document.getElementById("wallet").value = '';
-  const currencySel = document.getElementById('currency');
+    let walletInput = document.getElementById("wallet");
+    walletInput.value = '';
+    const currencySel = document.getElementById('currency');
 
   /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
   const CG_ID = {
