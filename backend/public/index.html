@@ -759,7 +759,6 @@ if (!balanceNum || isNaN(balanceNum) || balanceNum <= 0) {
     document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBtn').style.display='none'});
     window.addEventListener('appinstalled',()=>{const b=document.getElementById('installBtn');if(b)b.style.display='none'});
     applyLang();
-  });
   </script>
 
   <button id="installBtn" aria-label="Installer l’application">📲 Installer</button>
