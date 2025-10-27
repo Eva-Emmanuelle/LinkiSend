@@ -1,21 +1,24 @@
-// service-worker.js — LinkiSend (version minimale, sans cache ni fetch)
+// service-worker.js — LinkiSend (version finale, sans cache réseau)
 
 // Installe immédiatement la nouvelle version du SW
 self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Prend le contrôle des pages ouvertes dès l’activation
+// Active et prend le contrôle des pages ouvertes
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    // Supprime tous les anciens caches pour éviter les vieilles versions
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+  );
+  self.clients.claim();
 });
 
-// Optionnel : permet à la page de forcer la mise à jour du SW
-//   navigator.serviceWorker.controller?.postMessage({ type: "SKIP_WAITING" })
+// Permet à la page de forcer la mise à jour du SW si besoin
 self.addEventListener("message", (event) => {
-  if (event?.data && event.data.type === "SKIP_WAITING") {
+  if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
 });
 
-// IMPORTANT : pas de 'fetch' handler -> aucune interception réseau
+// ⚠️ Pas de 'fetch' handler : aucune interception réseau
