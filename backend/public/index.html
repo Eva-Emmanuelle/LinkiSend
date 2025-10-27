@@ -434,7 +434,7 @@ try {
 
 const wcBtn = document.getElementById("walletConnectBtn");
 
-if (wcBtn && walletInput) {
+if (wcBtn) {
   wcBtn.addEventListener("click", async () => {
     wcBtn.disabled = true;
 wcBtn.style.opacity = "0.6";
@@ -479,7 +479,7 @@ if (!signClient) {
       // 4️⃣ Récupère l’adresse principale
       const accounts = session.namespaces.eip155.accounts;
       const address = accounts[0].split(":")[2];
-      walletInput.value = address;
+      document.getElementById("wallet").value = address;
 
       // 5️⃣ Initialisation du provider Ethers lié à WalletConnect
       const ethersProvider = new ethers.BrowserProvider({
@@ -704,7 +704,7 @@ saveCancelBtn.style.border = '1px solid var(--stroke)';
     document.getElementById('generateBtn').addEventListener('click',async()=>{
       const amount=parseFloat(document.getElementById('amount').value);
       const currency=document.getElementById('currency').value;
-      const sender_wallet=walletInput.value.trim();
+      const sender_wallet = document.getElementById("wallet").value.trim();
       const localPhone=document.getElementById('phone').value.trim();
       const recipient_phone=`${currentDial.code}${localPhone}`;
       resultDiv.style.display='none';errorDiv.style.display='none';
@@ -833,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
 <script>
 (function(){
-  walletInput.value = '';
+  document.getElementById("wallet").value = '';
   const currencySel = document.getElementById('currency');
 
   /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
@@ -1041,9 +1041,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const first = items[0]; if (first) setBalanceLine(first.symbol, first.amountStr);
   }
   // Lancement immédiat + surveillance des changements d’adresse
-  let last = walletInput.value;
+  let last = document.getElementById("wallet").value;
   setInterval(()=>{
-    const cur = walletInput.value;
+    const cur = document.getElementById("wallet").value;
   }, 1000);
 
   // Écoute EVM (si disponible)
