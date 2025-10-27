@@ -834,14 +834,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
   <!-- ====== LINKISEND: START SCANNER INTERNE (EVM + SOL) ====== -->
   <script>
-  // portée globale au fichier (accessible après la ligne 1055)
-  let walletInput;
-
-  document.addEventListener("DOMContentLoaded", () => {
-    walletInput = document.getElementById("wallet");
-    if (walletInput) walletInput.value = "";
-
-    const currencySel = document.getElementById('currency');
   /* --- Prix CoinGecko pour la ligne “≈ $” sous Token --- */
   const CG_ID = {
     ETH:'ethereum', BNB:'binancecoin', MATIC:'matic-network', AVAX:'avalanche-2', SOL:'solana',
