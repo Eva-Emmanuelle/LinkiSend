@@ -533,7 +533,7 @@ const SUPPORTED_LANGS = ['fr','en','es','pt','de','it','ar','zh','hi','ru'];
 
 Promise.allSettled(
   SUPPORTED_LANGS.map(code =>
-    fetch(`/static/lang/${code}.json`, { cache: 'no-store' })
+    fetch(`/lang/${code}.json`, { cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject(code))
       .then(json => [code, json])
   )
