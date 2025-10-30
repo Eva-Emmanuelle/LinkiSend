@@ -148,7 +148,12 @@
 <script src="countries.js"></script>
   <!-- WalletConnect SignClient v3 + Ethers.js -->
 <script src="./assets/walletconnect/walletconnect-loader.js"></script>
-
+<script type="module">
+  // Dès que WalletConnect est chargé, on envoie un signal "wc:ready"
+  if (window.WalletConnectSignClient) {
+    window.dispatchEvent(new Event('wc:ready'));
+  }
+</script>
 <!-- Patch pour exposer SignClient dans la PWA -->
 <script>
   if (typeof window.WalletConnectSignClient === "undefined" &&
