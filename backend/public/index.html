@@ -394,8 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // === Initialisation anticipée de WalletConnect SignClient ===
 let wcReady = false;
 let signClient;
-
-(async () => {
+window.addEventListener('wc:ready', async () => {
   try {
     signClient = await window.WalletConnectSignClient.init({
       projectId: "9c945cd5bef5c1e1905266cf0219736d",
@@ -432,7 +431,7 @@ try {
   } catch (err) {
     console.error("Erreur init WalletConnect:", err);
   }
-})();
+});
 
 const wcBtn = document.getElementById("walletConnectBtn");
 
