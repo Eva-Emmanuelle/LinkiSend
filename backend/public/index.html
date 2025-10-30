@@ -1185,6 +1185,19 @@ window.addEventListener("load", () => {
     });
   }
 });
+    // 🔄 Détection du retour depuis Metamask
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    // Si on revient sur LinkiSend après Metamask
+    console.log("↩️ Retour dans LinkiSend, vérification WalletConnect...");
+    if (wcReady) {
+      document.getElementById("wallet-loading").style.display = "none";
+      console.log("✅ Wallet déjà connecté, retour automatique OK");
+    } else {
+      console.log("⏳ WalletConnect encore en cours...");
+    }
+  }
+});
 </script>
 </body>
 </html>
