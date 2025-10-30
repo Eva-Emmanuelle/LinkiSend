@@ -263,6 +263,14 @@ if (!isStandalone) {
   <img src="/assets/wallets/walletconnect.svg" alt="WalletConnect" width="20" height="20" style="display:inline-block;vertical-align:middle;">
   <span>WalletConnect</span>
 </button>
+      <!-- Écran de chargement WalletConnect -->
+<div id="wallet-loading" style="display:none;">
+  <div class="wallet-loader">
+    <div class="spinner"></div>
+    <p>Connexion sécurisée à votre wallet…</p>
+    <p style="font-size:0.9em;opacity:0.8;">Vous serez automatiquement redirigé(e).</p>
+  </div>
+</div>
       <div class="row">
         <div class="col">
           <label for="currency" id="lbl-token">Token</label>
@@ -411,6 +419,7 @@ window.addEventListener('wc:ready', async () => {
     window.LinkiSend.signClient = signClient;
     wcReady = true;
     console.log("✅ WalletConnect prêt dès le chargement");
+    document.getElementById("wallet-loading").style.display = "none";
     // === Reconnexion automatique si session sauvegardée ===
 try {
   const sessions = signClient.session.getAll();
@@ -439,6 +448,7 @@ const wcBtn = document.getElementById("walletConnectBtn");
 
 if (wcBtn) {
   wcBtn.addEventListener("click", async () => {
+    document.getElementById("wallet-loading").style.display = "flex";
     wcBtn.disabled = true;
 wcBtn.style.opacity = "0.6";
 wcBtn.querySelector("span").textContent = "Connexion...";
