@@ -485,35 +485,47 @@ const { uri, approval } = await signClient.connect({
   // redirect déjà dans metadata — on ajoute ici la méthode d'ouverture universelle
 });
 
-// si on a une URI WalletConnect, on ouvre via le lien universel (MetaMask / Wallet apps)
+// === Connexion universelle MetaMask / WalletConnect ===
 if (uri) {
-  // 1) essaie d'ouvrir MetaMask via son universal link (meilleur retour cross-wallet)
-  // 2) si l'app ne revient pas automatiquement, on active une boucle de polling qui
-  //    vérifie si une session a été créée (contournement fiable pour PWA).
   pendingWalletConnect = true;
   document.getElementById("wallet-overlay").style.display = "flex";
 
-  // ouverture via universal link (MetaMask & autres wallets prennent en charge)
-  // encodage strict de l'URI
   const encoded = encodeURIComponent(uri);
-  // priorité à MetaMask universal link (meilleur support mobile)
+
+  // Détection du mobile et de MetaMask
+  const ua = navigator.userAgent.toLowerCase();
+  const isAndroid = ua.includes("android");
+  const isMetaMask = ua.includes("metamask");
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+  // Lien MetaMask universel direct (sans passer par walletconnect.com)
   const mmLink = `https://metamask.app.link/wc?uri=${encoded}`;
-  // fallback général WalletConnect universal link
+
+  // Fallback WalletConnect universel (pour TrustWallet, Rainbow, etc.)
   const wcLink = `https://walletconnect.com/wc?uri=${encoded}`;
 
-  // essaie MetaMask puis WalletConnect si MetaMask ne se lance pas
-  // on utilise location.href (plus fiable que window.open dans PWA)
+  // Ouverture selon le contexte
   try {
-    window.location.href = mmLink;
-    // si après 700ms on est toujours visible dans la PWA, on basculera sur wcLink
-    setTimeout(() => {
-      if (!document.hidden) {
-        window.location.href = wcLink;
-      }
-    }, 700);
-  } catch {
+    if (isAndroid || isMetaMask) {
+      // Ouvre directement MetaMask Mobile
+      window.location.href = mmLink;
+    } else {
+      // Pour tout autre wallet mobile compatible
+      window.location.href = wcLink;
+    }
+  } catch (err) {
+    console.warn("Erreur ouverture Wallet:", err);
     window.location.href = wcLink;
   }
+
+  // Fallback : si MetaMask n'a pas renvoyé vers l'app après 3s,
+  // on affiche à nouveau l'overlay pour informer l'utilisateur
+  setTimeout(() => {
+    if (!document.hidden && pendingWalletConnect) {
+      document.getElementById("wallet-overlay").style.display = "flex";
+    }
+  }, 3000);
+}
 
   // Polling de secours : vérifie toutes les 1s pendant 45s si une session apparaît
   const maxAttempts = 45;
