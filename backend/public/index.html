@@ -485,47 +485,19 @@ const { uri, approval } = await signClient.connect({
   // redirect déjà dans metadata — on ajoute ici la méthode d'ouverture universelle
 });
 
-// === Connexion universelle MetaMask / WalletConnect ===
+// === Flux WalletConnect standard : affiche le sélecteur de wallets ===
 if (uri) {
   pendingWalletConnect = true;
   document.getElementById("wallet-overlay").style.display = "flex";
 
   const encoded = encodeURIComponent(uri);
 
-  // Détection du mobile et de MetaMask
-  const ua = navigator.userAgent.toLowerCase();
-  const isAndroid = ua.includes("android");
-  const isMetaMask = ua.includes("metamask");
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  // Ouvre le sélecteur officiel WalletConnect (évite tout forçage MetaMask)
+  window.location.href = `https://walletconnect.com/wc?uri=${encoded}`;
 
-  // Lien MetaMask universel direct (sans passer par walletconnect.com)
-  const mmLink   = `https://metamask.app.link/wc?uri=${encoded}`;
-const mmIntent = `intent://wc?uri=${encoded}#Intent;package=io.metamask;scheme=metamask;end`;
-
-  // Fallback WalletConnect universel (pour TrustWallet, Rainbow, etc.)
-  const wcLink = `https://walletconnect.com/wc?uri=${encoded}`;
-
-  // Ouverture selon le contexte
-  try {
-    if (isAndroid) {
-  window.location.href = mmIntent;   // ouvre MetaMask direct, sans “ouvrir avec”
-} else {
-  window.location.href = mmLink;     // iOS / autres → lien universel MetaMask
+  // L’overlay reste affiché pendant que l’utilisateur choisit et connecte son wallet.
+  // Le polling en-dessous détectera la session et rendra la main à LinkiSend.
 }
-  } catch (err) {
-    console.warn("Erreur ouverture Wallet:", err);
-    window.location.href = wcLink;
-  }
-
-  // Fallback : si MetaMask n'a pas renvoyé vers l'app après 3s,
-  // on affiche à nouveau l'overlay pour informer l'utilisateur
-  setTimeout(() => {
-    if (!document.hidden && pendingWalletConnect) {
-      document.getElementById("wallet-overlay").style.display = "flex";
-    }
-  }, 3000);
-}
-
   // Polling de secours : vérifie toutes les 1s pendant 45s si une session apparaît
   const maxAttempts = 45;
   let attempts = 0;
