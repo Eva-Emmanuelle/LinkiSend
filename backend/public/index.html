@@ -473,46 +473,132 @@ if (!signClient) {
 }
     try {
 
-      // 2️⃣ Demande de connexion (ouvre directement le wallet mobile)
-      const { uri, approval } = await signClient.connect({
-        requiredNamespaces: {
-          eip155: {
-            methods: ["eth_sendTransaction", "personal_sign", "eth_signTypedData"],
-            chains: ["eip155:1", "eip155:56", "eip155:137", "eip155:43114"],
-            events: ["accountsChanged", "chainChanged"],
-          },
-        },
-          redirect: {
-    native: "https://app.linkisend.io", // retour automatique dans la PWA après connexion
+     // === Connexion WalletConnect (remplacer l'ancien bloc connect + window.open) ===
+const { uri, approval } = await signClient.connect({
+  requiredNamespaces: {
+    eip155: {
+      methods: ["eth_sendTransaction", "personal_sign", "eth_signTypedData"],
+      chains: ["eip155:1", "eip155:56", "eip155:137", "eip155:43114"],
+      events: ["accountsChanged", "chainChanged"],
+    },
   },
-      });
+  // redirect déjà dans metadata — on ajoute ici la méthode d'ouverture universelle
+});
 
-      if (uri) {
-        // Deep-link WalletConnect → ouverture du wallet mobile
-        window.location.href = `wc:${uri}&redirectUrl=https%3A%2F%2Fapp.linkisend.io`;
+// si on a une URI WalletConnect, on ouvre via le lien universel (MetaMask / Wallet apps)
+if (uri) {
+  // 1) essaie d'ouvrir MetaMask via son universal link (meilleur retour cross-wallet)
+  // 2) si l'app ne revient pas automatiquement, on active une boucle de polling qui
+  //    vérifie si une session a été créée (contournement fiable pour PWA).
+  pendingWalletConnect = true;
+  document.getElementById("wallet-overlay").style.display = "flex";
+
+  // ouverture via universal link (MetaMask & autres wallets prennent en charge)
+  // encodage strict de l'URI
+  const encoded = encodeURIComponent(uri);
+  // priorité à MetaMask universal link (meilleur support mobile)
+  const mmLink = `https://metamask.app.link/wc?uri=${encoded}`;
+  // fallback général WalletConnect universal link
+  const wcLink = `https://walletconnect.com/wc?uri=${encoded}`;
+
+  // essaie MetaMask puis WalletConnect si MetaMask ne se lance pas
+  // on utilise location.href (plus fiable que window.open dans PWA)
+  try {
+    window.location.href = mmLink;
+    // si après 700ms on est toujours visible dans la PWA, on basculera sur wcLink
+    setTimeout(() => {
+      if (!document.hidden) {
+        window.location.href = wcLink;
       }
+    }, 700);
+  } catch {
+    window.location.href = wcLink;
+  }
 
-      // 3️⃣ Attente approbation utilisateur
-      const session = await approval();
-      if (!session || !session.namespaces.eip155) throw new Error("Session invalide");
+  // Polling de secours : vérifie toutes les 1s pendant 45s si une session apparaît
+  const maxAttempts = 45;
+  let attempts = 0;
+  const pollInterval = 1000;
+  const poller = setInterval(async () => {
+    attempts++;
+    try {
+      const sessions = signClient.session.getAll();
+      if (sessions && sessions.length > 0) {
+        // on prend la dernière session créée
+        const session = sessions[sessions.length - 1];
+        // on considère la connexion établie : on stoppe le polling
+        clearInterval(poller);
+        pendingWalletConnect = false;
+        document.getElementById("wallet-overlay").style.display = "none";
 
-      // 4️⃣ Récupère l’adresse principale
+        // initialise l'état comme si approval() avait résolu
+        window.LinkiSend = window.LinkiSend || {};
+        window.LinkiSend.signClient = signClient;
+        window.LinkiSend.session = session;
+
+        // récupère et affiche l'adresse
+        try {
+          const accounts = session.namespaces.eip155.accounts;
+          const address = accounts[0].split(":")[2];
+          document.getElementById("wallet").value = address;
+        } catch (e) {
+          console.warn("Impossible de lire l'adresse depuis la session:", e);
+        }
+
+        // prépare le provider ethers comme avant
+        const ethersProvider = new ethers.BrowserProvider({
+          request: async (payload) => await signClient.request(payload),
+        });
+        window.LinkiSend.ethersProvider = ethersProvider;
+
+        // on considère le bouton réactivé
+        wcBtn.disabled = false;
+        wcBtn.style.opacity = "1";
+        wcBtn.querySelector("span").textContent = "WalletConnect";
+
+        clearInterval(poller);
+      } else if (attempts >= maxAttempts) {
+        // timeout : on arrête et on informe l'utilisateur
+        clearInterval(poller);
+        pendingWalletConnect = false;
+        document.getElementById("wallet-overlay").style.display = "none";
+        wcBtn.disabled = false;
+        wcBtn.style.opacity = "1";
+        wcBtn.querySelector("span").textContent = "WalletConnect";
+        alert("Connexion non détectée. Si ton wallet est ouvert, retourne dans le navigateur et clique sur 'Reconnecter' ou essaye à nouveau.");
+      }
+    } catch (err) {
+      console.warn("Polling WalletConnect erreur :", err);
+    }
+  }, pollInterval);
+
+  // Parallèlement, on attend toujours approval() — si l'utilisateur revient "proprement",
+  // approval() résoudra et on peut gérer la session de façon standard.
+  try {
+    const session = await approval(); // si ça résout, on continue normalement
+    if (session && session.namespaces && session.namespaces.eip155) {
+      clearInterval(poller);
+      pendingWalletConnect = false;
+      document.getElementById("wallet-overlay").style.display = "none";
+
       const accounts = session.namespaces.eip155.accounts;
       const address = accounts[0].split(":")[2];
       document.getElementById("wallet").value = address;
 
-      // 5️⃣ Initialisation du provider Ethers lié à WalletConnect
       const ethersProvider = new ethers.BrowserProvider({
         request: async (payload) => await signClient.request(payload),
       });
-
       window.LinkiSend = { signClient, ethersProvider, session };
-
       wcBtn.disabled = false;
       wcBtn.style.opacity = "1";
       wcBtn.querySelector("span").textContent = "WalletConnect";
       alert("✅ Connecté : " + address);
-    } catch (err) {
+    }
+  } catch (err) {
+    // approval() peut lancer une erreur si l'utilisateur annule : le poller gère le fallback.
+    console.warn("approval() erreur ou annulé :", err);
+  }
+}
       console.error("Erreur connexion WC:", err);
       alert("Erreur WalletConnect : " + (err.message || "inconnue"));
       wcBtn.disabled = false;
