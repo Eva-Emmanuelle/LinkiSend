@@ -411,8 +411,12 @@ window.addEventListener('wc:ready', async () => {
       metadata: {
         name: "LinkiSend",
         description: "Envoyer des cryptos via lien sécurisé",
-        url: "https://linkisend.io",
-        icons: ["https://linkisend.io/static/assets/icons/icon-maskable-512.png"],
+        url: "https://app.linkisend.io",
+icons: ["https://app.linkisend.io/static/assets/icons/icon-maskable-512.png"],
+redirect: {
+  native: "linkisend://",
+  universal: "https://app.linkisend.io"
+}
       },
     });
     window.LinkiSend = window.LinkiSend || {};
