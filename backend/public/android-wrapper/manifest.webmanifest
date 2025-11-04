@@ -1,0 +1,18 @@
+{
+  "name": "LinkiSend",
+  "short_name": "LinkiSend",
+  "start_url": "https://app.linkisend.io",
+  "scope": "https://app.linkisend.io/",
+  "display": "standalone",
+  "background_color": "#4F46E5",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://app.linkisend.io/static/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}
