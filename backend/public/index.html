@@ -1296,7 +1296,7 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
     // Si on revient sur LinkiSend après Metamask
     console.log("↩️ Retour dans LinkiSend, vérification WalletConnect...");
-    if (wcReady) {
+    if (window.wcReady) {
       document.getElementById("wallet-loading").style.display = "none";
       console.log("✅ Wallet déjà connecté, retour automatique OK");
     } else {
