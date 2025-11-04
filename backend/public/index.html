@@ -499,20 +499,19 @@ if (uri) {
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
 
   // Lien MetaMask universel direct (sans passer par walletconnect.com)
-  const mmLink = `https://metamask.app.link/wc?uri=${encoded}`;
+  const mmLink   = `https://metamask.app.link/wc?uri=${encoded}`;
+const mmIntent = `intent://wc?uri=${encoded}#Intent;package=io.metamask;scheme=metamask;end`;
 
   // Fallback WalletConnect universel (pour TrustWallet, Rainbow, etc.)
   const wcLink = `https://walletconnect.com/wc?uri=${encoded}`;
 
   // Ouverture selon le contexte
   try {
-    if (isAndroid || isMetaMask) {
-      // Ouvre directement MetaMask Mobile
-      window.location.href = mmLink;
-    } else {
-      // Pour tout autre wallet mobile compatible
-      window.location.href = wcLink;
-    }
+    if (isAndroid) {
+  window.location.href = mmIntent;   // ouvre MetaMask direct, sans “ouvrir avec”
+} else {
+  window.location.href = mmLink;     // iOS / autres → lien universel MetaMask
+}
   } catch (err) {
     console.warn("Erreur ouverture Wallet:", err);
     window.location.href = wcLink;
