@@ -1,0 +1,12 @@
+{
+  "siteUrl": "https://app.linkisend.io",
+  "name": "LinkiSend",
+  "themeColor": "#4F46E5",
+  "backgroundColor": "#4F46E5",
+  "display": "standalone",
+  "startUrl": "https://app.linkisend.io",
+  "scope": "https://app.linkisend.io/",
+  "manifestUrl": "https://app.linkisend.io/manifest.webmanifest",
+  "customProtocol": "linkisend",
+  "packageId": "io.linkisend.app"
+}
