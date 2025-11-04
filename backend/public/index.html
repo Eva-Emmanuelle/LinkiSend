@@ -489,7 +489,7 @@ if (!signClient) {
 
       if (uri) {
         // Deep-link WalletConnect → ouverture du wallet mobile
-        window.open(`wc:${uri}`, "_blank");
+        window.location.href = `wc:${uri}&redirectUrl=https%3A%2F%2Fapp.linkisend.io`;
       }
 
       // 3️⃣ Attente approbation utilisateur
