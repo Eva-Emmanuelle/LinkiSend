@@ -609,7 +609,6 @@ const mmIntent = `intent://wc?uri=${encoded}#Intent;package=io.metamask;scheme=m
     // approval() peut lancer une erreur si l'utilisateur annule : le poller gère le fallback.
     console.warn("approval() erreur ou annulé :", err);
   }
-}
  } catch (err) {
       console.error("Erreur connexion WC:", err);
       alert("Erreur WalletConnect : " + (err.message || "inconnue"));
