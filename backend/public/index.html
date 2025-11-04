@@ -599,6 +599,7 @@ if (uri) {
     console.warn("approval() erreur ou annulé :", err);
   }
 }
+ } catch (err) {
       console.error("Erreur connexion WC:", err);
       alert("Erreur WalletConnect : " + (err.message || "inconnue"));
       wcBtn.disabled = false;
